@@ -1,0 +1,69 @@
+<?php include './generic_clases_mapa.php'; ?>
+
+<!-- css styles de cada mapa, departamento -->
+<style type="text/css">
+	.st0{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st1{font-family:'MyriadPro-Regular';}
+	.st2{font-size:18.0467px;}
+	.st3{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st4{font-size:11.5703px;}
+	.st5{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st6{font-size:16.3926px;}
+	.st7{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st8{font-size:16.2251px;}
+	.st9{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st10{font-size:13.9751px;}
+	.st11{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st12{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st13{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st14{font-size:10.4622px;}
+	.st15{font-size:13.343px;}
+	.st16{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st17{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st18{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st19{font-size:14.4156px;}
+	.st20{font-size:13.0591px;}
+	.st21{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st22{font-size:14px;}
+	.st23{font-size:15.8264px;}
+	.st24{font-size:14.2237px;}
+	.st25{font-size:10.9756px;}
+	.st26{fill:#9b9b9b;}
+	.st27{font-size:8.2333px;}
+	.st28{font-size:14.5107px;}
+	.st29{font-size:11px;}
+	.st30{font-size:16.2735px;}
+	.st31{font-size:13.9052px;}
+	.st32{font-size:12.9178px;}
+	.st33{font-size:12.7413px;}
+	.st34{font-size:13px;}
+	.st35{font-size:15.2125px;}
+	.st36{font-size:13.8295px;}
+	.st37{font-size:14.7187px;}
+	.st38{font-size:12px;}
+	.st39{font-size:10.7043px;}
+	.st40{fill:#9b9b9b;}
+	.st41{font-size:12.9214px;}
+	.st42{font-size:10px;}
+	.st43{font-size:12.7884px;}
+	.st44{font-size:13.8955px;}
+	.st45{font-size:9.821px;}
+	.st46{font-size:9.2533px;}
+	.st47{font-size:14.503px;}
+	.st48{font-size:9.0352px;}
+	.st49{fill:#9b9b9b;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st50{font-size:8.6352px;}
+	.st51{font-size:9.2202px;}
+	.st52{font-size:10.1583px;}
+	.st53{font-size:13.7292px;}
+	.st54{font-size:10.1003px;}
+	.st55{font-size:12.2764px;}
+	.st56{font-size:13.676px;}
+	.st57{font-size:12.7552px;}
+	.st58{font-size:10.2377px;}
+	.st59{font-size:15.5411px;}
+	.st60{font-size:12.5625px;}
+	.st61{font-size:13.0574px;}
+</style>
+
+<?php include './generic_municipios_svg_render.php'; ?>

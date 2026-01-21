@@ -1,0 +1,11 @@
+CREATE TABLE tbl_respuestas_sondeos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tbl_sondeo_id INT NOT NULL,
+    tbl_pregunta_id INT NULL,
+    tbl_votante_id INT NULL,
+    tbl_candidato_id INT DEFAULT NULL,
+    tbl_respuesta_texto VARCHAR(255) DEFAULT NULL,
+    dtcreate DATETIME NOT NULL,
+
+    UNIQUE KEY unico_voto (tbl_votante_id, tbl_sondeo_id, tbl_pregunta_id)
+) ENGINE=InnoDB;
