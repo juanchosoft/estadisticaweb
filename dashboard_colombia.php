@@ -36,6 +36,9 @@ $logo = $config[0]['logo'] ?? '';
 $nombreUsuario = $_SESSION['session_user']['nombre_completo'] ?? $_SESSION['session_user']['usuario'] ?? 'Usuario';
 $partes = explode(' ', $nombreUsuario);
 $primerNombre = $partes[0] ?? 'Usuario';
+
+// Información de la opción activa web
+$opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -356,6 +359,7 @@ $primerNombre = $partes[0] ?? 'Usuario';
                     Hola <?php echo htmlspecialchars($primerNombre); ?>
                   </h3>
                   <p class="block-sub mb-0">Tu punto de votación registrado</p>
+                  <input type="text" id="opcionActivaWeb" value="<?php echo htmlspecialchars($opcionActivaWeb); ?>">
                 </div>
                 <div class="block-body text-center">
                   <div class="icon">

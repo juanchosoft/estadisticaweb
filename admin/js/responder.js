@@ -117,6 +117,23 @@ document.addEventListener("DOMContentLoaded", function () {
         // Evitar clic en departamentos grises (neutros)
         if (rgb === COLOR_NEUTRO || rgb === COLOR_NEUTRO_ALT) return;
 
+        // Verificar si hay una opción activa configurada
+        const opcionActivaInput = document.getElementById("opcionActivaWeb");
+        const opcionActiva = opcionActivaInput ? opcionActivaInput.value : "";
+
+        // Si hay opción activa, ir directamente a la página correspondiente
+        if (opcionActiva === "sondeo") {
+          window.location.href = "sondeo.php";
+          return;
+        } else if (opcionActiva === "estudio") {
+          window.location.href = "grilla.php";
+          return;
+        } else if (opcionActiva === "cuestionario") {
+          window.location.href = "encuesta.php";
+          return;
+        }
+
+        // Si no hay opción activa, mostrar el modal
         const modalEl = document.getElementById("alertModal");
         if (!modalEl) return;
 

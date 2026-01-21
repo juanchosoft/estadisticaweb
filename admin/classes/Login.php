@@ -109,6 +109,12 @@ class Login
                     $user['departamento_nombre'] = "Departamento no identificado";
                 }
 
+
+                //Informacion de la consiguracion ACTIVA
+                $qConfiguracion = "SELECT opcion_activa_web FROM " . $db->getTable('tbl_configuracion') . " ORDER BY id DESC LIMIT 1";
+                $result = Util::sb_db_get($qConfiguracion);
+                $user['opcion_activa_web'] = $result['opcion_activa_web'];
+
                 // Obtener el hash de la contraseña almacenado
                 $qPass = "SELECT password FROM " . $db->getTable('tbl_votantes') . " WHERE id = :id LIMIT 1";
                 $resultPass = $pdo->prepare($qPass);
