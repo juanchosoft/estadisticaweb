@@ -353,7 +353,7 @@ $opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
                     Hola <?php echo htmlspecialchars($primerNombre); ?>
                   </h3>
                   <p class="block-sub mb-0">Tu punto de votación registrado</p>
-                  <input type="text" id="opcionActivaWeb" value="<?php echo htmlspecialchars($opcionActivaWeb); ?>">
+                  <input type="hidden" id="opcionActivaWeb" value="<?php echo htmlspecialchars($opcionActivaWeb); ?>">
                 </div>
                 <div class="block-body text-center">
                   <div class="icon">
