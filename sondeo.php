@@ -355,9 +355,9 @@ function h($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
             <span class="pill"><i class="fas fa-filter"></i> Filtra por alcance</span>
           </div>
 
-          <h2 class="hero-title fw-bold mb-1">Sondeos disponibles para ti</h2>
+          <h2 class="hero-title fw-bold mb-1">Preguntas disponibles para ti</h2>
           <p class="hero-sub mb-0">
-            Abre un sondeo, selecciona tu opción y confirma. Los sondeos ya votados quedan marcados y bloqueados.
+            Abre un sondeo, selecciona tu opción y confirma. Las  ya votados quedan marcados y bloqueados.
           </p>
         </div>
 
@@ -419,93 +419,94 @@ function h($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
     <!-- LISTADOS -->
     <div class="sondeo-grid">
 
-      <!-- DISPONIBLES -->
-      <div id="panelDisponibles">
-        <?php if ($totalDisponibles > 0): ?>
-          <div class="row g-3 justify-content-center" id="sondeosDisponiblesContainer">
-            <?php foreach ($sondeosDisponibles as $item):
-              $sondeoId = h($item['id'] ?? '');
-              $preguntaId = h($item['id_pregunta'] ?? '');
-              $sondeoName = h($item['sondeo'] ?? 'Sondeo');
-              $descripcion = h($item['descripcion_sondeo'] ?? '');
-              $alcance = h($item['alcance'] ?? 'General');
+     <!-- DISPONIBLES -->
+<div id="panelDisponibles">
+  <?php if ($totalDisponibles > 0): ?>
+    <div class="row g-3 g-lg-4 justify-content-center" id="sondeosDisponiblesContainer">
+      <?php foreach ($sondeosDisponibles as $item):
+        $sondeoId = h($item['id'] ?? '');
+        $preguntaId = h($item['id_pregunta'] ?? '');
+        $sondeoName = h($item['sondeo'] ?? 'Sondeo');
+        $descripcion = h($item['descripcion_sondeo'] ?? '');
+        $alcance = h($item['alcance'] ?? 'General');
 
-              // ✅ pregunta humana (si existe en BD)
-              $preguntaTxt = $item['pregunta'] ?? $item['pregunta_sondeo'] ?? $item['descripcion_sondeo'] ?? '';
-              $preguntaTxt = trim((string)$preguntaTxt);
-              if ($preguntaTxt === '') $preguntaTxt = 'Selecciona tu opción y confirma tu voto.';
+        $preguntaTxt = $item['pregunta'] ?? $item['pregunta_sondeo'] ?? $item['descripcion_sondeo'] ?? '';
+        $preguntaTxt = trim((string)$preguntaTxt);
+        if ($preguntaTxt === '') $preguntaTxt = 'Selecciona tu opción y confirma tu voto.';
 
-              $tipoSondeo = $item['tipo'] ?? 'candidatos';
-              $tipoSondeoOriginal = $item['tipo_sondeo'] ?? '';
+        $tipoSondeo = $item['tipo'] ?? 'candidatos';
+        $tipoSondeoOriginal = $item['tipo_sondeo'] ?? '';
 
-              $candidatos = $item['candidatos'] ?? [];
-              $opciones   = $item['opciones'] ?? [];
+        $candidatos = $item['candidatos'] ?? [];
+        $opciones   = $item['opciones'] ?? [];
 
-              // ✅ CRÍTICO: escapar JSON para data-attributes (si no, se rompe y no funciona "Votar")
-              $candidatosJson = h(json_encode($candidatos, JSON_UNESCAPED_UNICODE));
-              $opcionesJson   = h(json_encode($opciones, JSON_UNESCAPED_UNICODE));
+        $candidatosJson = h(json_encode($candidatos, JSON_UNESCAPED_UNICODE));
+        $opcionesJson   = h(json_encode($opciones, JSON_UNESCAPED_UNICODE));
 
-              $dataText = strtolower(($sondeoName.' '.$descripcion.' '.$tipoSondeo.' '.$alcance));
-            ?>
-              <div class="col-md-6 col-lg-4 sondeo-item"
-                   data-text="<?= h($dataText) ?>"
-                   data-alcance="<?= $alcance ?>"
-                   data-panel="disponibles">
-                <div class="sondeo-card p-4 cursor-pointer js-open-sondeo"
-                     role="button" tabindex="0"
-                     data-sondeo-id="<?= $sondeoId ?>"
-                     data-pregunta-id="<?= $preguntaId ?>"
-                     data-sondeo-name="<?= $sondeoName ?>"
-                     data-pregunta="<?= h($preguntaTxt) ?>"
-                     data-tipo-sondeo="<?= h($tipoSondeo) ?>"
-                     data-tipo-sondeo-original="<?= h($tipoSondeoOriginal) ?>"
-                     data-contestado="false"
-                     data-alcance="<?= $alcance ?>"
-                     data-candidatos="<?= $candidatosJson ?>"
-                     data-opciones="<?= $opcionesJson ?>">
-                  <div class="d-flex gap-3 align-items-start">
-                    <div class="icon-bubble">
-                      <?php if ($tipoSondeo === 'si_no'): ?>
-                        <i class="fas fa-question-circle fa-lg"></i>
-                      <?php else: ?>
-                        <i class="fas fa-vote-yea fa-lg"></i>
-                      <?php endif; ?>
-                    </div>
+        $dataText = strtolower(($sondeoName.' '.$descripcion.' '.$tipoSondeo.' '.$alcance));
+      ?>
+        <div class="col-12 col-md-6 col-lg-6 col-xl-6 sondeo-item"
+             data-text="<?= h($dataText) ?>"
+             data-alcance="<?= $alcance ?>"
+             data-panel="disponibles">
+          <div class="sondeo-card p-3 p-lg-4 cursor-pointer js-open-sondeo"
+               role="button" tabindex="0"
+               data-sondeo-id="<?= $sondeoId ?>"
+               data-pregunta-id="<?= $preguntaId ?>"
+               data-sondeo-name="<?= $sondeoName ?>"
+               data-pregunta="<?= h($preguntaTxt) ?>"
+               data-tipo-sondeo="<?= h($tipoSondeo) ?>"
+               data-tipo-sondeo-original="<?= h($tipoSondeoOriginal) ?>"
+               data-contestado="false"
+               data-alcance="<?= $alcance ?>"
+               data-candidatos="<?= $candidatosJson ?>"
+               data-opciones="<?= $opcionesJson ?>">
 
-                    <div class="flex-grow-1">
-                      <div class="d-flex align-items-center justify-content-between gap-2">
-                        <h5 class="mb-1 fw-bold line-clamp-2"><?= $sondeoName ?></h5>
-                        <span class="cta-mini"><i class="fas fa-play"></i> Votar</span>
-                      </div>
+            <div class="d-flex gap-3 align-items-start">
+              <div class="icon-bubble">
+                <?php if ($tipoSondeo === 'si_no'): ?>
+                  <i class="fas fa-question-circle fa-lg"></i>
+                <?php else: ?>
+                  <i class="fas fa-vote-yea fa-lg"></i>
+                <?php endif; ?>
+              </div>
 
-                      <?php if (!empty($descripcion)): ?>
-                        <div class="meta line-clamp-2"><?= $descripcion ?></div>
-                      <?php else: ?>
-                        <div class="meta">Sondeo activo para participación.</div>
-                      <?php endif; ?>
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <h5 class="mb-1 fw-bold line-clamp-2"><?= $sondeoName ?></h5>
+                  <span class="cta-mini"><i class="fas fa-play"></i> Votar</span>
+                </div>
 
-                      <div class="d-flex flex-wrap gap-2 mt-3">
-                        <span class="badge bg-light text-dark border">
-                          <?= ($tipoSondeo === 'si_no') ? 'Opción rápida' : 'Candidatos' ?>
-                        </span>
-                        <span class="badge bg-light text-dark border">
-                          <i class="fas fa-globe-americas me-1"></i><?= $alcance ?>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                <?php if (!empty($descripcion)): ?>
+                  <div class="meta line-clamp-2"><?= $descripcion ?></div>
+                <?php else: ?>
+                  <div class="meta">Sondeo activo para participación.</div>
+                <?php endif; ?>
+
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                  <span class="badge bg-light text-dark border">
+                    <?= ($tipoSondeo === 'si_no') ? 'Opción rápida' : 'Candidatos' ?>
+                  </span>
+                  <span class="badge bg-light text-dark border">
+                    <i class="fas fa-globe-americas me-1"></i><?= $alcance ?>
+                  </span>
                 </div>
               </div>
-            <?php endforeach; ?>
+            </div>
+
           </div>
-        <?php else: ?>
-          <div class="empty-state text-center mt-4">
-            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-            <h4 class="mb-1">Por ahora no hay sondeos disponibles</h4>
-            <p class="text-muted mb-0">Vuelve más tarde para participar.</p>
-          </div>
-        <?php endif; ?>
-      </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  <?php else: ?>
+    <div class="empty-state text-center mt-4">
+      <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+      <h4 class="mb-1">Por ahora no hay preguntas disponibles</h4>
+      <p class="text-muted mb-0">Vuelve más tarde para participar.</p>
+    </div>
+  <?php endif; ?>
+</div>
+
 
       <!-- VOTADOS -->
       <div id="panelVotados" class="d-none">
