@@ -50,6 +50,21 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!color) return false;
         if (color.includes(colorNeutro)) return false;
 
+        const opcionActiva = $('#opcionActivaWeb').val();
+
+        // Si hay una opción activa, ir directamente a la página correspondiente
+        if (opcionActiva === 'sondeo') {
+            window.location.href = "sondeo.php";
+            return false;
+        } else if (opcionActiva === 'estudio') {
+            window.location.href = "grilla.php";
+            return false;
+        } else if (opcionActiva === 'cuestionario') {
+            window.location.href = "encuesta.php";
+            return false;
+        }
+
+        // Si no hay opción activa, mostrar el modal con todas las opciones
         Swal.fire({
             html: `
                 <div style="padding:30px 25px; text-align:center;">

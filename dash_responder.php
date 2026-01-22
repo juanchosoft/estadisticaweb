@@ -12,6 +12,10 @@ require './admin/include/generic_classes.php';
 $nombreUsuario = $_SESSION['session_user']['nombre_completo'] ?? $_SESSION['session_user']['usuario'] ?? 'Usuario';
 $partes = explode(' ', trim($nombreUsuario));
 $primerNombre = $partes[0] ?? 'Usuario';
+
+// Información de la opción activa web
+$config = Util::getInformacionConfiguracion();
+$opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -342,6 +346,8 @@ $primerNombre = $partes[0] ?? 'Usuario';
 
 <body>
 
+<input type="hidden" id="opcionActivaWeb" value="<?php echo htmlspecialchars($opcionActivaWeb); ?>">
+
 <!-- Spinner -->
 <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
   <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -560,6 +566,23 @@ function normalizeMapaSvg(){
 
 // Abre modal pendientes si existe (o fallback a alert)
 function tryOpenPendientesModal(){
+  // Verificar si hay una opción activa configurada
+  const opcionActivaInput = document.getElementById('opcionActivaWeb');
+  const opcionActiva = opcionActivaInput ? opcionActivaInput.value : '';
+
+  // Si hay opción activa, ir directamente a la página correspondiente
+  if (opcionActiva === 'sondeo') {
+    window.location.href = 'sondeo.php';
+    return;
+  } else if (opcionActiva === 'estudio') {
+    window.location.href = 'grilla.php';
+    return;
+  } else if (opcionActiva === 'cuestionario') {
+    window.location.href = 'encuesta.php';
+    return;
+  }
+
+  // Si no hay opción activa, mostrar el modal
   const el = document.getElementById('alertModal');
   if(!el){
     Swal.fire({ icon:'info', title:'Pendientes', text:'No se encontró el modal de pendientes.' });
