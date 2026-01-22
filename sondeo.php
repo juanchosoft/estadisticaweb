@@ -2,20 +2,19 @@
 require './admin/include/generic_classes.php';
 include './admin/classes/Sondeo.php';
 
-// Información de Sondeos - usar el nuevo método filtrado
+// Info usuario / sondeos
 $depUsuario = $_SESSION['session_user']['codigo_departamento'] ?? null;
 
 $arr = Sondeo::getSondeosFiltrados(null);
 $isvalidSondeo = $arr['output']['valid'];
 $arr = $arr['output']['response'];
 
-// Obtener sondeos ya votados por el usuario
+// Sondeos ya votados por el usuario
 $sondeosVotados = [];
 if (SessionData::getUserId()) {
   $sondeosVotados = Sondeo::getSondeosVotadosPorUsuario(SessionData::getUserId());
 }
 
-// Función para determinar el alcance del sondeo
 function determinarAlcanceSondeo($sondeo) {
   $aplicaCargos = strtolower($sondeo['aplica_cargos_publicos'] ?? '');
   if ($aplicaCargos === 'no') return 'General';
@@ -28,28 +27,26 @@ function determinarAlcanceSondeo($sondeo) {
   return 'Municipal';
 }
 
-// Separar sondeos en disponibles y votados
+// Separar sondeos
 $sondeosDisponibles = [];
 $sondeosYaVotados = [];
 
 foreach ($arr as &$item) {
   $sondeoId = $item['id'] ?? '';
 
-  // Determinar tipo de sondeo
+  // Tipo
   $aplicaCargos = strtolower($item['aplica_cargos_publicos'] ?? '');
-  if ($aplicaCargos === 'si') {
-    $item['tipo'] = 'candidatos';
-  } elseif ($aplicaCargos === 'no') {
-    $item['tipo'] = 'si_no';
-  } else {
+  if ($aplicaCargos === 'si') $item['tipo'] = 'candidatos';
+  elseif ($aplicaCargos === 'no') $item['tipo'] = 'si_no';
+  else {
     $tipoDB = strtolower($item['tipo_sondeo'] ?? '');
     $item['tipo'] = ($tipoDB === 'si/no') ? 'si_no' : 'candidatos';
   }
 
-  // Determinar alcance
+  // Alcance
   $item['alcance'] = determinarAlcanceSondeo($item);
 
-  // Marcar si el sondeo ya fue votado
+  // Votado?
   $yaVotado = in_array($sondeoId, $sondeosVotados);
   $item['contestado'] = $yaVotado;
 
@@ -58,10 +55,12 @@ foreach ($arr as &$item) {
 }
 unset($item);
 
-// stats UI
+// Stats
 $totalDisponibles = count($sondeosDisponibles);
 $totalVotados     = count($sondeosYaVotados);
 $totalTodos       = $totalDisponibles + $totalVotados;
+
+function h($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 ?>
 
 <!DOCTYPE html>
@@ -70,7 +69,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
 
 <style>
   :root{
-    --brand: #13357b;   /* navbar color */
+    --brand: #13357b;
     --brand-2:#0b1a89;
     --ink:#0f172a;
     --muted:#64748b;
@@ -85,6 +84,8 @@ $totalTodos       = $totalDisponibles + $totalVotados;
   }
 
   body{ background: var(--bg); }
+
+  .cursor-pointer{ cursor:pointer; }
 
   .sondeo-hero{
     border-radius: var(--r-xl);
@@ -108,7 +109,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     font-family: "Jost", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     letter-spacing:.2px;
   }
-  .hero-sub{ color: rgba(255,255,255,.82); }
+  .hero-sub{ color: rgba(255,255,255,.85); }
 
   .pill{
     display:inline-flex; align-items:center; gap:.5rem;
@@ -121,9 +122,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     backdrop-filter: blur(8px);
   }
 
-  .toolbar{
-    margin-top:-26px;
-  }
+  .toolbar{ margin-top:-26px; }
   .toolbar-card{
     background: var(--card);
     border: 1px solid var(--line);
@@ -140,18 +139,22 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     transform: translateY(-50%);
     color: var(--muted);
   }
+
   .segmented{
     background: #f1f5ff;
     border: 1px solid rgba(19,53,123,.15);
     border-radius: 999px;
     padding: .3rem;
     display:flex; gap:.35rem;
+    width: 100%;
+    max-width: 520px;
   }
   .segmented .btn{
     border-radius: 999px !important;
     border: 0 !important;
-    padding: .45rem .9rem;
-    font-weight: 700;
+    padding: .5rem .9rem;
+    font-weight: 800;
+    flex: 1 1 auto;
   }
   .segmented .btn.active{
     background: var(--brand);
@@ -167,7 +170,8 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     background:#fff;
     color: var(--ink);
     font-size:.82rem;
-    font-weight: 700;
+    font-weight: 800;
+    user-select:none;
   }
   .chip .dot{
     width:10px; height:10px; border-radius:999px;
@@ -225,7 +229,8 @@ $totalTodos       = $totalDisponibles + $totalVotados;
   }
   .meta{
     color: var(--muted);
-    font-size: .86rem;
+    font-size: .88rem;
+    font-weight: 700;
   }
   .cta-mini{
     display:inline-flex;
@@ -236,7 +241,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     border: 1px solid rgba(19,53,123,.22);
     color: var(--brand);
     background:#fff;
-    font-weight: 800;
+    font-weight: 900;
     font-size:.82rem;
   }
 
@@ -264,22 +269,20 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     color:#fff;
     border:0;
     border-radius: 12px;
-    font-weight: 800;
+    font-weight: 900;
     padding: .6rem 1rem;
   }
-  .btn-brand:disabled{
-    opacity:.65;
-  }
+  .btn-brand:disabled{ opacity:.65; }
   .btn-soft{
     background:#f1f5ff;
     border: 1px solid rgba(19,53,123,.18);
     color: var(--brand);
     border-radius: 12px;
-    font-weight: 800;
+    font-weight: 900;
     padding: .6rem 1rem;
   }
 
-  /* Tabla candidatos */
+  /* Candidatos - móvil friendly */
   .table thead th{
     white-space: nowrap;
     font-size:.85rem;
@@ -290,9 +293,41 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     object-fit: cover;
     border: 2px solid rgba(19,53,123,.18);
   }
+  .cand-name{ font-weight: 900; color: var(--ink); }
+  .cand-meta{ font-size:.84rem; color: var(--muted); font-weight: 700; }
+
+  /* Opciones */
+  .opt-card{
+    border: 1px solid rgba(15,23,42,.10);
+    border-radius: 14px;
+    padding: 12px 12px;
+    background: #fff;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    cursor:pointer;
+    transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
+  }
+  .opt-card:hover{
+    transform: translateY(-1px);
+    border-color: rgba(19,53,123,.22);
+    box-shadow: 0 12px 22px rgba(2,6,23,.06);
+  }
+  .opt-card.active{
+    border-color: rgba(19,53,123,.45);
+    box-shadow: 0 16px 28px rgba(19,53,123,.12);
+    background: rgba(19,53,123,.03);
+  }
+  .opt-title{ font-weight: 900; color: var(--ink); margin:0; }
+  .opt-sub{ margin:.15rem 0 0; font-weight: 700; color: var(--muted); font-size:.88rem; }
 
   @media (max-width: 991px){
     .toolbar{ margin-top: 14px; }
+  }
+  @media (max-width: 575px){
+    .sondeo-hero{ padding: 16px !important; }
+    .toolbar-card{ padding: 14px !important; }
+    .segmented{ max-width: 100%; }
   }
 </style>
 
@@ -315,27 +350,28 @@ $totalTodos       = $totalDisponibles + $totalVotados;
       <div class="d-flex flex-column flex-lg-row gap-4 align-items-start align-items-lg-center justify-content-between position-relative" style="z-index:1;">
         <div class="flex-grow-1">
           <div class="d-flex flex-wrap gap-2 mb-3">
-            <span class="pill"><i class="fas fa-hand-point-up"></i> Vota en segundos</span>
-            <span class="pill"><i class="fas fa-shield-alt"></i> Respuesta registrada</span>
+            <span class="pill"><i class="fas fa-hand-point-up"></i> Participa en segundos</span>
+            <span class="pill"><i class="fas fa-shield-alt"></i> Voto confirmado</span>
             <span class="pill"><i class="fas fa-filter"></i> Filtra por alcance</span>
           </div>
-          <h2 class="hero-title fw-bold mb-1">Sondeos activos</h2>
+
+          <h2 class="hero-title fw-bold mb-1">Sondeos disponibles para ti</h2>
           <p class="hero-sub mb-0">
-            Selecciona un sondeo disponible y confirma tu voto. Los sondeos ya votados quedan bloqueados.
+            Abre un sondeo, selecciona tu opción y confirma. Los sondeos ya votados quedan marcados y bloqueados.
           </p>
         </div>
 
         <div class="d-flex gap-3">
           <div class="text-center">
-            <div class="fw-bold" style="font-size: 1.6rem; line-height:1;"><?= (int)$totalDisponibles ?></div>
+            <div class="fw-bold" style="font-size: 1.6rem; line-height:1;" id="statDisponibles"><?= (int)$totalDisponibles ?></div>
             <div class="hero-sub" style="font-size:.9rem;">Disponibles</div>
           </div>
           <div class="text-center">
-            <div class="fw-bold" style="font-size: 1.6rem; line-height:1;"><?= (int)$totalVotados ?></div>
+            <div class="fw-bold" style="font-size: 1.6rem; line-height:1;" id="statVotados"><?= (int)$totalVotados ?></div>
             <div class="hero-sub" style="font-size:.9rem;">Votados</div>
           </div>
           <div class="text-center">
-            <div class="fw-bold" style="font-size: 1.6rem; line-height:1;"><?= (int)$totalTodos ?></div>
+            <div class="fw-bold" style="font-size: 1.6rem; line-height:1;" id="statTotal"><?= (int)$totalTodos ?></div>
             <div class="hero-sub" style="font-size:.9rem;">Total</div>
           </div>
         </div>
@@ -350,10 +386,10 @@ $totalTodos       = $totalDisponibles + $totalVotados;
             <div class="position-relative">
               <i class="fas fa-search search-icon"></i>
               <input type="text" id="sondeoSearch" class="form-control search-input"
-                     placeholder="Buscar sondeo por nombre, descripción o tipo...">
+                     placeholder="Busca por nombre o descripción…">
             </div>
             <div class="mt-2 d-flex flex-wrap gap-2">
-              <span class="chip" data-alcance="all"><span class="dot"></span>Todos</span>
+              <span class="chip border-primary" data-alcance="all"><span class="dot"></span>Todos</span>
               <span class="chip" data-alcance="Nacional"><span class="dot nacional"></span>Nacional</span>
               <span class="chip" data-alcance="Departamental"><span class="dot departamental"></span>Departamental</span>
               <span class="chip" data-alcance="Municipal"><span class="dot municipal"></span>Municipal</span>
@@ -373,8 +409,8 @@ $totalTodos       = $totalDisponibles + $totalVotados;
           </div>
 
           <div class="col-lg-3 text-lg-end">
-            <div class="small text-muted fw-bold">Tip:</div>
-            <div class="small">Toca una tarjeta para abrir el modal y confirmar.</div>
+            <div class="small text-muted fw-bold">Tip rápido</div>
+            <div class="small">Toca una tarjeta para abrir y confirmar tu voto ✅</div>
           </div>
         </div>
       </div>
@@ -388,33 +424,45 @@ $totalTodos       = $totalDisponibles + $totalVotados;
         <?php if ($totalDisponibles > 0): ?>
           <div class="row g-3 justify-content-center" id="sondeosDisponiblesContainer">
             <?php foreach ($sondeosDisponibles as $item):
-              $sondeoId = htmlspecialchars($item['id'] ?? '');
-              $preguntaId = htmlspecialchars($item['id_pregunta'] ?? '');
-              $sondeoName = htmlspecialchars($item['sondeo'] ?? '');
-              $descripcion = htmlspecialchars($item['descripcion_sondeo'] ?? '');
-              $candidatos = $item['candidatos'] ?? [];
-              $opciones = $item['opciones'] ?? [];
-              $candidatosJson = json_encode($candidatos);
-              $opcionesJson = htmlspecialchars(json_encode($opciones), ENT_QUOTES, 'UTF-8');
+              $sondeoId = h($item['id'] ?? '');
+              $preguntaId = h($item['id_pregunta'] ?? '');
+              $sondeoName = h($item['sondeo'] ?? 'Sondeo');
+              $descripcion = h($item['descripcion_sondeo'] ?? '');
+              $alcance = h($item['alcance'] ?? 'General');
+
+              // ✅ pregunta humana (si existe en BD)
+              $preguntaTxt = $item['pregunta'] ?? $item['pregunta_sondeo'] ?? $item['descripcion_sondeo'] ?? '';
+              $preguntaTxt = trim((string)$preguntaTxt);
+              if ($preguntaTxt === '') $preguntaTxt = 'Selecciona tu opción y confirma tu voto.';
+
               $tipoSondeo = $item['tipo'] ?? 'candidatos';
               $tipoSondeoOriginal = $item['tipo_sondeo'] ?? '';
-              $alcance = $item['alcance'] ?? 'General';
-              $contestado = false;
+
+              $candidatos = $item['candidatos'] ?? [];
+              $opciones   = $item['opciones'] ?? [];
+
+              // ✅ CRÍTICO: escapar JSON para data-attributes (si no, se rompe y no funciona "Votar")
+              $candidatosJson = h(json_encode($candidatos, JSON_UNESCAPED_UNICODE));
+              $opcionesJson   = h(json_encode($opciones, JSON_UNESCAPED_UNICODE));
+
+              $dataText = strtolower(($sondeoName.' '.$descripcion.' '.$tipoSondeo.' '.$alcance));
             ?>
               <div class="col-md-6 col-lg-4 sondeo-item"
-                   data-text="<?= strtolower($sondeoName . ' ' . $descripcion . ' ' . $tipoSondeo . ' ' . $alcance) ?>"
-                   data-alcance="<?= htmlspecialchars($alcance) ?>"
+                   data-text="<?= h($dataText) ?>"
+                   data-alcance="<?= $alcance ?>"
                    data-panel="disponibles">
-                <div class="sondeo-card p-4 cursor-pointer"
+                <div class="sondeo-card p-4 cursor-pointer js-open-sondeo"
+                     role="button" tabindex="0"
                      data-sondeo-id="<?= $sondeoId ?>"
                      data-pregunta-id="<?= $preguntaId ?>"
                      data-sondeo-name="<?= $sondeoName ?>"
-                     data-tipo-sondeo="<?= $tipoSondeo ?>"
-                     data-tipo-sondeo-original="<?= $tipoSondeoOriginal ?>"
+                     data-pregunta="<?= h($preguntaTxt) ?>"
+                     data-tipo-sondeo="<?= h($tipoSondeo) ?>"
+                     data-tipo-sondeo-original="<?= h($tipoSondeoOriginal) ?>"
                      data-contestado="false"
-                     data-alcance="<?= htmlspecialchars($alcance) ?>"
-                     data-candidatos='<?= $candidatosJson ?>'
-                     data-opciones='<?= $opcionesJson ?>'>
+                     data-alcance="<?= $alcance ?>"
+                     data-candidatos="<?= $candidatosJson ?>"
+                     data-opciones="<?= $opcionesJson ?>">
                   <div class="d-flex gap-3 align-items-start">
                     <div class="icon-bubble">
                       <?php if ($tipoSondeo === 'si_no'): ?>
@@ -427,7 +475,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
                     <div class="flex-grow-1">
                       <div class="d-flex align-items-center justify-content-between gap-2">
                         <h5 class="mb-1 fw-bold line-clamp-2"><?= $sondeoName ?></h5>
-                        <span class="cta-mini"><i class="fas fa-play"></i>Votar</span>
+                        <span class="cta-mini"><i class="fas fa-play"></i> Votar</span>
                       </div>
 
                       <?php if (!empty($descripcion)): ?>
@@ -438,10 +486,10 @@ $totalTodos       = $totalDisponibles + $totalVotados;
 
                       <div class="d-flex flex-wrap gap-2 mt-3">
                         <span class="badge bg-light text-dark border">
-                          <?= ($tipoSondeo === 'si_no') ? 'Sondeo Sí/No' : 'Sondeo de candidatos' ?>
+                          <?= ($tipoSondeo === 'si_no') ? 'Opción rápida' : 'Candidatos' ?>
                         </span>
                         <span class="badge bg-light text-dark border">
-                          <i class="fas fa-globe-americas me-1"></i><?= htmlspecialchars($alcance) ?>
+                          <i class="fas fa-globe-americas me-1"></i><?= $alcance ?>
                         </span>
                       </div>
                     </div>
@@ -453,7 +501,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
         <?php else: ?>
           <div class="empty-state text-center mt-4">
             <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-            <h4 class="mb-1">No hay sondeos disponibles</h4>
+            <h4 class="mb-1">Por ahora no hay sondeos disponibles</h4>
             <p class="text-muted mb-0">Vuelve más tarde para participar.</p>
           </div>
         <?php endif; ?>
@@ -464,25 +512,16 @@ $totalTodos       = $totalDisponibles + $totalVotados;
         <?php if ($totalVotados > 0): ?>
           <div class="row g-3 justify-content-center" id="sondeosVotadosContainer">
             <?php foreach ($sondeosYaVotados as $item):
-              $sondeoId = htmlspecialchars($item['id'] ?? '');
-              $preguntaId = htmlspecialchars($item['id_pregunta'] ?? '');
-              $sondeoName = htmlspecialchars($item['sondeo'] ?? '');
-              $descripcion = htmlspecialchars($item['descripcion_sondeo'] ?? '');
-              $candidatos = $item['candidatos'] ?? [];
-              $opciones = $item['opciones'] ?? [];
-              $candidatosJson = json_encode($candidatos);
-              $opcionesJson = htmlspecialchars(json_encode($opciones), ENT_QUOTES, 'UTF-8');
+              $sondeoName = h($item['sondeo'] ?? 'Sondeo');
+              $descripcion = h($item['descripcion_sondeo'] ?? '');
+              $alcance = h($item['alcance'] ?? 'General');
               $tipoSondeo = $item['tipo'] ?? 'candidatos';
-              $tipoSondeoOriginal = $item['tipo_sondeo'] ?? '';
-              $alcance = $item['alcance'] ?? 'General';
             ?>
               <div class="col-md-6 col-lg-4 sondeo-item"
-                   data-text="<?= strtolower($sondeoName . ' ' . $descripcion . ' ' . $tipoSondeo . ' ' . $alcance) ?>"
-                   data-alcance="<?= htmlspecialchars($alcance) ?>"
+                   data-text="<?= h(strtolower(($sondeoName.' '.$descripcion.' '.$tipoSondeo.' '.$alcance))) ?>"
+                   data-alcance="<?= $alcance ?>"
                    data-panel="votados">
-                <div class="sondeo-card p-4 disabled" onclick="return false;"
-                     data-sondeo-id="<?= $sondeoId ?>"
-                     data-contestado="true">
+                <div class="sondeo-card p-4 disabled" onclick="return false;">
                   <div class="badge-top">
                     <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Votado</span>
                   </div>
@@ -507,14 +546,15 @@ $totalTodos       = $totalDisponibles + $totalVotados;
 
                       <div class="d-flex flex-wrap gap-2 mt-3">
                         <span class="badge bg-light text-muted border">
-                          <?= ($tipoSondeo === 'si_no') ? 'Sondeo Sí/No' : 'Sondeo de candidatos' ?>
+                          <?= ($tipoSondeo === 'si_no') ? 'Opción rápida' : 'Candidatos' ?>
                         </span>
                         <span class="badge bg-light text-muted border">
-                          <i class="fas fa-globe-americas me-1"></i><?= htmlspecialchars($alcance) ?>
+                          <i class="fas fa-globe-americas me-1"></i><?= $alcance ?>
                         </span>
                       </div>
                     </div>
                   </div>
+
                 </div>
               </div>
             <?php endforeach; ?>
@@ -522,8 +562,8 @@ $totalTodos       = $totalDisponibles + $totalVotados;
         <?php else: ?>
           <div class="empty-state text-center mt-4">
             <i class="fas fa-check-circle fa-4x text-muted mb-3"></i>
-            <h4 class="mb-1">Aún no has votado</h4>
-            <p class="text-muted mb-0">Cuando participes, aquí quedarán registrados.</p>
+            <h4 class="mb-1">Aún no has participado</h4>
+            <p class="text-muted mb-0">Cuando votes, aquí quedará el registro.</p>
           </div>
         <?php endif; ?>
       </div>
@@ -539,7 +579,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     <div class="modal-content">
       <div class="modal-header brand">
         <h5 class="modal-title text-white" id="voteModalTitle">
-          <i class="fas fa-hand-point-up me-2"></i> Selecciona tu candidato
+          <i class="fas fa-hand-point-up me-2"></i> Elige tu candidato
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -548,16 +588,21 @@ $totalTodos       = $totalDisponibles + $totalVotados;
         <div class="alert alert-primary d-flex align-items-start gap-2" role="alert">
           <i class="fas fa-info-circle mt-1"></i>
           <div>
-            <div class="fw-bold">Consejo</div>
-            <div class="small">Elige una opción y luego pulsa <b>Confirmar voto</b>.</div>
+            <div class="fw-bold">Así de fácil</div>
+            <div class="small">Selecciona un candidato y luego pulsa <b>Confirmar voto</b>.</div>
           </div>
+        </div>
+
+        <div class="mb-3">
+          <div class="fw-bold" style="color:#0f172a;">Pregunta</div>
+          <div class="text-muted fw-bold" id="modalPreguntaCandidatos" style="font-size:.95rem;"></div>
         </div>
 
         <div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead class="table-light">
               <tr>
-                <th class="text-center">Seleccionar</th>
+                <th class="text-center">Elegir</th>
                 <th>Foto</th>
                 <th>Candidato</th>
                 <th>Cargo</th>
@@ -583,13 +628,13 @@ $totalTodos       = $totalDisponibles + $totalVotados;
   </div>
 </div>
 
-<!-- MODAL OPCIONES (Sí/No u opciones personalizadas) -->
+<!-- MODAL OPCIONES -->
 <div class="modal fade" id="opcionesModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-md modal-dialog-centered">
+  <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header brand">
         <h5 class="modal-title text-white" id="opcionesModalTitle">
-          <i class="fas fa-list me-2"></i> Selecciona una opción
+          <i class="fas fa-list me-2"></i> Elige una opción
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -598,12 +643,16 @@ $totalTodos       = $totalDisponibles + $totalVotados;
         <div class="alert alert-primary d-flex align-items-start gap-2" role="alert">
           <i class="fas fa-shield-alt mt-1"></i>
           <div class="small">
-            Tu voto se registrará al confirmar. Si cambias de opinión, selecciona otra opción antes de confirmar.
+            Tu voto se registra únicamente cuando confirmas ✅
           </div>
         </div>
 
-        <h6 class="mb-3" id="opcionesQuestion"></h6>
-        <div id="opcionesContainer"></div>
+        <div class="mb-3">
+          <div class="fw-bold" style="color:#0f172a;">Pregunta</div>
+          <div class="text-muted fw-bold" id="opcionesQuestion" style="font-size:.98rem;"></div>
+        </div>
+
+        <div id="opcionesContainer" class="d-grid gap-2"></div>
       </div>
 
       <div class="modal-footer justify-content-center">
@@ -623,16 +672,6 @@ $totalTodos       = $totalDisponibles + $totalVotados;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script src="lib/easing/easing.min.js"></script>
-<script src="lib/waypoints/waypoints.min.js"></script>
-<script src="lib/owlcarousel/owl.carousel.min.js"></script>
-<script src="lib/lightbox/js/lightbox.min.js"></script>
-
-<script src="admin/js/lib/util.js"></script>
-<script src="js/main.js"></script>
-<script src="admin/js/sondeo_votacion.js"></script>
-<script src="admin/js/perfil.js"></script>
-
 <script>
   // Spinner off
   document.addEventListener('DOMContentLoaded', () => {
@@ -640,7 +679,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     if (sp) sp.classList.remove('show');
   });
 
-  // Tabs
+  // ======= FILTROS UI =======
   const tabDisp = document.getElementById('tabDisponibles');
   const tabVot = document.getElementById('tabVotados');
   const panelDisp = document.getElementById('panelDisponibles');
@@ -660,11 +699,9 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     }
     applyFilters();
   }
-
   tabDisp?.addEventListener('click', ()=> showPanel('disponibles'));
   tabVot?.addEventListener('click', ()=> showPanel('votados'));
 
-  // Chips alcance
   let alcanceFiltro = 'all';
   document.querySelectorAll('.chip').forEach(ch=>{
     ch.style.cursor = 'pointer';
@@ -676,7 +713,6 @@ $totalTodos       = $totalDisponibles + $totalVotados;
     });
   });
 
-  // Search
   const search = document.getElementById('sondeoSearch');
   search?.addEventListener('input', applyFilters);
 
@@ -694,8 +730,7 @@ $totalTodos       = $totalDisponibles + $totalVotados;
         item.classList.add('d-none');
         return;
       }
-
-      const text = item.getAttribute('data-text') || '';
+      const text = (item.getAttribute('data-text') || '').toLowerCase();
       const alc = item.getAttribute('data-alcance') || '';
 
       const matchText = !q || text.includes(q);
@@ -705,11 +740,263 @@ $totalTodos       = $totalDisponibles + $totalVotados;
       else item.classList.add('d-none');
     });
   }
-
-  // primera carga
   applyFilters();
+
+  // ======= VOTACIÓN (FUNCIONA CON CLICK) =======
+
+  const candidatoModalEl = document.getElementById('candidatoModal');
+  const opcionesModalEl  = document.getElementById('opcionesModal');
+  const candidatoModal = candidatoModalEl ? new bootstrap.Modal(candidatoModalEl) : null;
+  const opcionesModal  = opcionesModalEl ? new bootstrap.Modal(opcionesModalEl) : null;
+
+  const candidatosBody = document.getElementById('candidatosModalBody');
+  const submitVoteBtn  = document.getElementById('submitVoteBtn');
+  const submitOpcBtn   = document.getElementById('submitOpcionesVoteBtn');
+
+  const modalPreguntaCandidatos = document.getElementById('modalPreguntaCandidatos');
+  const opcionesQuestion = document.getElementById('opcionesQuestion');
+  const opcionesContainer = document.getElementById('opcionesContainer');
+
+  // ✅ AJUSTA ESTA URL si tu backend es otro
+  const VOTE_URL = 'admin/ajax/sondeo_votar_ajax.php';
+
+  let current = {
+    sondeoId: null,
+    preguntaId: null,
+    tipo: null,
+    opcionElegida: null
+  };
+
+  function safeJsonParse(str, fallback){
+    try { return JSON.parse(str || ''); } catch(e){ return fallback; }
+  }
+
+  function resetState(){
+    current = { sondeoId:null, preguntaId:null, tipo:null, opcionElegida:null };
+    if (submitVoteBtn) submitVoteBtn.disabled = true;
+    if (submitOpcBtn) submitOpcBtn.disabled = true;
+    if (candidatosBody) candidatosBody.innerHTML = '';
+    if (opcionesContainer) opcionesContainer.innerHTML = '';
+    if (modalPreguntaCandidatos) modalPreguntaCandidatos.textContent = '';
+    if (opcionesQuestion) opcionesQuestion.textContent = '';
+  }
+
+  function openSondeo(card){
+    if (!card || card.classList.contains('disabled')) return;
+
+    resetState();
+
+    const sondeoId = card.getAttribute('data-sondeo-id');
+    const preguntaId = card.getAttribute('data-pregunta-id');
+    const tipo = card.getAttribute('data-tipo-sondeo') || 'candidatos';
+    const sondeoName = card.getAttribute('data-sondeo-name') || 'Sondeo';
+    const preguntaTxt = card.getAttribute('data-pregunta') || 'Selecciona tu opción y confirma tu voto.';
+
+    current.sondeoId = sondeoId;
+    current.preguntaId = preguntaId;
+    current.tipo = tipo;
+
+    // Títulos
+    const title1 = document.getElementById('voteModalTitle');
+    const title2 = document.getElementById('opcionesModalTitle');
+    if (title1) title1.innerHTML = `<i class="fas fa-hand-point-up me-2"></i> ${sondeoName}`;
+    if (title2) title2.innerHTML = `<i class="fas fa-list me-2"></i> ${sondeoName}`;
+
+    // Mostrar pregunta
+    if (modalPreguntaCandidatos) modalPreguntaCandidatos.textContent = preguntaTxt;
+    if (opcionesQuestion) opcionesQuestion.textContent = preguntaTxt;
+
+    if (tipo === 'si_no') {
+      // Opciones
+      const opciones = safeJsonParse(card.getAttribute('data-opciones'), []);
+      const finalOps = (Array.isArray(opciones) && opciones.length)
+        ? opciones
+        : [{id:'SI', label:'Sí'}, {id:'NO', label:'No'}];
+
+      renderOpciones(finalOps);
+      opcionesModal?.show();
+    } else {
+      // Candidatos
+      const candidatos = safeJsonParse(card.getAttribute('data-candidatos'), []);
+      renderCandidatos(candidatos);
+      candidatoModal?.show();
+    }
+  }
+
+  function renderCandidatos(list){
+    if (!candidatosBody) return;
+
+    if (!Array.isArray(list) || list.length === 0) {
+      candidatosBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center py-4 text-muted fw-bold">
+            No hay candidatos disponibles en este sondeo.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    candidatosBody.innerHTML = list.map((c, idx) => {
+      const id = (c.id ?? c.id_candidato ?? idx);
+      const nombre = (c.candidato ?? c.nombre ?? c.nombre_candidato ?? 'Candidato');
+      const cargo = (c.cargo ?? c.nombre_cargo ?? '—');
+      const partido = (c.partido ?? c.partidos ?? '—');
+      const municipio = (c.municipio ?? c.nombre_municipio ?? '—');
+      const departamento = (c.departamento ?? c.nombre_departamento ?? '—');
+      const foto = (c.foto ?? c.imagen ?? c.url_foto ?? '');
+
+      const photoHtml = foto
+        ? `<img class="cand-photo" src="${foto}" alt="Foto">`
+        : `<div class="cand-photo d-grid place-items-center bg-light text-muted" style="font-weight:900;">?</div>`;
+
+      return `
+        <tr class="js-row-candidato" data-choice="${id}" style="cursor:pointer;">
+          <td class="text-center">
+            <input class="form-check-input js-cand-radio" type="radio" name="candidatoPick" value="${id}">
+          </td>
+          <td>${photoHtml}</td>
+          <td>
+            <div class="cand-name">${escapeHtml(nombre)}</div>
+          </td>
+          <td><span class="cand-meta">${escapeHtml(cargo)}</span></td>
+          <td><span class="cand-meta">${escapeHtml(partido)}</span></td>
+          <td><span class="cand-meta">${escapeHtml(municipio)}</span></td>
+          <td><span class="cand-meta">${escapeHtml(departamento)}</span></td>
+        </tr>
+      `;
+    }).join('');
+
+    // seleccionar fila
+    candidatosBody.querySelectorAll('.js-row-candidato').forEach(row=>{
+      row.addEventListener('click', ()=>{
+        const val = row.getAttribute('data-choice');
+        const radio = row.querySelector('.js-cand-radio');
+        if (radio) radio.checked = true;
+        current.opcionElegida = val;
+        if (submitVoteBtn) submitVoteBtn.disabled = false;
+      });
+    });
+
+    // seleccionar radio
+    candidatosBody.querySelectorAll('.js-cand-radio').forEach(r=>{
+      r.addEventListener('change', ()=>{
+        current.opcionElegida = r.value;
+        if (submitVoteBtn) submitVoteBtn.disabled = false;
+      });
+    });
+  }
+
+  function renderOpciones(list){
+    if (!opcionesContainer) return;
+
+    opcionesContainer.innerHTML = list.map((o, idx)=>{
+      const id = (o.id ?? o.value ?? idx);
+      const label = (o.label ?? o.nombre ?? o.texto ?? o.opcion ?? `Opción ${idx+1}`);
+      return `
+        <div class="opt-card js-opt" data-choice="${id}">
+          <input class="form-check-input mt-1 js-opt-radio" type="radio" name="opcionPick" value="${id}">
+          <div>
+            <p class="opt-title mb-0">${escapeHtml(label)}</p>
+            <p class="opt-sub">Selecciona esta opción para continuar</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    opcionesContainer.querySelectorAll('.js-opt').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        opcionesContainer.querySelectorAll('.opt-card').forEach(x=> x.classList.remove('active'));
+        card.classList.add('active');
+
+        const val = card.getAttribute('data-choice');
+        const radio = card.querySelector('.js-opt-radio');
+        if (radio) radio.checked = true;
+
+        current.opcionElegida = val;
+        if (submitOpcBtn) submitOpcBtn.disabled = false;
+      });
+    });
+
+    opcionesContainer.querySelectorAll('.js-opt-radio').forEach(r=>{
+      r.addEventListener('change', ()=>{
+        current.opcionElegida = r.value;
+        if (submitOpcBtn) submitOpcBtn.disabled = false;
+      });
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  async function enviarVoto(){
+    if (!current.sondeoId || !current.opcionElegida) return;
+
+    const btn = (current.tipo === 'si_no') ? submitOpcBtn : submitVoteBtn;
+    if (btn) btn.disabled = true;
+
+    try{
+      const fd = new FormData();
+      fd.append('sondeo_id', current.sondeoId);
+      fd.append('pregunta_id', current.preguntaId || '');
+      fd.append('respuesta', current.opcionElegida);
+      fd.append('tipo', current.tipo || '');
+
+      const res = await fetch(VOTE_URL, { method:'POST', body: fd, credentials:'same-origin' });
+      const data = await res.json().catch(()=> null);
+
+      if (!res.ok || !data || data.ok === false) {
+        const msg = (data && (data.msg || data.message)) ? (data.msg || data.message) : 'No fue posible registrar el voto.';
+        throw new Error(msg);
+      }
+
+      // ✅ UX OK
+      Swal.fire({
+        icon: 'success',
+        title: '¡Voto registrado!',
+        text: 'Tu participación quedó guardada correctamente.',
+        confirmButtonText: 'Entendido'
+      });
+
+      // cerrar modal
+      if (current.tipo === 'si_no') opcionesModal?.hide();
+      else candidatoModal?.hide();
+
+      // opcional: recargar para refrescar estado real desde DB
+      setTimeout(()=> window.location.reload(), 700);
+
+    }catch(err){
+      Swal.fire({
+        icon:'error',
+        title:'Ups…',
+        text: err?.message || 'Ocurrió un error al registrar tu voto.',
+        confirmButtonText:'Cerrar'
+      });
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  submitVoteBtn?.addEventListener('click', enviarVoto);
+  submitOpcBtn?.addEventListener('click', enviarVoto);
+
+  // Click tarjeta
+  document.addEventListener('click', (ev)=>{
+    const card = ev.target.closest('.js-open-sondeo');
+    if (card) openSondeo(card);
+  });
+
+  // Enter para accesibilidad
+  document.addEventListener('keydown', (ev)=>{
+    if (ev.key !== 'Enter') return;
+    const focused = document.activeElement;
+    if (focused && focused.classList.contains('js-open-sondeo')) openSondeo(focused);
+  });
 </script>
 
 </body>
-<?php @include __DIR__ . "/cron_exportar_fotos.php"; ?>
 </html>
