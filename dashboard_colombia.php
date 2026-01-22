@@ -226,15 +226,16 @@ $primerNombre = $partes[0] ?? 'Usuario';
     }
     #mapaContainer svg text{
       font-weight: 800;
-      font-size: 12.5px;
-      fill: #0f172a;
-      letter-spacing: .35px;
-      pointer-events: none;
-      text-transform: uppercase;
-      paint-order: stroke fill;
-      stroke: rgba(255,255,255,.86);
-      stroke-width: 2px;
-      stroke-linejoin: round;
+    font-size: 14px;
+    fill: #171718ff;
+    letter-spacing: .35px;
+    pointer-events: none;
+    text-transform: uppercase;
+
+    paint-order: stroke fill;
+    stroke: rgba(255,255,255,.86);
+    stroke-width: 2px;
+    stroke-linejoin: round;
     }
     #mapaContainer svg g:hover text{
       fill: var(--nav-blue);
@@ -300,10 +301,7 @@ $primerNombre = $partes[0] ?? 'Usuario';
       <div class="content">
         <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
           <div>
-            <div class="hero-chip">
-              <i class="fa-solid fa-map-location-dot"></i>
-              Panel por departamento
-            </div>
+         
             <h1 class="fs-2 fs-lg-1">Mapa del Departamento de <?php echo htmlspecialchars($departamentoInfo); ?></h1>
             <p class="mb-0">Selecciona un municipio en el mapa para explorar información y participación.</p>
           </div>
@@ -324,11 +322,7 @@ $primerNombre = $partes[0] ?? 'Usuario';
 
     <!-- CARD PRINCIPAL -->
     <div class="main-card">
-      <div class="main-head">
-        <h2 class="h5">Vista interactiva</h2>
-        <p>Haz clic en un municipio para continuar.</p>
-      </div>
-
+      
       <div class="p-3 p-lg-4">
         <div class="row g-3 g-lg-4 align-items-stretch">
 
@@ -336,9 +330,9 @@ $primerNombre = $partes[0] ?? 'Usuario';
           <div class="col-lg-8 col-md-7">
             <div class="block">
               <div class="block-head">
-                <h3 class="block-title">Mapa departamental</h3>
-                <p class="block-sub">Selecciona un municipio para navegar.</p>
-              </div>
+                <h3 class="block-title">Selecciona en el mapa el municipio donde realizaste tu registro, identificado en color verde</h3>
+
+               </div>
               <div class="block-body" id="mapaContainer">
                 <?php require_once $mapaMostrar; ?>
               </div>

@@ -333,46 +333,28 @@ $primerNombre = $partes[0] ?? 'Usuario';
     <div class="hero">
       <div class="content">
         <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
-          <div>
-            <div class="hero-chip">
-              <i class="fas fa-chart-bar"></i>
-              Visualización • Consultas estadísticas
-            </div>
-            <h1 class="fs-2 fs-lg-1">Gráficos de Información</h1>
+          <div>           
+           
             <p class="mb-0">
-              Hola <b><?php echo htmlspecialchars($primerNombre); ?></b>, interactúa con el mapa para consultar estadísticas por departamento.
+              Hola <b><?php echo htmlspecialchars($primerNombre); ?></b> 👋  
+              Sigue estos pasos para consultar los resultados:  
+              <strong>1)</strong> Haz clic en tu departamento (marcado en verde).  
+              <strong>2)</strong> Selecciona la opción que deseas visualizar.
             </p>
-          </div>
 
-          <div class="d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-hero" data-bs-toggle="modal" data-bs-target="#perfilModal">
-              <i class="fas fa-user-circle me-2"></i>Mi perfil
-            </button>
-            <button type="button" class="btn btn-hero" id="btnAyuda">
-              <i class="fas fa-circle-info me-2"></i>¿Cómo usar?
-            </button>
-          </div>
+          </div>          
         </div>
       </div>
     </div>
 
     <!-- CARD PRINCIPAL -->
     <div class="main-card">
-      <div class="main-head">
-        <h2 class="h5">Mapa + Estadísticas</h2>
-        <p>Selecciona un departamento y elige el tipo de consulta.</p>
-      </div>
-
       <div class="p-3 p-lg-4">
         <div class="row g-3 g-lg-4 align-items-stretch">
 
           <!-- MAPA -->
           <div class="col-lg-7 col-md-7">
-            <div class="block">
-              <div class="block-head">
-                <h3 class="block-title">Mapa de Colombia</h3>
-                <p class="block-sub">Haz clic en un departamento para abrir el panel de consultas.</p>
-              </div>
+            <div class="block">              
               <div class="block-body" style="position:relative; z-index:5;">
                 <div id="mapaContainer">
                   <?php include './admin/mapa_colombia/mapa.php'; ?>

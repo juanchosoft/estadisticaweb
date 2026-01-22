@@ -19,11 +19,10 @@
     <div class="container-fluid px-3 px-lg-4 d-flex align-items-center">
 
       <!-- BRAND (SOLO LOGO) -->
-      <a href="dash_responder.php" class="navbar-brand brand-only d-flex align-items-center m-0" aria-label="Ir a formularios pendientes">
-        <span class="brand-logo">
-          <img src="assets/img/admin/estadistica3.png" alt="Logo institucional">
-        </span>
-      </a>
+     
+          <img   src="assets/img/admin/estadistica3.png"  alt="Ilustración de estadísticas"  class="img-estadistica"/>
+   
+   
 
       <!-- TOGGLER (BARRAS BLANCAS) -->
       <button class="navbar-toggler ms-auto" type="button"
@@ -43,14 +42,9 @@
         <!-- DESKTOP -->
         <div class="navbar-nav ms-auto d-none d-lg-flex align-items-center gap-2">
 
-          <a href="dash_responder.php" class="nav-link nav-chip">
-            <i class="fas fa-clipboard-check me-2"></i>
-            Formularios pendientes
-          </a>
-
           <a href="visualizar.php" class="nav-link">
             <i class="fas fa-chart-bar me-2"></i>
-            Consultar estadísticas
+           Ver Resultados
           </a>
 
           <!-- USER -->
@@ -151,6 +145,27 @@
      ESTILOS (MÓVIL/TABLET PRO)
 ========================== -->
 <style>
+   .img-estadistica{
+  width: 100%;
+  max-width: 150px;   /* tamaño ideal en PC */
+  height: auto;
+  display: block;
+  margin: 0 auto;     /* centra la imagen */
+}
+
+/* Tablet */
+@media (max-width: 992px){
+  .img-estadistica{
+    max-width: 180px;
+  }
+}
+
+/* Móvil */
+@media (max-width: 576px){
+  .img-estadistica{
+    max-width: 140px;
+  }
+}
   :root{
     --menu-bg:#0E2A52;
     --menu-bg-2:#143B73;

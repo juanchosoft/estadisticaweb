@@ -333,8 +333,7 @@
         <div class="d-flex align-items-start justify-content-between gap-3">
           <div>
             <div class="modal-logo-pill mb-2">
-              <img src="assets/img/admin/estadistica3.png" alt="Logo">
-              <div class="fw-bold">Votaciones</div>
+              <img src="assets/img/admin/estadistica3.png" alt="Logo">            
             </div>
             <h5><i class="fa fa-bolt me-2"></i>¡Tu voto cuenta!</h5>
             <p>Regístrate en menos de 1 minuto y participa.</p>

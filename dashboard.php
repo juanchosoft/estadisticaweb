@@ -214,8 +214,8 @@ $primerNombre = $partes[0] ?? 'Usuario';
   }
   #mapaContainer svg text {
     font-weight: 800;
-    font-size: 12.5px;
-    fill: #0f172a;
+    font-size: 14px;
+    fill: #171718ff;
     letter-spacing: .35px;
     pointer-events: none;
     text-transform: uppercase;
@@ -329,21 +329,12 @@ Swal.fire({
 
   <!-- CARD PRINCIPAL -->
   <div class="main-card">
-    <div class="main-card-head">
-      <h2 class="h5">Selecciona tu municipio</h2>
-      <p>Elige tu municipio en el mapa para entrar a la zona de votación.</p>
-    </div>
-
-    <div class="p-3 p-lg-4">
+     <div class="p-3 p-lg-4">
       <div class="row g-3 g-lg-4 align-items-stretch">
 
         <!-- MAPA -->
         <div class="col-lg-7 col-md-7">
           <div class="block map-wrap">
-            <div class="block-head">
-              <h3 class="block-title">Mapa de Colombia</h3>
-              <p class="block-sub">Ubica tu municipio y haz clic para participar.</p>
-            </div>
             <div class="block-body" id="mapaContainer">
               <?php include './admin/mapa_colombia/mapa.php'; ?>
             </div>
@@ -354,25 +345,30 @@ Swal.fire({
         <div class="col-lg-5 col-md-5">
           <div class="d-grid gap-3 gap-lg-4">
 
-            <div class="block">
+           
+              <div class="block">
               <div class="block-head text-center">
                 <h3 class="block-title">
                   <i class="fas fa-hand-pointer me-2" style="color:#20427F;"></i>
-                  Recomendación rápida
+                  ¿Qué debes hacer ahora?
                 </h3>
                 <p class="block-sub mb-0">
-                  Selecciona tu municipio para ver sondeos y herramientas de participación.
+                  Haz clic en tu departamento para continuar.
                 </p>
               </div>
+
               <div class="block-body text-center">
                 <div class="mb-2">
                   <i class="fas fa-location-dot" style="font-size:52px; color:#20427F;"></i>
                 </div>
+
                 <div class="welcome-p">
-                  Si no encuentras tu municipio, revisa que tu registro corresponda al departamento correcto.
+                  No aparece tu departamento? Revisa que tus datos de registro estén correctos.
                 </div>
               </div>
             </div>
+
+
 
             <!-- TARJETA GRÁFICO -->
             <div class="block mini-card">
