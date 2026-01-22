@@ -278,11 +278,7 @@
     <a href="index.php" class="navbar-brand ms-3" aria-label="Ir al inicio">
       <div class="brand-pill">
         <img src="assets/img/admin/estadistica3.png" alt="Logo" class="logo-chip">
-        <!-- Si NO quieres texto, borra este bloque -->
-        <div class="brand-text">
-          Votaciones
-          <span class="brand-sub">Plataforma Oficial</span>
-        </div>
+        <!-- Si NO quieres texto, borra este bloque -->        
       </div>
     </a>
 

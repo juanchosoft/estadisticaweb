@@ -14,15 +14,12 @@
     <div class="container-fluid px-3 px-lg-4">
 
       <!-- BRAND -->
-      <a href="dashboard.php" class="navbar-brand d-flex align-items-center gap-2 m-0" aria-label="Ir al dashboard">
-        <span class="brand-logo">
-          <img src="assets/img/admin/estadistica3.png" alt="Logo" />
-        </span>
-        <div class="d-flex flex-column lh-sm">
-          <span class="brand-text d-none d-md-inline">Panel</span>
-          <span class="brand-sub d-none d-lg-inline">Gobierno 360</span>
-        </div>
-      </a>
+     
+       
+        <img   src="assets/img/admin/estadistica3.png"  alt="Ilustración de estadísticas"  class="img-estadistica"/>
+
+     
+   
 
       <!-- TOGGLER (Mobile) -->
       <button class="navbar-toggler shadow-sm" type="button"
@@ -44,15 +41,17 @@
         <!-- RIGHT DESKTOP -->
         <div class="navbar-nav ms-auto d-none d-lg-flex align-items-center gap-2">
 
-          <a href="dash_responder.php" class="nav-link nav-chip d-flex align-items-center">
-            <i class="fas fa-clipboard-check me-2"></i>
-            Pendientes
-          </a>
+        <a href="dash_responder.php" class="nav-link nav-chip d-flex align-items-center">
+          <i class="fas fa-clipboard-check me-2"></i>
+            Tienes encuestas por responder
+        </a>
 
-          <a href="visualizar.php" class="nav-link d-flex align-items-center">
-            <i class="fas fa-chart-bar me-2"></i>
-            Visualización
-          </a>
+
+        <a href="visualizar.php" class="nav-link d-flex align-items-center">
+          <i class="fas fa-chart-bar me-2"></i>
+            Resultados
+        </a>
+
 
           <!-- Profile dropdown -->
           <div class="nav-item dropdown">
@@ -170,6 +169,28 @@
 </div>
 
 <style>
+  .img-estadistica{
+  width: 100%;
+  max-width: 150px;   /* tamaño ideal en PC */
+  height: auto;
+  display: block;
+  margin: 0 auto;     /* centra la imagen */
+}
+
+/* Tablet */
+@media (max-width: 992px){
+  .img-estadistica{
+    max-width: 180px;
+  }
+}
+
+/* Móvil */
+@media (max-width: 576px){
+  .img-estadistica{
+    max-width: 140px;
+  }
+}
+
   :root{
     --brand:#13357b;
     --brand2:#0b1a89;
