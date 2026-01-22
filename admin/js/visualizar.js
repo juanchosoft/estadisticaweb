@@ -42,13 +42,25 @@ const VISUALIZAR = {
     codigoDepartamentoActual: null,
     codigoMunicipioActual: null,
     departamentoActual: "Colombia",
-    tipoConsultaActual: "sondeo",
+    tipoConsultaActual: null,
+    opcionActivaWeb: null,
     timeouts: [100, 500, 1000, 2000],
     graficoGeneral: null,
     ctxGrafico: null,
     preguntasIndex: {},
 
     init() {
+        // Obtener la opción activa de la web
+        const opcionInput = document.getElementById("opcionActivaWeb");
+        this.opcionActivaWeb = opcionInput ? opcionInput.value : "";
+
+        // Configurar tipo de consulta según opción activa
+        if (this.opcionActivaWeb === "sondeo") {
+            this.tipoConsultaActual = "sondeo";
+        } else if (this.opcionActivaWeb === "cuestionario") {
+            this.tipoConsultaActual = "encuesta";
+        }
+
         this.aplicarReintentosMapa();
         this.bindEventosGlobales();
         this.inicializarGrafico();
@@ -122,49 +134,34 @@ const VISUALIZAR = {
     bindEventosGlobales() {
         const self = this;
 
-        $("#closeCard").on("click", function (e) {
-            e.stopPropagation();
-            $("#resultadosCard").addClass("d-none");
-        });
+        // Evento para el select de departamentos
+        $("#selectorDepartamento").on("change", function () {
+            const codigo = $(this).val();
+            const nombre = $(this).find("option:selected").text();
 
-        $(document).on("click", function (e) {
-            if (!$(e.target).closest("#resultadosCard").length && !$(e.target).closest(".mapaClick").length) {
-                $("#resultadosCard").addClass("d-none");
-            }
-        });
-
-        $("#resultadosCard").on("click", e => e.stopPropagation());
-
-        $("#selectorTipo").on("change", function () {
-            self.tipoConsultaActual = $(this).val();
-
-            $("#selectorConsulta").html('<option value="">Seleccione una consulta...</option>');
-            $("#selectorEncuesta").html('<option value="">Seleccione encuesta...</option>');
-            $("#selectorPregunta").html('<option value="">Seleccione pregunta...</option>');
-
-            if (self.tipoConsultaActual === "sondeo") {
-                $("#selectorConsultaContainer").show();
-                $("#selectorEncuestaContainer").addClass("d-none").hide();
-                $("#selectorPreguntaContainer").addClass("d-none").hide();
-                self.obtenerListaConsultas();
+            if (!codigo) {
+                $("#selectorEncuesta").html('<option value="">Seleccione una encuesta...</option>');
+                $("#selectorPreguntaContainer").addClass("d-none");
+                self.limpiarGrafico();
                 return;
             }
 
-            if (self.tipoConsultaActual === "encuesta") {
-                $("#selectorConsultaContainer").hide();
-                $("#selectorEncuestaContainer").removeClass("d-none").show();
-                $("#selectorPreguntaContainer").addClass("d-none").hide();
+            self.codigoDepartamentoActual = codigo;
+            self.departamentoActual = nombre.toUpperCase().trim();
+            self.codigoMunicipioActual = null;
 
+            // Cargar consultas según la opción activa
+            if (self.opcionActivaWeb === "sondeo") {
+                self.tipoConsultaActual = "sondeo";
+                // Para sondeo: cargar y mostrar automáticamente el primer sondeo
+                self.obtenerYMostrarSondeoAutomatico();
+            } else if (self.opcionActivaWeb === "cuestionario") {
+                self.tipoConsultaActual = "encuesta";
                 self.obtenerEncuestas();
-                $("#resultadosContent").html('<div class="text-center p-4"><p class="text-muted">Seleccione una encuesta</p></div>');
-                return;
             }
-
-            $("#selectorConsultaContainer").hide();
-            $("#selectorEncuestaContainer").addClass("d-none").hide();
-            $("#selectorPreguntaContainer").addClass("d-none").hide();
         });
 
+        // Evento para encuestas
         $("#selectorEncuesta").on("change", function () {
             const encuestaId = $(this).val();
             if (!encuestaId) {
@@ -175,6 +172,7 @@ const VISUALIZAR = {
             self.obtenerPreguntasEncuesta(encuestaId);
         });
 
+        // Evento para preguntas de encuesta
         $("#selectorPregunta").on("change", function () {
             const preguntaId = $(this).val();
             const encuestaId = $("#selectorEncuesta").val();
@@ -187,11 +185,13 @@ const VISUALIZAR = {
             self.obtenerResultadosEncuestaPregunta(encuestaId, preguntaId);
         });
 
+        // Evento para sondeos
         $("#selectorConsulta").on("change", function () {
             const id = $(this).val();
             if (id) self.obtenerResultadosConsulta(id);
         });
 
+        // Click en mapa también selecciona el departamento en el select
         $(document).on("click", ".mapaClick", function (e) {
             self.clickMapa($(this), e);
         });
@@ -214,23 +214,10 @@ const VISUALIZAR = {
             }
         }
 
-        this.codigoMunicipioActual = null;
-        this.tipoConsultaActual = null;
-
-        $("#selectorTipo").val("");
-        $("#selectorConsultaContainer").hide();
-        $("#selectorConsulta").html('<option value="">Seleccione una consulta...</option>');
-        $("#selectorEncuestaContainer").addClass("d-none").hide();
-        $("#selectorPreguntaContainer").addClass("d-none").hide();
-
-        $("#resultadosContent").html('<div class="text-center p-4"><p class="text-muted">Seleccione tipo de consulta</p></div>');
-
-        const pos = this.calcularPosicionCard(e.pageX, e.pageY);
-        $("#badgeElectoral").text(this.departamentoActual);
-
-        $("#resultadosCard")
-            .removeClass("d-none")
-            .css({ top: pos.y + "px", left: pos.x + "px" });
+        // Actualizar el select de departamentos
+        if (this.codigoDepartamentoActual) {
+            $("#selectorDepartamento").val(this.codigoDepartamentoActual).trigger("change");
+        }
     },
 
     calcularPosicionCard(x, y) {
@@ -419,6 +406,52 @@ const VISUALIZAR = {
     this.pintarGraficoOpciones(conteoGrafico);
 }
 ,
+
+    limpiarGrafico() {
+        if (!this.graficoGeneral) return;
+        this.graficoGeneral.data.labels = [];
+        this.graficoGeneral.data.datasets[0].data = [];
+        this.graficoGeneral.update();
+        $("#textoGraficoInfo").text("Selecciona un departamento y una consulta para comenzar.");
+    },
+
+    obtenerYMostrarSondeoAutomatico() {
+        const depClick = this.codigoDepartamentoActual;
+        const depUser = window.USER_DEP || null;
+        const self = this;
+
+        $.ajax({
+            url: "./admin/ajax/rqst.php",
+            type: "GET",
+            dataType: "json",
+            data: {
+                op: "consultasondeo",
+                departamento_click: depClick,
+                departamento_usuario: depUser,
+                codigo_municipio: this.codigoMunicipioActual
+            },
+            success: r => {
+                if (r.success) {
+                    const items = r.data || [];
+                    // Si hay al menos un sondeo, obtener sus resultados automáticamente
+                    if (items.length > 0) {
+                        const primerSondeo = items[0];
+                        self.obtenerResultadosConsulta(primerSondeo.id);
+                    } else {
+                        self.limpiarGrafico();
+                        $("#textoGraficoInfo").text("No hay sondeos disponibles para este departamento.");
+                    }
+                } else {
+                    self.limpiarGrafico();
+                    $("#textoGraficoInfo").text(r.message || "Error al cargar sondeos.");
+                }
+            },
+            error: () => {
+                self.limpiarGrafico();
+                $("#textoGraficoInfo").text("Error de conexión al cargar sondeos.");
+            }
+        });
+    },
 
     obtenerListaConsultas() {
         const depClick = this.codigoDepartamentoActual;

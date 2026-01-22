@@ -8,11 +8,20 @@ if (!isset($_SESSION['session_user']) || !isset($_SESSION['session_user']['id'])
 }
 
 require './admin/include/generic_classes.php';
+include './admin/classes/Departamento.php';
 
 // Nombre usuario
 $nombreUsuario = $_SESSION['session_user']['nombre_completo'] ?? $_SESSION['session_user']['usuario'] ?? 'Usuario';
 $partes = explode(' ', $nombreUsuario);
 $primerNombre = $partes[0] ?? 'Usuario';
+
+// Información de la opción activa web
+$config = Util::getInformacionConfiguracion();
+$opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
+
+// Obtener lista de departamentos
+$departamentosResult = Departamento::getAll([]);
+$departamentos = $departamentosResult['output']['response'] ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -321,6 +330,8 @@ $primerNombre = $partes[0] ?? 'Usuario';
 </head>
 
 <body>
+  <input type="hidden" id="opcionActivaWeb" value="<?php echo htmlspecialchars($opcionActivaWeb); ?>">
+
   <div id="spinner" class="show position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
     <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
       <span class="sr-only">Loading...</span>
@@ -385,21 +396,45 @@ $primerNombre = $partes[0] ?? 'Usuario';
           <div class="col-lg-5 col-md-5">
             <div class="d-grid gap-3 gap-lg-4">
 
+              <!-- Panel de consultas (antes era modal flotante) -->
               <div class="block">
-                <div class="block-head text-center">
+                <div class="block-head">
                   <h3 class="block-title">
-                    <i class="fas fa-hand-pointer me-2" style="color:#20427F;"></i>
-                    Instrucciones rápidas
+                    <i class="fas fa-filter me-2" style="color:#20427F;"></i>
+                    Consultas Estadísticas
                   </h3>
-                  <p class="block-sub mb-0">1) Clic en departamento → 2) Tipo → 3) Consulta.</p>
+                  <p class="block-sub mb-0">Selecciona departamento y consulta para ver resultados.</p>
                 </div>
-                <div class="block-body text-center">
-                  <div class="mb-2" style="font-size:52px; color:#20427F;">
-                    <i class="fas fa-chart-pie"></i>
+                <div class="block-body">
+                  <!-- Select de Departamento -->
+                  <div class="mb-3">
+                    <label class="form-label fw-bold small">Departamento</label>
+                    <select class="form-select" id="selectorDepartamento">
+                      <option value="">Seleccione un departamento...</option>
+                      <?php foreach ($departamentos as $dep): ?>
+                        <option value="<?= htmlspecialchars($dep['codigo_departamento']) ?>"><?= htmlspecialchars($dep['departamento']) ?></option>
+                      <?php endforeach; ?>
+                    </select>
                   </div>
-                  <div class="text-muted fw-bold">
-                    Cuando selecciones una consulta, el gráfico se actualizará automáticamente.
+
+                  <!-- Select de Consulta (Sondeo o Encuesta según configuración) -->
+                  <?php if ($opcionActivaWeb === 'cuestionario'): ?>
+                  <div class="mb-3" id="selectorEncuestaContainer">
+                    <label class="form-label fw-bold small">Encuesta</label>
+                    <select class="form-select" id="selectorEncuesta">
+                      <option value="">Seleccione una encuesta...</option>
+                    </select>
                   </div>
+                  <div class="mb-3 d-none" id="selectorPreguntaContainer">
+                    <label class="form-label fw-bold small">Pregunta</label>
+                    <select class="form-select" id="selectorPregunta">
+                      <option value="">Seleccione una pregunta...</option>
+                    </select>
+                  </div>
+                  <?php endif; ?>
+
+                  <!-- Contenedor oculto para resultados (usado internamente por JS) -->
+                  <div id="resultadosContent" class="d-none"></div>
                 </div>
               </div>
 
@@ -430,53 +465,11 @@ $primerNombre = $partes[0] ?? 'Usuario';
 
   </div>
 
-  <!-- Card flotante consultas -->
-  <div id="resultadosCard" class="card d-none">
-    <div class="card-header py-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 fw-bold" id="cardTitulo" style="color:#0f172a;">CONSULTAS ESTADÍSTICAS</h6>
-        <button type="button" class="btn-close" id="closeCard"></button>
-      </div>
-
-      <div class="mt-2">
-        <span class="badge" id="badgeElectoral">COLOMBIA</span>
-      </div>
-
-      <div class="mt-2">
-        <select class="form-select form-select-sm" id="selectorTipo">
-          <option value="" selected disabled>¿Qué tipo de consulta deseas hacer?</option>
-          <option value="sondeo">Sondeo</option>
-          <option value="encuesta">Encuesta</option>
-        </select>
-      </div>
-
-      <div class="mt-2 d-none" id="selectorEncuestaContainer">
-        <select class="form-select form-select-sm" id="selectorEncuesta">
-          <option value="">Seleccione encuesta...</option>
-        </select>
-      </div>
-
-      <div class="mt-2 d-none" id="selectorPreguntaContainer">
-        <select class="form-select form-select-sm" id="selectorPregunta">
-          <option value="">Seleccione pregunta...</option>
-        </select>
-      </div>
-
-      <div class="mt-2" id="selectorConsultaContainer" style="display:none;">
-        <select class="form-select form-select-sm" id="selectorConsulta">
-          <option value="">Seleccione una consulta...</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="card-body p-0">
-      <div id="resultadosContent">
-        <div class="text-center p-4">
-          <p class="text-muted fw-bold">Seleccione un departamento y tipo de consulta</p>
-        </div>
-      </div>
-    </div>
+  <!-- Card flotante consultas (comentado para uso futuro)
+  <div id="resultadosCardModal" class="card d-none">
+    ...
   </div>
+  -->
 
   <?php include './admin/include/perfil.php'; ?>
   <?php include './admin/include/footer.php'; ?>
@@ -520,32 +513,6 @@ $primerNombre = $partes[0] ?? 'Usuario';
   </script>
 
   <script src="admin/js/visualizar.js"></script>
-
-  <!-- ✅ FIX: bloquear scroll del body cuando el panel flotante está abierto -->
-  <script>
-    (function(){
-      const card = document.getElementById('resultadosCard');
-      const closeBtn = document.getElementById('closeCard');
-
-      function syncOverlay(){
-        if (!card) return;
-        const opened = !card.classList.contains('d-none');
-        document.body.classList.toggle('overlay-open', opened);
-      }
-
-      // Observa cambios de clase (cuando visualizar.js muestre/oculte el card)
-      if (card) {
-        const obs = new MutationObserver(syncOverlay);
-        obs.observe(card, { attributes:true, attributeFilter:['class','style'] });
-      }
-
-      closeBtn?.addEventListener('click', () => {
-        setTimeout(syncOverlay, 60);
-      });
-
-      syncOverlay();
-    })();
-  </script>
 
 </body>
 </html>
