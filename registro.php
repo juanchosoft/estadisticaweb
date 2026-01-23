@@ -491,6 +491,7 @@ foreach ($departamentosResponse as $dep) {
               <span class="input-group-text"><i class="fa-solid fa-briefcase"></i></span>
               <select class="form-select" id="ocupacion" name="ocupacion" required>
                 <option value="">Selecciona</option>
+                 <option value="Estudiante">Estudiante</option>
                 <option value="Empleado">Empleado</option>
                 <option value="Auto Empleado">Auto Empleado</option>
                 <option value="Empresario">Empresario</option>
