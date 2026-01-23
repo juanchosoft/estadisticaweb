@@ -391,38 +391,19 @@ $qSondeOpciones = "SELECT id, opcion
 
         $tabla = $db->getTable('tbl_sondeo');
 
-        if ($depClick === $depUser) {
+ 
 
             $sql = "
                 SELECT *
                 FROM $tabla
                 WHERE habilitado = 'si'
-                AND (
-                    (codigo_departamento IS NULL AND codigo_municipio IS NULL)
-                    OR 
-                    (codigo_departamento = :depUser)
-                )
-                ORDER BY dtcreate DESC
-            ";
 
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([':depUser' => $depUser]);
-        }
-
-        else {
-
-            $sql = "
-                SELECT *
-                FROM $tabla
-                WHERE habilitado = 'si'
-                AND codigo_departamento IS NULL
-                AND codigo_municipio IS NULL
                 ORDER BY dtcreate DESC
             ";
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
-        }
+        
         
         return [
             "success" => true,
@@ -437,6 +418,9 @@ public static function obtenerRespuestas($rqst)
 {
     $id = intval($rqst['id_sondeo'] ?? 0);
     $depClick = $rqst['departamento_click'] ?? null;
+    // Verificar sin_fotos de forma más robusta
+    $sinFotosRaw = $rqst['sin_fotos'] ?? '';
+    $sinFotos = !empty($sinFotosRaw) && ($sinFotosRaw === 'true' || $sinFotosRaw === '1' || $sinFotosRaw === true);
 
     if ($id <= 0) {
         return ["success" => false, "message" => "ID inválido"];
@@ -491,12 +475,14 @@ public static function obtenerRespuestas($rqst)
     $stmt->execute($paramsResp);
     $respuestasOpciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Construir query de candidatos - solo incluir foto_blob si se necesita
+    $fotoBlobSelect = $sinFotos ? "" : ", p.foto_blob";
     $qCand = "
         SELECT
             p.id,
             p.nombre_completo,
-            p.foto,
-            p.foto_blob
+            p.foto
+            $fotoBlobSelect
         FROM " . $db->getTable('tbl_participantes') . " p
         INNER JOIN " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " sp
             ON sp.tbl_participante_id = p.id
@@ -508,23 +494,24 @@ public static function obtenerRespuestas($rqst)
     $stmt->execute([":id" => $id]);
     $candidatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Convertir foto_blob a base64 para los candidatos
+    // Convertir foto_blob a base64 para los candidatos (solo si no es sin_fotos)
     foreach ($candidatos as &$cand) {
-        if (!empty($cand['foto_blob'])) {
+        if (!$sinFotos && !empty($cand['foto_blob'])) {
             $cand['foto_base64'] = 'data:image/jpeg;base64,' . base64_encode($cand['foto_blob']);
+            unset($cand['foto_blob']);
         } else {
             $cand['foto_base64'] = null;
         }
-        // Eliminar el blob del resultado para no enviarlo crudo
-        unset($cand['foto_blob']);
     }
 
+    // Construir query de respuestas por candidatos - solo incluir foto_blob si se necesita
+    $fotoBlobSelectResp = $sinFotos ? "" : "p.foto_blob,";
     $qRespCand = "
         SELECT
             p.id AS candidato_id,
             p.nombre_completo,
             p.foto,
-            p.foto_blob,
+            $fotoBlobSelectResp
             COUNT(r.id) AS total
         FROM " . $db->getTable('tbl_participantes') . " p
         INNER JOIN " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " sp
@@ -550,15 +537,14 @@ public static function obtenerRespuestas($rqst)
     $stmt->execute($paramsCand);
     $respuestasCandidatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Convertir foto_blob a base64 para las respuestas de candidatos
+    // Convertir foto_blob a base64 para las respuestas de candidatos (solo si no es sin_fotos)
     foreach ($respuestasCandidatos as &$respCand) {
-        if (!empty($respCand['foto_blob'])) {
+        if (!$sinFotos && !empty($respCand['foto_blob'])) {
             $respCand['foto_base64'] = 'data:image/jpeg;base64,' . base64_encode($respCand['foto_blob']);
+            unset($respCand['foto_blob']);
         } else {
             $respCand['foto_base64'] = null;
         }
-        // Eliminar el blob del resultado para no enviarlo crudo
-        unset($respCand['foto_blob']);
     }
 
     return [

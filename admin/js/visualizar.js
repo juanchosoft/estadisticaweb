@@ -205,11 +205,14 @@ const VISUALIZAR = {
         this.departamentoActual = d.toUpperCase().trim();
         const nombreNormalizado = normalizarTexto(this.departamentoActual).toUpperCase();
 
+        console.log("Click mapa - Departamento:", d, "Normalizado:", nombreNormalizado);
+
         this.codigoDepartamentoActual = null;
 
         for (const dep in CODIGOS_DEPARTAMENTOS) {
             if (normalizarTexto(dep).toUpperCase() === nombreNormalizado) {
                 this.codigoDepartamentoActual = CODIGOS_DEPARTAMENTOS[dep];
+                console.log("Código encontrado:", this.codigoDepartamentoActual);
                 break;
             }
         }
@@ -217,6 +220,8 @@ const VISUALIZAR = {
         // Actualizar el select de departamentos
         if (this.codigoDepartamentoActual) {
             $("#selectorDepartamento").val(this.codigoDepartamentoActual).trigger("change");
+        } else {
+            console.warn("No se encontró código para:", nombreNormalizado);
         }
     },
 
@@ -465,6 +470,8 @@ const VISUALIZAR = {
         const depUser = window.USER_DEP || null;
         const self = this;
 
+        console.log("obtenerYMostrarSondeoAutomatico - depClick:", depClick, "depUser:", depUser);
+
         $.ajax({
             url: "./admin/ajax/rqst.php",
             type: "GET",
@@ -476,11 +483,14 @@ const VISUALIZAR = {
                 codigo_municipio: this.codigoMunicipioActual
             },
             success: r => {
+                console.log("Respuesta consultasondeo:", r);
                 if (r.success) {
                     const items = r.data || [];
+                    console.log("Sondeos encontrados:", items.length, items);
                     // Si hay al menos un sondeo, obtener sus resultados automáticamente
                     if (items.length > 0) {
                         const primerSondeo = items[0];
+                        console.log("Cargando sondeo:", primerSondeo.id, primerSondeo.sondeo);
                         self.obtenerResultadosConsulta(primerSondeo.id);
                     } else {
                         self.limpiarGrafico();
@@ -491,7 +501,8 @@ const VISUALIZAR = {
                     $("#textoGraficoInfo").text(r.message || "Error al cargar sondeos.");
                 }
             },
-            error: () => {
+            error: (xhr, status, error) => {
+                console.error("Error AJAX consultasondeo:", status, error);
                 self.limpiarGrafico();
                 $("#textoGraficoInfo").text("Error de conexión al cargar sondeos.");
             }
@@ -548,7 +559,8 @@ const VISUALIZAR = {
             data: {
                 op: "consultar_respuestas_sondeo",
                 id_sondeo: id,
-                departamento_click: this.codigoDepartamentoActual
+                departamento_click: this.codigoDepartamentoActual,
+                sin_fotos: "true"  // No enviar fotos para reducir tamaño de respuesta
             },
             success: r => {
                 if (r.success) this.mostrarResultadosConsulta(r);
