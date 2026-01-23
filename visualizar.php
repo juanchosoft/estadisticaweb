@@ -203,6 +203,59 @@ $departamentos = $departamentosResult['output']['response'] ?? [];
     }
     .block-body{ padding: 14px; }
 
+    /* Lista de opciones elegante (estilo modal) */
+    .opciones-lista{
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .opcion-item{
+      background: #fff;
+      border: 2px solid rgba(32,66,127,.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all .2s ease;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .opcion-item:hover{
+      background: rgba(32,66,127,.05);
+      border-color: rgba(32,66,127,.35);
+      transform: translateX(4px);
+    }
+    .opcion-item.selected{
+      background: var(--nav-blue);
+      border-color: var(--nav-blue);
+      color: #fff;
+    }
+    .opcion-item .numero{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(32,66,127,.12);
+      color: var(--nav-blue);
+      font-weight: 900;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .opcion-item.selected .numero{
+      background: rgba(255,255,255,.25);
+      color: #fff;
+    }
+    .opcion-item .texto{
+      flex-grow: 1;
+      text-align: left;
+    }
+
     /* TIPOGRAFÍA PRO MAPA SVG */
     #mapaContainer, #mapaContainer svg{
       font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
@@ -378,17 +431,17 @@ $departamentos = $departamentosResult['output']['response'] ?? [];
           <div class="col-lg-5 col-md-5">
             <div class="d-grid gap-3 gap-lg-4">
 
-              <!-- Panel de consultas (antes era modal flotante) -->
+              <!-- Panel de consultas con diseño elegante -->
               <div class="block">
                 <div class="block-head">
                   <h3 class="block-title">
                     <i class="fas fa-filter me-2" style="color:#20427F;"></i>
                     Consultas Estadísticas
                   </h3>
-                  <p class="block-sub mb-0">Selecciona departamento y consulta para ver resultados.</p>
+                  <p class="block-sub mb-0">Selecciona departamento para ver resultados.</p>
                 </div>
                 <div class="block-body">
-                  <!-- Select de Departamento -->
+                  <!-- Select de Departamento (mantener para funcionalidad) -->
                   <div class="mb-3">
                     <label class="form-label fw-bold small">Departamento</label>
                     <select class="form-select" id="selectorDepartamento">
@@ -399,20 +452,25 @@ $departamentos = $departamentosResult['output']['response'] ?? [];
                     </select>
                   </div>
 
-                  <!-- Select de Consulta (Sondeo o Encuesta según configuración) -->
+                  <!-- Lista de opciones para Encuestas (estilo elegante) -->
                   <?php if ($opcionActivaWeb === 'cuestionario'): ?>
-                  <div class="mb-3" id="selectorEncuestaContainer">
-                    <label class="form-label fw-bold small">Encuesta</label>
-                    <select class="form-select" id="selectorEncuesta">
-                      <option value="">Seleccione una encuesta...</option>
-                    </select>
+                  <div id="encuestaListaContainer" class="d-none">
+                    <label class="form-label fw-bold small mb-3">Selecciona una Encuesta</label>
+                    <div id="encuestaLista" class="opciones-lista mb-3">
+                      <!-- Se llenará dinámicamente con JS -->
+                    </div>
                   </div>
-                  <div class="mb-3 d-none" id="selectorPreguntaContainer">
-                    <label class="form-label fw-bold small">Pregunta</label>
-                    <select class="form-select" id="selectorPregunta">
-                      <option value="">Seleccione una pregunta...</option>
-                    </select>
+
+                  <div id="preguntaListaContainer" class="d-none">
+                    <label class="form-label fw-bold small mb-3">Selecciona una Pregunta</label>
+                    <div id="preguntaLista" class="opciones-lista">
+                      <!-- Se llenará dinámicamente con JS -->
+                    </div>
                   </div>
+
+                  <!-- Selects ocultos para mantener compatibilidad -->
+                  <select class="d-none" id="selectorEncuesta"></select>
+                  <select class="d-none" id="selectorPregunta"></select>
                   <?php endif; ?>
 
                   <!-- Contenedor oculto para resultados (usado internamente por JS) -->

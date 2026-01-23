@@ -141,20 +141,6 @@ class Usuario
                 $user = $arr[0]; // Obtener el primer usuario encontrado
                 $user['application'][] = Util::get_app_id();
 
-                // Consultar perfiles asignados
-                $q1 = "SELECT tbl_permiso_id FROM " . $db->getTable('tbl_usuarios_has_tbl_permisos') . " WHERE tbl_usuarios_id = :id ORDER BY tbl_permiso_id ASC";
-                $result1 = $pdo->prepare($q1);
-                $result1->execute([":id" => $user['id']]);
-                $arrassigned = $result1->fetchAll(PDO::FETCH_COLUMN);
-
-                $user['permisos'] = $arrassigned;
-                $arrjson = [
-                    'output' => [
-                        'valid' => true,
-                        'response' => [$user],
-                        'permisos' => $arrassigned
-                    ]
-                ];
 
                 // Guardar información en la sesión
                 Util::trace_session_user(['usuarioId' => $user['id']]);

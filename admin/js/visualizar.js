@@ -140,8 +140,8 @@ const VISUALIZAR = {
             const nombre = $(this).find("option:selected").text();
 
             if (!codigo) {
-                $("#selectorEncuesta").html('<option value="">Seleccione una encuesta...</option>');
-                $("#selectorPreguntaContainer").addClass("d-none");
+                $("#encuestaListaContainer").addClass("d-none");
+                $("#preguntaListaContainer").addClass("d-none");
                 self.limpiarGrafico();
                 return;
             }
@@ -238,32 +238,59 @@ const VISUALIZAR = {
     },
 
     obtenerEncuestas() {
+        const self = this;
         $.ajax({
             url: "./admin/ajax/rqst.php",
             type: "GET",
             dataType: "json",
-            data: { 
+            data: {
                 op: "listar_encuestas",
                 codigo_departamento: this.codigoDepartamentoActual
             },
             success: r => {
                 const arr = (r && r.output && r.output.valid) ? (r.output.response || []) : [];
-                let html = '<option value="">Seleccione encuesta...</option>';
 
-                arr.forEach(e => {
+                if (arr.length === 0) {
+                    $("#encuestaListaContainer").addClass("d-none");
+                    self.limpiarGrafico();
+                    $("#textoGraficoInfo").text("No hay encuestas disponibles para este departamento.");
+                    return;
+                }
+
+                // Mostrar lista elegante de encuestas
+                let html = '';
+                arr.forEach((e, index) => {
                     const nombre = e.realizada_por || "Encuesta " + e.id;
-                    html += `<option value="${e.id}">${nombre}</option>`;
+                    html += `
+                        <div class="opcion-item" data-encuesta-id="${e.id}">
+                            <span class="numero">${index + 1}</span>
+                            <span class="texto">${nombre}</span>
+                        </div>
+                    `;
                 });
 
-                $("#selectorEncuesta").html(html);
+                $("#encuestaLista").html(html);
+                $("#encuestaListaContainer").removeClass("d-none");
+                $("#preguntaListaContainer").addClass("d-none");
+
+                // Evento click en cada encuesta
+                $(".opcion-item[data-encuesta-id]").on("click", function() {
+                    $(".opcion-item[data-encuesta-id]").removeClass("selected");
+                    $(this).addClass("selected");
+                    const encuestaId = $(this).data("encuesta-id");
+                    self.obtenerPreguntasEncuesta(encuestaId);
+                });
             },
             error: () => {
-                $("#selectorEncuesta").html('<option value="">Error cargando encuestas</option>');
+                $("#encuestaListaContainer").addClass("d-none");
+                self.limpiarGrafico();
+                $("#textoGraficoInfo").text("Error al cargar encuestas.");
             }
         });
     },
 
     obtenerPreguntasEncuesta(encuestaId) {
+        const self = this;
         $.ajax({
             url: "./admin/ajax/rqst.php",
             type: "GET",
@@ -275,25 +302,43 @@ const VISUALIZAR = {
             success: r => {
                 const arr = (r && r.output && r.output.valid) ? (r.output.response || []) : [];
 
-                this.preguntasIndex = {};
-                let html = '<option value="">Seleccione pregunta...</option>';
-
-                arr.forEach(p => {
-                    this.preguntasIndex[p.pregunta_id] = p.texto_pregunta;
-                    html += `<option value="${p.pregunta_id}">${p.orden}. ${p.texto_pregunta}</option>`;
-                });
-
-                $("#selectorPregunta").html(html);
-                $("#selectorPreguntaContainer").removeClass("d-none").show();
+                self.preguntasIndex = {};
 
                 if (arr.length === 0) {
-                    $("#resultadosContent").html('<div class="text-center p-4"><p class="text-muted">Esta encuesta no tiene preguntas configuradas.</p></div>');
-                } else {
-                    $("#resultadosContent").html('<div class="text-center p-4"><p class="text-muted">Seleccione una pregunta para ver los resultados.</p></div>');
+                    $("#preguntaListaContainer").addClass("d-none");
+                    self.limpiarGrafico();
+                    $("#textoGraficoInfo").text("Esta encuesta no tiene preguntas configuradas.");
+                    return;
                 }
+
+                // Mostrar lista elegante de preguntas
+                let html = '';
+                arr.forEach((p, index) => {
+                    self.preguntasIndex[p.pregunta_id] = p.texto_pregunta;
+                    html += `
+                        <div class="opcion-item" data-pregunta-id="${p.pregunta_id}" data-encuesta-id="${encuestaId}">
+                            <span class="numero">${index + 1}</span>
+                            <span class="texto">${p.texto_pregunta}</span>
+                        </div>
+                    `;
+                });
+
+                $("#preguntaLista").html(html);
+                $("#preguntaListaContainer").removeClass("d-none");
+
+                // Evento click en cada pregunta
+                $(".opcion-item[data-pregunta-id]").on("click", function() {
+                    $(".opcion-item[data-pregunta-id]").removeClass("selected");
+                    $(this).addClass("selected");
+                    const preguntaId = $(this).data("pregunta-id");
+                    const encId = $(this).data("encuesta-id");
+                    self.obtenerResultadosEncuestaPregunta(encId, preguntaId);
+                });
             },
             error: () => {
-                $("#selectorPregunta").html('<option value="">Error cargando preguntas</option>');
+                $("#preguntaListaContainer").addClass("d-none");
+                self.limpiarGrafico();
+                $("#textoGraficoInfo").text("Error al cargar preguntas.");
             }
         });
     },
