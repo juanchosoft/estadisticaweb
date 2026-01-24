@@ -9,6 +9,10 @@ if (!isset($_SESSION['session_user']) || !isset($_SESSION['session_user']['id'])
 
 require './admin/include/generic_classes.php';
 
+// Obtener la opción activa de configuración
+$config = Util::getInformacionConfiguracion();
+$opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
+
 // Obtener primer nombre del usuario logueado
 $nombreUsuario = $_SESSION['session_user']['nombre_completo']
   ?? $_SESSION['session_user']['usuario']
@@ -291,6 +295,17 @@ Swal.fire({
   icon: "info",
   confirmButtonText: "Confirmar",
   allowOutsideClick: false
+}).then((result) => {
+  if (result.isConfirmed) {
+    const opcionActiva = "<?php echo addslashes($opcionActivaWeb); ?>";
+    if (opcionActiva === 'sondeo') {
+      window.location.href = "sondeo.php";
+    } else if (opcionActiva === 'estudio') {
+      window.location.href = "grilla.php";
+    } else if (opcionActiva === 'cuestionario') {
+      window.location.href = "encuesta.php";
+    }
+  }
 });
 </script>
 <?php unset($_SESSION['mostrar_bienvenida']); endif; ?>
