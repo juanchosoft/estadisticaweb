@@ -1,8 +1,22 @@
 <?php
-require_once './admin/include/generic_classes.php';
+require './admin/include/generic_classes.php';
 include './admin/classes/Pregunta.php';
 include './admin/classes/FichaTecnicaEncuesta.php';
 include './admin/classes/RespuestaCuestionario.php';
+
+// Validar acceso según opción activa (ANTES de incluir archivos que generan HTML)
+$config = Util::getInformacionConfiguracion();
+$opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
+
+if ($opcionActivaWeb !== 'cuestionario') {
+    if ($opcionActivaWeb === 'sondeo') {
+        header('Location: sondeo.php');
+    } else {
+        header('Location: grilla.php');
+    }
+    exit();
+}
+
 include './admin/include/generic_info_configuracion.php';
 
 // Obtener ID de ficha técnica desde URL
@@ -19,7 +33,7 @@ $mostrarSelector = false;
 
 if ($fichaTecnicaId === 0) {
     $mostrarSelector = true;
-    $todasFichasTecnicasResult = FichaTecnicaEncuesta::getAll([]);
+    $todasFichasTecnicasResult = FichaTecnicaEncuesta::getAll(['solo_habilitadas' => true]);
     if ($todasFichasTecnicasResult['output']['valid']) {
         $todasFichasTecnicas = $todasFichasTecnicasResult['output']['response'];
 

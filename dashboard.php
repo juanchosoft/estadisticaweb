@@ -13,6 +13,21 @@ require './admin/include/generic_classes.php';
 $config = Util::getInformacionConfiguracion();
 $opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
 
+// Si es la primera vez que entra (mostrar_bienvenida), redirigir directamente a la opción activa
+if (isset($_SESSION['mostrar_bienvenida']) && $_SESSION['mostrar_bienvenida'] == true) {
+    unset($_SESSION['mostrar_bienvenida']);
+    if ($opcionActivaWeb === 'sondeo') {
+        header('Location: sondeo.php');
+        exit();
+    } elseif ($opcionActivaWeb === 'estudio') {
+        header('Location: grilla.php');
+        exit();
+    } elseif ($opcionActivaWeb === 'cuestionario') {
+        header('Location: encuesta.php');
+        exit();
+    }
+}
+
 // Obtener primer nombre del usuario logueado
 $nombreUsuario = $_SESSION['session_user']['nombre_completo']
   ?? $_SESSION['session_user']['usuario']
@@ -282,33 +297,6 @@ $primerNombre = $partes[0] ?? 'Usuario';
 </style>
 
 <?php include './admin/include/navbar_logueado.php'; ?>
-
-<?php if (isset($_SESSION['mostrar_bienvenida']) && $_SESSION['mostrar_bienvenida'] == true): ?>
-<script>
-Swal.fire({
-  title: "¡Bienvenido <?php echo addslashes($_SESSION['session_user']['nombre_completo']); ?>!",
-  html:
-    "Estás registrado para votar en:<br>" +
-    "<b>Departamento: <?php echo addslashes($_SESSION['session_user']['departamento_nombre']); ?></b><br>" +
-    "<b>Municipio: <?php echo addslashes($_SESSION['session_user']['municipio_nombre']); ?></b><br><br>" +
-    "Haz clic en confirmar para continuar.",
-  icon: "info",
-  confirmButtonText: "Confirmar",
-  allowOutsideClick: false
-}).then((result) => {
-  if (result.isConfirmed) {
-    const opcionActiva = "<?php echo addslashes($opcionActivaWeb); ?>";
-    if (opcionActiva === 'sondeo') {
-      window.location.href = "sondeo.php";
-    } else if (opcionActiva === 'estudio') {
-      window.location.href = "grilla.php";
-    } else if (opcionActiva === 'cuestionario') {
-      window.location.href = "encuesta.php";
-    }
-  }
-});
-</script>
-<?php unset($_SESSION['mostrar_bienvenida']); endif; ?>
 
 <div class="page-wrap">
 

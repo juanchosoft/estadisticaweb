@@ -6,14 +6,27 @@ class FichaTecnicaEncuesta
     public static function getAll($rqst)
     {
         $id = isset($rqst['id']) ? intval($rqst['id']) : 0;
+        $soloHabilitadas = isset($rqst['solo_habilitadas']) && $rqst['solo_habilitadas'] === true;
+
         $db = new DbConection();
         $pdo = $db->openConect();
         $q = "SELECT * FROM " . $db->getTable('tbl_ficha_tecnica_encuestas');
         $params = [];
+        $conditions = [];
+
         if ($id > 0) {
-            $q .= " WHERE id = :id";
+            $conditions[] = "id = :id";
             $params[':id'] = $id;
         }
+
+        if ($soloHabilitadas) {
+            $conditions[] = "habilitado = 'si'";
+        }
+
+        if (!empty($conditions)) {
+            $q .= " WHERE " . implode(" AND ", $conditions);
+        }
+
         try {
             $stmt = $pdo->prepare($q);
             $stmt->execute($params);

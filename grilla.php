@@ -6,6 +6,18 @@ include './admin/classes/Departamento.php';
 include './admin/classes/Grilla.php';
 include './admin/classes/GrillaCandidatoRespuesta.php';
 
+// Validar acceso según opción activa
+$config = Util::getInformacionConfiguracion();
+$opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
+if ($opcionActivaWeb !== 'estudio') {
+    if ($opcionActivaWeb === 'sondeo') {
+        header('Location: sondeo.php');
+    } else {
+        header('Location: encuesta.php');
+    }
+    exit();
+}
+
 // Información de grillas
 $arr = Grilla::getAll(null);
 $isvalidGrilla = $arr['output']['valid'];

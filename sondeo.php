@@ -2,6 +2,18 @@
 require './admin/include/generic_classes.php';
 include './admin/classes/Sondeo.php';
 
+// Validar acceso según opción activa
+$config = Util::getInformacionConfiguracion();
+$opcionActivaWeb = $config[0]['opcion_activa_web'] ?? '';
+if ($opcionActivaWeb !== 'sondeo') {
+    if ($opcionActivaWeb === 'cuestionario') {
+        header('Location: encuesta.php');
+    } else {
+        header('Location: grilla.php');
+    }
+    exit();
+}
+
 $depUsuario = $_SESSION['session_user']['codigo_departamento'] ?? null;
 
 $arr = Sondeo::getSondeosFiltrados(null);
