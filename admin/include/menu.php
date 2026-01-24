@@ -161,9 +161,7 @@
   .modal-pro .hero{
     padding: 1.15rem 1.25rem;
     color:#fff;
-    background:
-      radial-gradient(1200px 400px at 0% 0%, rgba(255,255,255,.18), transparent 60%),
-      linear-gradient(135deg, var(--nav-blue), var(--nav-blue-2));
+    background:  #20427F !important;  
   }
   .modal-pro .hero h5{ margin: 0; font-weight: 900; letter-spacing: .2px; }
   .modal-pro .hero p{ margin: .35rem 0 0; opacity: .95; font-weight: 700; }
@@ -268,7 +266,47 @@
     font-weight: 900;
     color: var(--nav-blue);
   }
+  .blanco { 
+    color: #ffffff;
+   }
   .login-mini-links a:hover{ text-decoration: underline; }
+  /* =========================
+   LOGO PRO SAAS
+========================= */
+.logo-wrap{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.logo-estadistica{
+  max-width: 180px;     /* PC */
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transition: all .25s ease;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.18));
+}
+
+/* Tablet */
+@media (max-width: 991px){
+  .logo-estadistica{
+    max-width: 200px;
+  }
+}
+
+/* Celular */
+@media (max-width: 576px){
+  .logo-estadistica{
+    max-width: 160px;
+  }
+}
+.logo-estadistica{
+  filter: drop-shadow(0 6px 14px rgba(255,255,255,.25));
+}
+
 </style>
 
 <div class="container-fluid p-0">
@@ -331,12 +369,16 @@
 
       <div class="hero">
         <div class="d-flex align-items-start justify-content-between gap-3">
-          <div>
-            <div class="modal-logo-pill mb-2">
-              <img src="assets/img/admin/estadistica3.png" alt="Logo">            
-            </div>
-            <h5><i class="fa fa-bolt me-2"></i>¡Tu voto cuenta!</h5>
-            <p>Regístrate en menos de 1 minuto y participa.</p>
+          <div>            
+                <div class="logo-wrap">
+            <img 
+              src="assets/img/admin/estadistica3.png" 
+              alt="Estadística 360"
+              class="logo-estadistica" >
+          </div>        
+            
+            <h5 class=" blanco"><i class="fa fa-bolt me-2 blanco"></i>¡Tu voto cuenta!</h5>
+            <p class="blanco">Regístrate en menos de 1 minuto y participa.</p>
           </div>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
@@ -376,8 +418,8 @@
       </div>
 
       <div class="modal-footer d-flex gap-2">
-        <button type="button" class="btn btn-soft w-50" data-bs-dismiss="modal">Ahora no</button>
-        <a href="registro.php" target="_blank" class="btn btn-primary-blue w-50">
+        <button type="button" class="btn btn-soft w-10" data-bs-dismiss="modal">Ahora no</button>
+        <a href="registro.php" target="_blank" class="btn btn-primary-blue w-10">
           <i class="fa fa-user-plus me-2"></i>Inscríbete
         </a>
       </div>
@@ -394,11 +436,16 @@
       <div class="hero">
         <div class="d-flex align-items-start justify-content-between gap-3">
           <div>
-            <div class="modal-logo-pill mb-2">
-              <img src="assets/img/admin/estadistica3.png" alt="Logo">
-              <div class="fw-bold">Votaciones</div>
-            </div>
-            <h5><i class="fa fa-unlock-alt me-2"></i>Inicia sesión</h5>
+     
+           <div class="logo-wrap">
+            <img 
+              src="assets/img/admin/estadistica3.png" 
+              alt="Estadística 360"
+              class="logo-estadistica" >
+          </div>
+  
+           
+            <h5 class="blanco"><i class="fa fa-unlock-alt me-2 blanco"></i>Inicia sesión</h5>
             <p>Ingresa para votar, ver resultados y participar.</p>
           </div>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>

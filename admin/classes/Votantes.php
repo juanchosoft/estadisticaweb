@@ -28,163 +28,203 @@ class Votantes
     }
 
     public static function save($rqst)
-    {
-        $id = isset($rqst['id']) ? intval($rqst['id']) : 0;
-        $dtcreate = isset($rqst['dtcreate']) ? trim($rqst['dtcreate']) : '';
-        $tbl_usuario_id = isset($_SESSION['session_user']['id']) ? intval($_SESSION['session_user']['id']) : 0;
-        $nombre_completo = isset($rqst['nombre_completo']) ? trim($rqst['nombre_completo']) : '';
-        $ideologia = isset($rqst['ideologia']) ? trim($rqst['ideologia']) : '';
-        $rango_edad = isset($rqst['rango_edad']) ? trim($rqst['rango_edad']) : '';
-        $nivel_ingresos = isset($rqst['nivel_ingresos']) ? trim($rqst['nivel_ingresos']) : '';
-        $email = isset($rqst['email']) ? trim($rqst['email']) : '';
-        $username = isset($rqst['username']) ? trim($rqst['username']) : '';
-        $password = isset($rqst['password']) ? trim($rqst['password']) : '';
-        $genero = isset($rqst['genero']) ? trim($rqst['genero']) : '';
-        $codigo_departamento = isset($rqst['codigo_departamento']) ? trim($rqst['codigo_departamento']) : '';
-        $codigo_municipio = isset($rqst['codigo_municipio']) ? trim($rqst['codigo_municipio']) : '';
-        $nivel_educacion = isset($rqst['nivel_educacion']) ? trim($rqst['nivel_educacion']) : '';
-        $ocupacion = isset($rqst['ocupacion']) ? trim($rqst['ocupacion']) : '';
-        $estado = isset($rqst['estado']) ? trim($rqst['estado']) : '';
-        // $email_verificado = isset($rqst['email_verificado']) ? trim($rqst['email_verificado']) : '';
-        // $ultimo_acceso = isset($rqst['ultimo_acceso']) ? trim($rqst['ultimo_acceso']) : '';
-        // $intentos_login = isset($rqst['intentos_login']) ? trim($rqst['intentos_login']) : '';
-        // $cuenta_bloqueada_hasta = isset($rqst['cuenta_bloqueada_hasta']) ? trim($rqst['cuenta_bloqueada_hasta']) : '';
-        // $dtupdate = isset($rqst['dtupdate']) ? trim($rqst['dtupdate']) : '';
-        $ip_registro = Util::get_real_ipaddress();
-        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+{
+    // =========================
+    // 1) Normalizar inputs
+    // =========================
+    $id = isset($rqst['id']) ? (int)$rqst['id'] : 0;
 
-        if (empty($nombre_completo)) {
-            return Util::error_missing_data_description('El campo "Nombre completo" es requerido.');
-        }
-        if (empty($ideologia)) {
-            return Util::error_missing_data_description('El campo "Ideología política" es requerido.');
-        }
-        if (empty($rango_edad)) {
-            return Util::error_missing_data_description('El campo "Rango de edad" es requerido.');
-        }
-        if (empty($nivel_ingresos)) {
-            return Util::error_missing_data_description('El campo "Nivel socioeconómico" es requerido.');
-        }
-/*         if (!empty($username)) {
-            if (empty($password)) {
-                return Util::error_missing_data_description('El campo "Contraseña" es requerido.');
-            }
-        } */
-        if (!empty($password)) {
-            if (empty($username)) {
-                return Util::error_missing_data_description('El campo "Username" es requerido.');
-            }
-        }
+    $tbl_usuario_id = isset($_SESSION['session_user']['id'])
+        ? (int)$_SESSION['session_user']['id']
+        : 0;
 
-        if (!empty($username)) {
-            if (strlen($username) < 4) {
-                return Util::error_missing_data_description('El campo "Username" debe tener al menos 4 caracteres.');
-            }
-        }
+    $nombre_completo      = isset($rqst['nombre_completo']) ? trim((string)$rqst['nombre_completo']) : '';
+    $ideologia            = isset($rqst['ideologia']) ? trim((string)$rqst['ideologia']) : '';
+    $rango_edad           = isset($rqst['rango_edad']) ? trim((string)$rqst['rango_edad']) : '';
+    $nivel_ingresos       = isset($rqst['nivel_ingresos']) ? trim((string)$rqst['nivel_ingresos']) : '';
+    $email                = isset($rqst['email']) ? trim((string)$rqst['email']) : '';
+    $username             = isset($rqst['username']) ? trim((string)$rqst['username']) : '';
+    $password             = isset($rqst['password']) ? trim((string)$rqst['password']) : '';
+    $genero               = isset($rqst['genero']) ? trim((string)$rqst['genero']) : '';
+    $codigo_departamento  = isset($rqst['codigo_departamento']) ? trim((string)$rqst['codigo_departamento']) : '';
+    $codigo_municipio     = isset($rqst['codigo_municipio']) ? trim((string)$rqst['codigo_municipio']) : '';
+    $nivel_educacion      = isset($rqst['nivel_educacion']) ? trim((string)$rqst['nivel_educacion']) : '';
+    $ocupacion            = isset($rqst['ocupacion']) ? trim((string)$rqst['ocupacion']) : '';
+    $estado               = isset($rqst['estado']) ? trim((string)$rqst['estado']) : '';
 
-        if (!Votantes::available(array('username' => $username))) {
-            return Util::error_missing_data_description('El campo "Username" ya existe.');
-        }
+    $ip_registro = Util::get_real_ipaddress();
+    $user_agent  = isset($_SERVER['HTTP_USER_AGENT']) ? (string)$_SERVER['HTTP_USER_AGENT'] : '';
 
-        if (strlen($password) > 2) {
-            $password = Util::make_hash_pass($password);
-        }
+    // =========================
+    // 2) Validaciones
+    // =========================
+    if ($nombre_completo === '') return Util::error_missing_data_description('El campo "Nombre completo" es requerido.');
+    if ($ideologia === '')       return Util::error_missing_data_description('El campo "Ideología política" es requerido.');
+    if ($rango_edad === '')      return Util::error_missing_data_description('El campo "Rango de edad" es requerido.');
+    if ($nivel_ingresos === '')  return Util::error_missing_data_description('El campo "Nivel socioeconómico" es requerido.');
 
-        if (!empty($email)) {
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return Util::error_missing_data_description('El campo "Correo electrónico" es inválido.');
-            }
-        }
-        if (empty($genero)) {
-            return Util::error_missing_data_description('El campo "Género" es requerido.');
-        }
-        if (empty($codigo_departamento)) {
-            return Util::error_missing_data_description('El campo "Código del departamento" es requerido.');
-        }
-        if (empty($codigo_municipio)) {
-            return Util::error_missing_data_description('El campo "Código del municipio" es requerido.');
-        }
-        if (empty($estado)) {
-            return Util::error_missing_data_description('El campo "Estado de la cuenta" es requerido.');
-        }
+    // Si viene password, username es obligatorio
+    if ($password !== '' && $username === '') {
+        return Util::error_missing_data_description('El campo "Username" es requerido.');
+    }
 
+    // Si viene username, validar mínimo
+    if ($username !== '' && strlen($username) < 4) {
+        return Util::error_missing_data_description('El campo "Username" debe tener al menos 4 caracteres.');
+    }
 
-        $db = new DbConection();
-        $pdo = $db->openConect();
+    // Email válido si se envía
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return Util::error_missing_data_description('El campo "Correo electrónico" es inválido.');
+    }
 
-        try {
-            $pdo->beginTransaction();
+    if ($genero === '')              return Util::error_missing_data_description('El campo "Género" es requerido.');
+    if ($codigo_departamento === '') return Util::error_missing_data_description('El campo "Código del departamento" es requerido.');
+    if ($codigo_municipio === '')    return Util::error_missing_data_description('El campo "Código del municipio" es requerido.');
+    if ($estado === '')              return Util::error_missing_data_description('El campo "Estado de la cuenta" es requerido.');
+
+    // =========================
+    // 3) DB
+    // =========================
+    $db  = new DbConection();
+    $pdo = $db->openConect();
+    $table = $db->getTable('tbl_votantes');
+
+    try {
+        $pdo->beginTransaction();
+
+        // =========================
+        // 4) Validar disponibilidad username (solo cuando aplique)
+        // =========================
+        if ($username !== '') {
 
             if ($id > 0) {
-                $table = $db->getTable('tbl_votantes');
+                // Si está editando, solo validar si cambió el username
+                $stmtCur = $pdo->prepare("SELECT username FROM {$table} WHERE id = :id LIMIT 1");
+                $stmtCur->execute([':id' => $id]);
+                $curUsername = (string)($stmtCur->fetchColumn() ?: '');
 
-                $arrfieldscomma = [
-                    'tbl_usuario_id' => $tbl_usuario_id,
-                    'nombre_completo' => $nombre_completo,
-                    'ideologia' => $ideologia,
-                    'rango_edad' => $rango_edad,
-                    'nivel_ingresos' => $nivel_ingresos,
-                    'email' => $email,
-                    'username' => $username,
-                    'password' => $password,
-                    'genero' => $genero,
-                    'codigo_departamento' => $codigo_departamento,
-                    'codigo_municipio' => $codigo_municipio,
-                    'nivel_educacion' => $nivel_educacion,
-                    'ocupacion' => $ocupacion,
-                    'estado' => $estado,
-                    'dtupdate' => Util::date()
-                ];
-                if($password == ""){
-                    unset($arrfieldscomma['password']);
+                if ($curUsername !== $username) {
+                    if (!Votantes::available(['username' => $username])) {
+                        $pdo->rollBack();
+                        return Util::error_missing_data_description('El campo "Username" ya existe.');
+                    }
                 }
-                $arrfieldsnocomma = array('dtcreate' => Util::date_now_server());
-                $q_update = Util::make_query_update($table, "id = '$id'", $arrfieldscomma, $arrfieldsnocomma);
-
-                // La ejecución del query ahora puede lanzar una excepción si falla
-                $pdo->query($q_update);
-                $arrjson = array('output' => array('valid' => true, 'id' => $id));
             } else {
-
-                $q = "INSERT INTO " . $db->getTable('tbl_votantes') . " 
-                (dtcreate, tbl_usuario_id, nombre_completo, ideologia, rango_edad, nivel_ingresos, email, username, password, genero, codigo_departamento, codigo_municipio, nivel_educacion, ocupacion, estado, ip_registro, user_agent) VALUES 
-                 (:dtcreate, :tbl_usuario_id, :nombre_completo, :ideologia, :rango_edad, :nivel_ingresos, :email, :username, :password, :genero, :codigo_departamento, :codigo_municipio, :nivel_educacion, :ocupacion, :estado, :ip_registro, :user_agent)";
-                $stmt = $pdo->prepare($q);
-                $arrparam = [
-                    ':dtcreate' => Util::date(),
-                    ':tbl_usuario_id' => $tbl_usuario_id,
-                    ':nombre_completo' => $nombre_completo,
-                    ':ideologia' => $ideologia,
-                    ':rango_edad' => $rango_edad,
-                    ':nivel_ingresos' => $nivel_ingresos,
-                    ':email' => $email,
-                    ':username' => $username,
-                    ':password' => $password,
-                    ':genero' => $genero,
-                    ':codigo_departamento' => $codigo_departamento,
-                    ':codigo_municipio' => $codigo_municipio,
-                    ':nivel_educacion' => $nivel_educacion,
-                    ':ocupacion' => $ocupacion,
-                    ':estado' => $estado,
-                    ':ip_registro' => $ip_registro,
-                    ':user_agent' => $user_agent,
-                ];
-
-                $stmt->execute($arrparam);
-                $arrjson = array('output' => array('valid' => true, 'response' => $pdo->lastInsertId()));
+                // Creando: validar siempre
+                if (!Votantes::available(['username' => $username])) {
+                    $pdo->rollBack();
+                    return Util::error_missing_data_description('El campo "Username" ya existe.');
+                }
             }
-            $pdo->commit();
-        } catch (PDOException $e) {
-            print_r($e);
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            $arrjson = Util::error_general('Guardando datos en Votantes');
-        } finally {
-            $db->closeConect();
         }
-        return $arrjson;
+
+        // =========================
+        // 5) Hash password si aplica
+        // =========================
+        $passwordToSave = '';
+        if ($password !== '') {
+            // Tu regla original: solo si longitud > 2
+            if (strlen($password) > 2) {
+                $passwordToSave = Util::make_hash_pass($password);
+            } else {
+                // si mandan algo muy corto, rechazar para no guardar basura
+                $pdo->rollBack();
+                return Util::error_missing_data_description('La contraseña es demasiado corta.');
+            }
+        }
+
+        // =========================
+        // 6) UPDATE o INSERT
+        // =========================
+        if ($id > 0) {
+
+            // Campos a actualizar
+            $fields = [
+                'tbl_usuario_id'       => $tbl_usuario_id,
+                'nombre_completo'      => $nombre_completo,
+                'ideologia'            => $ideologia,
+                'rango_edad'           => $rango_edad,
+                'nivel_ingresos'       => $nivel_ingresos,
+                'email'                => $email,
+                'username'             => $username,
+                'genero'               => $genero,
+                'codigo_departamento'  => $codigo_departamento,
+                'codigo_municipio'     => $codigo_municipio,
+                'nivel_educacion'      => $nivel_educacion,
+                'ocupacion'            => $ocupacion,
+                'estado'               => $estado,
+                'dtupdate'             => Util::date(),
+            ];
+
+            // Solo actualizar password si viene uno nuevo
+            if ($passwordToSave !== '') {
+                $fields['password'] = $passwordToSave;
+            }
+
+            // ✅ Update parametrizado (sin concatenar)
+            $setParts = [];
+            $params = [':id' => $id];
+
+            foreach ($fields as $col => $val) {
+                $ph = ':' . $col;
+                $setParts[] = "{$col} = {$ph}";
+                $params[$ph] = $val;
+            }
+
+            $sql = "UPDATE {$table} SET " . implode(', ', $setParts) . " WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+
+            $pdo->commit();
+            return ['output' => ['valid' => true, 'id' => $id]];
+
+        } else {
+
+            // INSERT parametrizado
+            $sql = "INSERT INTO {$table}
+              (dtcreate, tbl_usuario_id, nombre_completo, ideologia, rango_edad, nivel_ingresos, email, username, password,
+               genero, codigo_departamento, codigo_municipio, nivel_educacion, ocupacion, estado, ip_registro, user_agent)
+              VALUES
+              (:dtcreate, :tbl_usuario_id, :nombre_completo, :ideologia, :rango_edad, :nivel_ingresos, :email, :username, :password,
+               :genero, :codigo_departamento, :codigo_municipio, :nivel_educacion, :ocupacion, :estado, :ip_registro, :user_agent)";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':dtcreate'           => Util::date(),
+                ':tbl_usuario_id'     => $tbl_usuario_id,
+                ':nombre_completo'    => $nombre_completo,
+                ':ideologia'          => $ideologia,
+                ':rango_edad'         => $rango_edad,
+                ':nivel_ingresos'     => $nivel_ingresos,
+                ':email'              => $email,
+                ':username'           => $username,
+                ':password'           => ($passwordToSave !== '' ? $passwordToSave : ''), // si tu BD NO permite vacío, aquí debes exigir password
+                ':genero'             => $genero,
+                ':codigo_departamento'=> $codigo_departamento,
+                ':codigo_municipio'   => $codigo_municipio,
+                ':nivel_educacion'    => $nivel_educacion,
+                ':ocupacion'          => $ocupacion,
+                ':estado'             => $estado,
+                ':ip_registro'        => $ip_registro,
+                ':user_agent'         => $user_agent,
+            ]);
+
+            $newId = (int)$pdo->lastInsertId();
+            $pdo->commit();
+
+            return ['output' => ['valid' => true, 'response' => $newId]];
+        }
+
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        // No imprimir errores (rompe el front). Devuelve error estándar.
+        return Util::error_general('Guardando datos en Votantes');
+    } finally {
+        $db->closeConect();
     }
+}
+
 
     public static function available($rqst)
     {

@@ -26,6 +26,8 @@ foreach ($departamentosResponse as $dep) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
   <!-- Bootstrap Icons / FontAwesome (si ya lo tienes en tu head.php, puedes quitar estas líneas) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -238,8 +240,296 @@ foreach ($departamentosResponse as $dep) {
   color: #ffffff;
 }
 
+/* ====== SAAS PASSWORD FIELD (adaptado) ====== */
+.password-field-saas{
+  position: relative;
+  border-radius: 14px;
+}
+
+.password-field-saas .pw-input{
+  height: 48px;
+  border-radius: 14px;
+  padding-left: 46px;
+  padding-right: 44px;
+  border: 1px solid rgba(15,23,42,.14);
+  background: #fff;
+  font-size: 14px;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.password-field-saas .pw-input:focus{
+  border-color: rgba(37,99,235,.75);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+  transform: translateY(-1px);
+}
+
+.password-field-saas .pw-icon-left{
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(100,116,139,.9);
+  font-size: 14px;
+  pointer-events:none;
+  z-index: 2;
+}
+
+.password-field-saas .pw-glow{
+  position:absolute;
+  inset: -2px;
+  border-radius: 16px;
+  pointer-events:none;
+  opacity: 0;
+  transition: opacity .18s ease;
+  background: radial-gradient(120px 60px at 30% 50%, rgba(37,99,235,.14), transparent 70%);
+  z-index: 0;
+}
+.password-field-saas .pw-input:focus ~ .pw-glow{
+  opacity: 1;
+}
+
+/* 👁️ ojo */
+.password-field-saas .pw-toggle{
+  position:absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: rgba(100,116,139,.85);
+  padding: 7px 8px;
+  border-radius: 10px;
+  cursor:pointer;
+  transition: background .18s ease, color .18s ease, transform .18s ease, opacity .18s ease;
+  opacity: 0;          
+  pointer-events: none;
+  z-index: 3;
+}
+.password-field-saas .pw-toggle:hover{
+  background: rgba(37,99,235,.08);
+  color: rgba(37,99,235,.95);
+  transform: translateY(-50%) scale(1.03);
+}
+.password-field-saas .pw-toggle.active{
+  color: rgba(37,99,235,.95);
+}
+
+/* ✅ aparece cuando hay texto (JS pone .has-value) */
+.password-field-saas.has-value .pw-toggle{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== Meter ===== */
+.pw-meter{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(2,6,23,.06);
+  overflow: hidden;
+  border: 1px solid rgba(2,6,23,.08);
+}
+.pw-meter .pw-meter-bar{
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  transition: width .2s ease;
+}
+
+.pw-meter-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-top: 6px;
+}
+.pw-meter-row .pw-meter-text{
+  font-size: 12px;
+  color: rgba(100,116,139,1);
+  font-weight: 700;
+}
+.pw-meter-row .pw-score{
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(15,23,42,.9);
+  white-space: nowrap;
+}
+
+/* ===== Rules ===== */
+.pw-rules{
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+@media (min-width: 768px){
+  .pw-rules{ grid-template-columns: 1fr 1fr; }
+}
+.pw-rules li{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(100,116,139,1);
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(2,6,23,.08);
+  background: rgba(248,250,252,1);
+}
+.pw-rules li i{
+  font-size: 10px;
+  color: rgba(148,163,184,1);
+}
+
+.pw-rules li.ok{
+  color: rgba(15,23,42,.95);
+  border-color: rgba(34,197,94,.25);
+  background: rgba(34,197,94,.08);
+}
+.pw-rules li.ok i{
+  color: rgba(34,197,94,.95);
+}
+
+.pw-bar-weak  { background: linear-gradient(90deg, rgba(239,68,68,.9), rgba(239,68,68,.55)); }
+.pw-bar-mid   { background: linear-gradient(90deg, rgba(245,158,11,.95), rgba(245,158,11,.55)); }
+.pw-bar-good  { background: linear-gradient(90deg, rgba(59,130,246,.95), rgba(59,130,246,.55)); }
+.pw-bar-strong{ background: linear-gradient(90deg, rgba(34,197,94,.95), rgba(34,197,94,.55)); }
+
   </style>
 </head>
+<script>
+(function(){
+  function initOne(wrap){
+    if (!wrap || wrap.dataset.pwInit === '1') return;
+    wrap.dataset.pwInit = '1';
+
+    const input = wrap.querySelector('.js-pw-input');
+    const btn   = wrap.querySelector('.js-pw-toggle');
+    const icon  = btn ? btn.querySelector('i') : null;
+
+    const bar   = wrap.parentElement.querySelector('.js-pw-bar');
+    const text  = wrap.parentElement.querySelector('.js-pw-text');
+    const score = wrap.parentElement.querySelector('.js-pw-score');
+    const rules = wrap.parentElement.querySelector('.js-pw-rules');
+
+    if(!input || !btn || !bar || !text || !score || !rules) return;
+
+    function setRule(ruleName, ok){
+      const li = rules.querySelector('[data-rule="'+ruleName+'"]');
+      if(!li) return;
+      li.classList.toggle('ok', !!ok);
+
+      const i = li.querySelector('i');
+      if(i){
+        i.classList.toggle('fa-circle', !ok);
+        i.classList.toggle('fa-check-circle', !!ok);
+      }
+    }
+
+    function cleanBarClasses(){
+      bar.classList.remove('pw-bar-weak','pw-bar-mid','pw-bar-good','pw-bar-strong');
+    }
+
+    function evaluatePassword(pw){
+      pw = String(pw || '');
+
+      const hasLen   = pw.length >= 8;
+      const hasUpper = /[A-ZÁÉÍÓÚÑ]/.test(pw);
+      const hasNum   = /\d/.test(pw);
+      const hasSpec  = /[^A-Za-z0-9ÁÉÍÓÚÑáéíóúñ]/.test(pw);
+
+      setRule('len', hasLen);
+      setRule('upper', hasUpper);
+      setRule('num', hasNum);
+      setRule('spec', hasSpec);
+
+      let s = 0;
+      if (hasLen) s += 25;
+      if (hasUpper) s += 20;
+      if (hasNum) s += 20;
+      if (hasSpec) s += 20;
+
+      if (pw.length >= 12) s += 10;
+      if (pw.length >= 16) s += 5;
+
+      const lower = pw.toLowerCase();
+      if (/^(1234|12345|123456|password|qwerty|admin)/.test(lower)) s = Math.max(10, s - 35);
+      if (/(.)\1\1/.test(pw)) s = Math.max(10, s - 10);
+
+      s = Math.max(0, Math.min(100, s));
+
+      let label = 'Débil', cls = 'pw-bar-weak';
+      if (s >= 35) { label = 'Media'; cls = 'pw-bar-mid'; }
+      if (s >= 60) { label = 'Fuerte'; cls = 'pw-bar-good'; }
+      if (s >= 80) { label = 'Brutal'; cls = 'pw-bar-strong'; }
+
+      return { score: s, label, cls };
+    }
+
+    function updateUI(){
+      const val = input.value || '';
+      wrap.classList.toggle('has-value', val.trim().length > 0);
+
+      if (!val){
+        cleanBarClasses();
+        bar.style.width = '0%';
+        text.textContent = 'Escribe una contraseña para ver la fuerza';
+        score.textContent = '';
+        setRule('len', false); setRule('upper', false); setRule('num', false); setRule('spec', false);
+        return;
+      }
+
+      const r = evaluatePassword(val);
+      cleanBarClasses();
+      bar.classList.add(r.cls);
+      bar.style.width = r.score + '%';
+      text.textContent = 'Fuerza: ' + r.label;
+      score.textContent = r.score + '/100';
+    }
+
+    btn.addEventListener('click', function(){
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.classList.toggle('active', show);
+      btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+
+      if(icon){
+        icon.classList.toggle('fa-eye', !show);
+        icon.classList.toggle('fa-eye-slash', show);
+      }
+      input.focus();
+    });
+
+    input.addEventListener('input', updateUI);
+    input.addEventListener('focus', updateUI);
+    input.addEventListener('blur', updateUI);
+
+    updateUI();
+  }
+
+  function initAll(){
+    document.querySelectorAll('.js-pw-wrap').forEach(initOne);
+  }
+
+  // ✅ init normal
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+
+  // ✅ fallback por si esto está dentro de un modal o contenido que se inyecta luego
+  let tries = 0;
+  const t = setInterval(function(){
+    tries++;
+    initAll();
+    if (tries >= 10) clearInterval(t);
+  }, 300);
+
+})();
+</script>
 
 <body>
 
@@ -317,6 +607,49 @@ foreach ($departamentosResponse as $dep) {
           </div>
 
           <div class="col-md-6">
+  <label class="form-label fw-semibold">Contraseña</label>
+
+  <div class="password-field-saas js-pw-wrap">
+    <i class="fa fa-lock pw-icon-left"></i>
+
+    <input type="password"
+            id="password"
+           name="password"
+           class="form-control pw-input js-pw-input"
+           placeholder="Ingresa tu contraseña"
+           autocomplete="current-password"
+           required>
+
+    <button type="button"
+            class="pw-toggle js-pw-toggle"
+            aria-label="Mostrar u ocultar contraseña"
+            aria-pressed="false">
+      <i class="fa fa-eye"></i>
+    </button>
+
+    <span class="pw-glow"></span>
+  </div>
+
+  <div class="pw-meter mt-2">
+    <div class="pw-meter-bar js-pw-bar"></div>
+  </div>
+
+  <div class="pw-meter-row">
+    <span class="pw-meter-text js-pw-text">Escribe una contraseña para ver la fuerza</span>
+    <span class="pw-score js-pw-score"></span>
+  </div>
+
+  <ul class="pw-rules mt-2 js-pw-rules">
+    <li data-rule="len"><i class="fa fa-circle"></i> Mínimo 8 caracteres</li>
+    <li data-rule="upper"><i class="fa fa-circle"></i> Al menos 1 mayúscula</li>
+    <li data-rule="num"><i class="fa fa-circle"></i> Al menos 1 número</li>
+    <li data-rule="spec"><i class="fa fa-circle"></i> Al menos 1 símbolo (@#$%...)</li>
+  </ul>
+</div>
+
+
+
+          <!-- <div class="col-md-6">
             <label class="form-label">Contraseña *</label>
             <div class="input-group">
               <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
@@ -324,7 +657,7 @@ foreach ($departamentosResponse as $dep) {
                      placeholder="Mínimo 8 caracteres">
             </div>
             <div class="help">Tip: usa letras + números para mayor seguridad.</div>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -492,8 +825,7 @@ foreach ($departamentosResponse as $dep) {
               <select class="form-select" id="ocupacion" name="ocupacion" required>
                 <option value="">Selecciona</option>
                  <option value="Estudiante">Estudiante</option>
-                <option value="Empleado">Empleado</option>
-                <option value="Auto Empleado">Auto Empleado</option>
+                <option value="Empleado">Empleado</option>          
                 <option value="Empresario">Empresario</option>
                 <option value="Comerciante">Comerciante</option>
                 <option value="Independiente">Independiente</option>
