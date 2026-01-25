@@ -530,6 +530,26 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="col-lg-5 col-md-5">
           <div class="d-grid gap-3 gap-lg-4">
 
+            <?php if ($opcionActivaWeb === 'cuestionario'): ?>
+            <!-- SELECTOR DE PREGUNTAS (solo para modo cuestionario) -->
+            <div class="block">
+              <div class="block-head">
+                <h3 class="block-title text-center">Cuestionario Activo</h3>
+                <p class="block-sub text-center mb-0" id="fichaTecnicaNombre">
+                  Cargando ficha técnica...
+                </p>
+              </div>
+              <div class="block-body">
+                <label for="selectorPregunta" class="form-label fw-bold" style="color:#0f172a;">
+                  Selecciona una pregunta:
+                </label>
+                <select id="selectorPregunta" class="form-select">
+                  <option value="">Cargando preguntas...</option>
+                </select>
+              </div>
+            </div>
+            <?php endif; ?>
+
             <div class="block">
               <div class="block-head">
                 <h3 class="block-title text-center">Resumen nacional</h3>

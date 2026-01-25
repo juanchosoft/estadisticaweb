@@ -614,11 +614,66 @@ class RespuestaCuestionario
     }
 
     /**
+     * Obtiene las preguntas de opción múltiple del cuestionario activo
+     * para mostrar en el selector del index.php
+     */
+    public static function obtenerPreguntasCuestionarioActivo($rqst)
+    {
+        $db = new DbConection();
+        $pdo = $db->openConect();
+
+        try {
+            // Obtener la ficha técnica habilitada
+            $qFicha = "SELECT id, realizada_por_o_encomendada_por as nombre
+                       FROM " . $db->getTable('tbl_ficha_tecnica_encuestas') . "
+                       WHERE habilitado = 'si'
+                       ORDER BY dtcreate DESC
+                       LIMIT 1";
+            $stmt = $pdo->prepare($qFicha);
+            $stmt->execute();
+            $ficha = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$ficha) {
+                $db->closeConect();
+                return ["success" => false, "message" => "No hay encuestas habilitadas"];
+            }
+
+            // Obtener todas las preguntas de opción múltiple
+            $qPreguntas = "SELECT p.id, p.texto_pregunta, p.orden
+                          FROM " . $db->getTable('tbl_preguntas') . " p
+                          WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
+                          AND p.tipo_pregunta IN ('radio', 'checkbox', 'Seleccion_Multiple_unica_respuesta', 'Seleccion_Multiple_multiple_respuesta', 'Dicotomica', 'Preguntas_Cardinales', 'Preguntas_Ordinales')
+                          ORDER BY p.orden ASC";
+            $stmt = $pdo->prepare($qPreguntas);
+            $stmt->execute([":ficha_id" => $ficha['id']]);
+            $preguntas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $db->closeConect();
+
+            return [
+                "success" => true,
+                "ficha" => [
+                    "id" => $ficha['id'],
+                    "nombre" => $ficha['nombre']
+                ],
+                "preguntas" => $preguntas
+            ];
+
+        } catch (Exception $e) {
+            $db->closeConect();
+            return ["success" => false, "message" => $e->getMessage()];
+        }
+    }
+
+    /**
      * Obtiene resultados generales de encuestas para mostrar en el index (gráfico general)
      * Similar a obtenerSondeoGeneral pero para encuestas
+     * Acepta pregunta_id para filtrar por pregunta específica
      */
     public static function obtenerEncuestaGeneralIndex($rqst)
     {
+        $preguntaId = isset($rqst['pregunta_id']) ? intval($rqst['pregunta_id']) : 0;
+
         $db = new DbConection();
         $pdo = $db->openConect();
 
@@ -637,15 +692,24 @@ class RespuestaCuestionario
                 return ["success" => false, "message" => "No hay encuestas habilitadas"];
             }
 
-            // Obtener la primera pregunta de opción múltiple de esta encuesta
-            $qPregunta = "SELECT p.id, p.texto_pregunta
-                          FROM " . $db->getTable('tbl_preguntas') . " p
-                          WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
-                          AND p.tipo_pregunta IN ('radio', 'checkbox')
-                          ORDER BY p.orden ASC
-                          LIMIT 1";
-            $stmt = $pdo->prepare($qPregunta);
-            $stmt->execute([":ficha_id" => $ficha['id']]);
+            // Si se especifica pregunta_id, usarla; si no, obtener la primera
+            if ($preguntaId > 0) {
+                $qPregunta = "SELECT p.id, p.texto_pregunta
+                              FROM " . $db->getTable('tbl_preguntas') . " p
+                              WHERE p.id = :pregunta_id
+                              AND p.tbl_ficha_tecnica_encuesta_id = :ficha_id";
+                $stmt = $pdo->prepare($qPregunta);
+                $stmt->execute([":pregunta_id" => $preguntaId, ":ficha_id" => $ficha['id']]);
+            } else {
+                $qPregunta = "SELECT p.id, p.texto_pregunta
+                              FROM " . $db->getTable('tbl_preguntas') . " p
+                              WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
+                              AND p.tipo_pregunta IN ('radio', 'checkbox', 'Seleccion_Multiple_unica_respuesta', 'Seleccion_Multiple_multiple_respuesta', 'Dicotomica', 'Preguntas_Cardinales', 'Preguntas_Ordinales')
+                              ORDER BY p.orden ASC
+                              LIMIT 1";
+                $stmt = $pdo->prepare($qPregunta);
+                $stmt->execute([":ficha_id" => $ficha['id']]);
+            }
             $pregunta = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$pregunta) {
@@ -677,7 +741,8 @@ class RespuestaCuestionario
                 "sondeo" => [
                     "id" => $ficha['id'],
                     "sondeo" => $ficha['nombre'],
-                    "descripcion_sondeo" => $pregunta['texto_pregunta']
+                    "descripcion_sondeo" => $pregunta['texto_pregunta'],
+                    "pregunta_id" => $pregunta['id']
                 ],
                 "votos" => $votos
             ];
@@ -690,10 +755,12 @@ class RespuestaCuestionario
 
     /**
      * Obtiene resultados de encuesta filtrados por departamento (para el mapa del index)
+     * Acepta pregunta_id para filtrar por pregunta específica
      */
     public static function obtenerEncuestaMapaIndex($rqst)
     {
         $depClick = $rqst['departamento_click'] ?? null;
+        $preguntaId = isset($rqst['pregunta_id']) ? intval($rqst['pregunta_id']) : 0;
 
         $db = new DbConection();
         $pdo = $db->openConect();
@@ -713,15 +780,24 @@ class RespuestaCuestionario
                 return ["success" => false, "message" => "No hay encuestas habilitadas"];
             }
 
-            // Obtener la primera pregunta de opción múltiple
-            $qPregunta = "SELECT p.id, p.texto_pregunta
-                          FROM " . $db->getTable('tbl_preguntas') . " p
-                          WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
-                          AND p.tipo_pregunta IN ('radio', 'checkbox')
-                          ORDER BY p.orden ASC
-                          LIMIT 1";
-            $stmt = $pdo->prepare($qPregunta);
-            $stmt->execute([":ficha_id" => $ficha['id']]);
+            // Si se especifica pregunta_id, usarla; si no, obtener la primera
+            if ($preguntaId > 0) {
+                $qPregunta = "SELECT p.id, p.texto_pregunta
+                              FROM " . $db->getTable('tbl_preguntas') . " p
+                              WHERE p.id = :pregunta_id
+                              AND p.tbl_ficha_tecnica_encuesta_id = :ficha_id";
+                $stmt = $pdo->prepare($qPregunta);
+                $stmt->execute([":pregunta_id" => $preguntaId, ":ficha_id" => $ficha['id']]);
+            } else {
+                $qPregunta = "SELECT p.id, p.texto_pregunta
+                              FROM " . $db->getTable('tbl_preguntas') . " p
+                              WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
+                              AND p.tipo_pregunta IN ('radio', 'checkbox', 'Seleccion_Multiple_unica_respuesta', 'Seleccion_Multiple_multiple_respuesta', 'Dicotomica', 'Preguntas_Cardinales', 'Preguntas_Ordinales')
+                              ORDER BY p.orden ASC
+                              LIMIT 1";
+                $stmt = $pdo->prepare($qPregunta);
+                $stmt->execute([":ficha_id" => $ficha['id']]);
+            }
             $pregunta = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$pregunta) {
@@ -766,9 +842,276 @@ class RespuestaCuestionario
                 "sondeo" => [
                     "id" => $ficha['id'],
                     "sondeo" => $ficha['nombre'],
-                    "descripcion_sondeo" => $pregunta['texto_pregunta']
+                    "descripcion_sondeo" => $pregunta['texto_pregunta'],
+                    "pregunta_id" => $pregunta['id']
                 ],
                 "votos" => $votos
+            ];
+
+        } catch (Exception $e) {
+            $db->closeConect();
+            return ["success" => false, "message" => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Obtiene el ganador por cada departamento para el cuestionario activo (para colorear el mapa)
+     * Similar a Sondeo::ganadorPorTodosLosDepartamentos()
+     * Acepta pregunta_id opcional para filtrar por pregunta específica
+     * @param int $preguntaIdParam ID de la pregunta (opcional, si es 0 usa la primera)
+     * @return array ['codigo_departamento' => ['ganador' => opcion_id, 'empate' => bool], ...]
+     */
+    public static function ganadorPorTodosLosDepartamentosCuestionario($preguntaIdParam = 0)
+    {
+        $db = new DbConection();
+        $pdo = $db->openConect();
+
+        try {
+            // Obtener la ficha técnica habilitada
+            $qFicha = "SELECT id FROM " . $db->getTable('tbl_ficha_tecnica_encuestas') . "
+                       WHERE habilitado = 'si'
+                       ORDER BY dtcreate DESC
+                       LIMIT 1";
+            $stmt = $pdo->prepare($qFicha);
+            $stmt->execute();
+            $ficha = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$ficha) {
+                $db->closeConect();
+                return [];
+            }
+
+            // Si se especifica pregunta_id, usarla; si no, obtener la primera
+            if ($preguntaIdParam > 0) {
+                $qPregunta = "SELECT p.id
+                              FROM " . $db->getTable('tbl_preguntas') . " p
+                              WHERE p.id = :pregunta_id
+                              AND p.tbl_ficha_tecnica_encuesta_id = :ficha_id";
+                $stmt = $pdo->prepare($qPregunta);
+                $stmt->execute([":pregunta_id" => $preguntaIdParam, ":ficha_id" => $ficha['id']]);
+            } else {
+                $qPregunta = "SELECT p.id
+                              FROM " . $db->getTable('tbl_preguntas') . " p
+                              WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
+                              AND p.tipo_pregunta IN ('radio', 'checkbox', 'Seleccion_Multiple_unica_respuesta', 'Seleccion_Multiple_multiple_respuesta', 'Dicotomica', 'Preguntas_Cardinales', 'Preguntas_Ordinales')
+                              ORDER BY p.orden ASC
+                              LIMIT 1";
+                $stmt = $pdo->prepare($qPregunta);
+                $stmt->execute([":ficha_id" => $ficha['id']]);
+            }
+            $pregunta = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pregunta) {
+                $db->closeConect();
+                return [];
+            }
+
+            // Obtener votos por opción agrupados por departamento
+            $qVotos = "SELECT
+                          v.codigo_departamento,
+                          r.tbl_opcion_respuesta_id as opcion_id,
+                          COUNT(r.id) as total
+                       FROM " . $db->getTable('tbl_cuestionario_respuestas') . " r
+                       INNER JOIN " . $db->getTable('tbl_cuestionario_intentos') . " i ON r.tbl_intento_id = i.id
+                       INNER JOIN " . $db->getTable('tbl_votantes') . " v ON i.tbl_votante_id = v.id
+                       INNER JOIN " . $db->getTable('tbl_opciones_respuesta') . " o ON r.tbl_opcion_respuesta_id = o.id
+                       WHERE o.tbl_pregunta_id = :pregunta_id
+                       AND v.codigo_departamento IS NOT NULL
+                       AND v.codigo_departamento != ''
+                       GROUP BY v.codigo_departamento, r.tbl_opcion_respuesta_id
+                       ORDER BY v.codigo_departamento, total DESC";
+
+            $stmt = $pdo->prepare($qVotos);
+            $stmt->execute([":pregunta_id" => $pregunta['id']]);
+            $votos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $db->closeConect();
+
+            // Procesar resultados por departamento
+            $resultado = [];
+            $votosPorDepartamento = [];
+
+            // Agrupar votos por departamento
+            foreach ($votos as $voto) {
+                $dep = $voto['codigo_departamento'];
+                if (!isset($votosPorDepartamento[$dep])) {
+                    $votosPorDepartamento[$dep] = [];
+                }
+                $votosPorDepartamento[$dep][] = [
+                    'opcion_id' => $voto['opcion_id'],
+                    'total' => (int)$voto['total']
+                ];
+            }
+
+            // Determinar ganador o empate por departamento
+            foreach ($votosPorDepartamento as $dep => $votosDepto) {
+                if (empty($votosDepto)) {
+                    continue;
+                }
+
+                // Ordenar por total descendente
+                usort($votosDepto, function($a, $b) {
+                    return $b['total'] - $a['total'];
+                });
+
+                $maxVotos = $votosDepto[0]['total'];
+                $ganador = $votosDepto[0]['opcion_id'];
+
+                // Verificar si hay empate
+                $empate = false;
+                if (count($votosDepto) > 1 && $votosDepto[1]['total'] == $maxVotos) {
+                    $empate = true;
+                }
+
+                $resultado[$dep] = [
+                    'ganador' => $ganador,
+                    'empate' => $empate
+                ];
+            }
+
+            return $resultado;
+
+        } catch (Exception $e) {
+            $db->closeConect();
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene las opciones de la primera pregunta del cuestionario activo con sus IDs
+     * (para asignar colores en el mapa)
+     * @return array [['id' => opcion_id, 'texto' => texto_opcion], ...]
+     */
+    public static function obtenerOpcionesCuestionarioActivo()
+    {
+        $db = new DbConection();
+        $pdo = $db->openConect();
+
+        try {
+            // Obtener la ficha técnica habilitada
+            $qFicha = "SELECT id FROM " . $db->getTable('tbl_ficha_tecnica_encuestas') . "
+                       WHERE habilitado = 'si'
+                       ORDER BY dtcreate DESC
+                       LIMIT 1";
+            $stmt = $pdo->prepare($qFicha);
+            $stmt->execute();
+            $ficha = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$ficha) {
+                $db->closeConect();
+                return [];
+            }
+
+            // Obtener la primera pregunta de opción múltiple
+            $qPregunta = "SELECT p.id
+                          FROM " . $db->getTable('tbl_preguntas') . " p
+                          WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
+                          AND p.tipo_pregunta IN ('radio', 'checkbox', 'Seleccion_Multiple_unica_respuesta', 'Seleccion_Multiple_multiple_respuesta', 'Dicotomica', 'Preguntas_Cardinales', 'Preguntas_Ordinales')
+                          ORDER BY p.orden ASC
+                          LIMIT 1";
+            $stmt = $pdo->prepare($qPregunta);
+            $stmt->execute([":ficha_id" => $ficha['id']]);
+            $pregunta = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pregunta) {
+                $db->closeConect();
+                return [];
+            }
+
+            // Obtener opciones de la pregunta
+            $qOpciones = "SELECT id, texto_opcion as texto
+                          FROM " . $db->getTable('tbl_opciones_respuesta') . "
+                          WHERE tbl_pregunta_id = :pregunta_id
+                          ORDER BY id";
+            $stmt = $pdo->prepare($qOpciones);
+            $stmt->execute([":pregunta_id" => $pregunta['id']]);
+            $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $db->closeConect();
+            return $opciones;
+
+        } catch (Exception $e) {
+            $db->closeConect();
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene los colores para el mapa según una pregunta específica
+     * Devuelve datos para actualizar el mapa dinámicamente vía AJAX
+     * @param array $rqst Con pregunta_id
+     * @return array Con ganadores por departamento y colores de opciones
+     */
+    public static function obtenerColoresMapaCuestionario($rqst)
+    {
+        $preguntaId = isset($rqst['pregunta_id']) ? intval($rqst['pregunta_id']) : 0;
+
+        // Paleta de colores
+        $paletaColores = [
+            "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+            "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+        ];
+
+        $db = new DbConection();
+        $pdo = $db->openConect();
+
+        try {
+            // Obtener ficha técnica habilitada
+            $qFicha = "SELECT id FROM " . $db->getTable('tbl_ficha_tecnica_encuestas') . "
+                       WHERE habilitado = 'si'
+                       ORDER BY dtcreate DESC
+                       LIMIT 1";
+            $stmt = $pdo->prepare($qFicha);
+            $stmt->execute();
+            $ficha = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$ficha) {
+                $db->closeConect();
+                return ["success" => false, "message" => "No hay cuestionario activo"];
+            }
+
+            // Obtener la pregunta (específica o la primera)
+            if ($preguntaId > 0) {
+                $qPregunta = "SELECT p.id FROM " . $db->getTable('tbl_preguntas') . " p
+                              WHERE p.id = :pregunta_id AND p.tbl_ficha_tecnica_encuesta_id = :ficha_id";
+                $stmt = $pdo->prepare($qPregunta);
+                $stmt->execute([":pregunta_id" => $preguntaId, ":ficha_id" => $ficha['id']]);
+            } else {
+                $qPregunta = "SELECT p.id FROM " . $db->getTable('tbl_preguntas') . " p
+                              WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
+                              AND p.tipo_pregunta IN ('radio', 'checkbox', 'Seleccion_Multiple_unica_respuesta', 'Seleccion_Multiple_multiple_respuesta', 'Dicotomica', 'Preguntas_Cardinales', 'Preguntas_Ordinales')
+                              ORDER BY p.orden ASC LIMIT 1";
+                $stmt = $pdo->prepare($qPregunta);
+                $stmt->execute([":ficha_id" => $ficha['id']]);
+            }
+            $pregunta = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pregunta) {
+                $db->closeConect();
+                return ["success" => false, "message" => "Pregunta no encontrada"];
+            }
+
+            // Obtener opciones y asignar colores
+            $qOpciones = "SELECT id FROM " . $db->getTable('tbl_opciones_respuesta') . "
+                          WHERE tbl_pregunta_id = :pregunta_id ORDER BY id";
+            $stmt = $pdo->prepare($qOpciones);
+            $stmt->execute([":pregunta_id" => $pregunta['id']]);
+            $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $coloresOpciones = [];
+            foreach ($opciones as $index => $opc) {
+                $coloresOpciones[$opc['id']] = $paletaColores[$index % count($paletaColores)];
+            }
+
+            $db->closeConect();
+
+            // Obtener ganadores por departamento
+            $ganadores = self::ganadorPorTodosLosDepartamentosCuestionario($pregunta['id']);
+
+            return [
+                "success" => true,
+                "colores" => $coloresOpciones,
+                "ganadores" => $ganadores
             ];
 
         } catch (Exception $e) {

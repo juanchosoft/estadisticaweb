@@ -264,6 +264,16 @@ case 'encuesta_mapa_index':
     echo json_encode(RespuestaCuestionario::obtenerEncuestaMapaIndex($rqst));
 break;
 
+case 'encuesta_preguntas_activas':
+    include '../classes/RespuestaCuestionario.php';
+    echo json_encode(RespuestaCuestionario::obtenerPreguntasCuestionarioActivo($rqst));
+break;
+
+case 'encuesta_colores_mapa':
+    include '../classes/RespuestaCuestionario.php';
+    echo json_encode(RespuestaCuestionario::obtenerColoresMapaCuestionario($rqst));
+break;
+
 case 'mapa_colores_departamentos':
     include '../classes/Sondeo.php';
 

@@ -32,6 +32,111 @@ $(document).ready(function () {
 
   let grafico = null;
   let graficoGeneral = null;
+  let preguntaSeleccionada = 0; // Para modo cuestionario
+
+  /* =========================
+     MODO CUESTIONARIO: Cargar preguntas
+  ========================= */
+  function cargarPreguntasCuestionario() {
+    const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
+    if (opcionActiva !== 'cuestionario') return;
+
+    $.ajax({
+      url: "admin/ajax/rqst.php",
+      type: "POST",
+      dataType: "json",
+      data: { op: 'encuesta_preguntas_activas' },
+      success: function (res) {
+        console.log('Preguntas cuestionario:', res);
+        if (!res || !res.success) {
+          $('#selectorPregunta').html('<option value="">Sin preguntas disponibles</option>');
+          $('#fichaTecnicaNombre').text('No hay cuestionario activo');
+          return;
+        }
+
+        // Mostrar nombre de la ficha técnica
+        if (res.ficha && res.ficha.nombre) {
+          $('#fichaTecnicaNombre').text(res.ficha.nombre);
+        }
+
+        // Llenar selector de preguntas
+        let options = '';
+        if (res.preguntas && res.preguntas.length > 0) {
+          res.preguntas.forEach((p, idx) => {
+            const selected = idx === 0 ? 'selected' : '';
+            options += `<option value="${p.id}" ${selected}>${p.texto_pregunta}</option>`;
+          });
+          $('#selectorPregunta').html(options);
+
+          // Guardar la primera pregunta como seleccionada
+          preguntaSeleccionada = res.preguntas[0].id;
+
+          // Cargar gráfico con la primera pregunta
+          cargarGraficoGeneral(preguntaSeleccionada);
+          
+          // Actualizar colores del mapa con la primera pregunta
+          actualizarColoresMapaCuestionario(preguntaSeleccionada);
+        } else {
+          $('#selectorPregunta').html('<option value="">Sin preguntas disponibles</option>');
+        }
+      },
+      error: function() {
+        $('#selectorPregunta').html('<option value="">Error al cargar</option>');
+      }
+    });
+  }
+
+  // Evento: cambio de pregunta seleccionada
+  $(document).on('change', '#selectorPregunta', function() {
+    preguntaSeleccionada = parseInt($(this).val()) || 0;
+    console.log('Pregunta seleccionada:', preguntaSeleccionada);
+    cargarGraficoGeneral(preguntaSeleccionada);
+    actualizarColoresMapaCuestionario(preguntaSeleccionada);
+  });
+
+  /* =========================
+     MAPA: actualizar colores para cuestionario
+  ========================= */
+  function actualizarColoresMapaCuestionario(preguntaId) {
+    if (!preguntaId) return;
+
+    $.ajax({
+      url: "admin/ajax/rqst.php",
+      type: "POST",
+      dataType: "json",
+      data: {
+        op: "encuesta_colores_mapa",
+        pregunta_id: preguntaId
+      },
+      success: function (res) {
+        console.log('Colores mapa cuestionario:', res);
+        if (!res || !res.success) return;
+
+        const colores = res.colores || {};
+        const ganadores = res.ganadores || {};
+
+        // Actualizar colores globales
+        ColoresCandidatos = colores;
+
+        // Pintar el mapa
+        $("#mapaContainer svg path.mapaClick").each(function () {
+          const codigo = $(this).data("codigo");
+          if (!codigo) return;
+
+          const infoGanador = ganadores[codigo];
+
+          if (!infoGanador) {
+            $(this).css("fill", "#d9d9d9"); // Sin datos
+          } else if (infoGanador.empate === true) {
+            $(this).css("fill", "url(#rayasAzules)"); // Empate
+          } else {
+            const color = colores[infoGanador.ganador] || "#d9d9d9";
+            $(this).css("fill", color);
+          }
+        });
+      }
+    });
+  }
 
   /* =========================
      MAPA: pintar ganadores
@@ -81,17 +186,23 @@ $(document).ready(function () {
   /* =========================
      GRAFICO GENERAL PRO
   ========================= */
-  function cargarGraficoGeneral() {
+  function cargarGraficoGeneral(preguntaId = 0) {
     const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
 
     // Si es encuesta/cuestionario, usar endpoint diferente
     const endpoint = (opcionActiva === 'cuestionario') ? 'encuesta_general_index' : 'sondeo_general_index';
 
+    // Datos a enviar
+    const requestData = { op: endpoint };
+    if (opcionActiva === 'cuestionario' && preguntaId > 0) {
+      requestData.pregunta_id = preguntaId;
+    }
+
     $.ajax({
       url: "admin/ajax/rqst.php",
       type: "POST",
       dataType: "json",
-      data: { op: endpoint },
+      data: requestData,
       success: function (res) {
         console.log('cargarGraficoGeneral - respuesta:', res);
         if (!res || !res.success || !res.votos) {
@@ -262,11 +373,21 @@ $(document).ready(function () {
   /* =========================
      MAIN: init
   ========================= */
-  cargarGraficoGeneral();
+  const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
+
+  if (opcionActiva === 'cuestionario') {
+    // Modo cuestionario: cargar preguntas primero (el gráfico se carga después)
+    cargarPreguntasCuestionario();
+  } else {
+    // Modo sondeo: cargar gráfico directamente
+    cargarGraficoGeneral();
+  }
 
   // Espera a que el SVG esté montado (por include PHP)
   setTimeout(() => {
-    pintarMapaSegunGanadores();
+    if (opcionActiva !== 'cuestionario') {
+      pintarMapaSegunGanadores();
+    }
     MapaSondeo.hacerMapaClickeable();
   }, 250);
 
@@ -406,14 +527,20 @@ $(document).ready(function () {
       const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
       const endpoint = (opcionActiva === 'cuestionario') ? 'encuesta_mapa_index' : 'sondeo_presidencial_mapa';
 
+      const dataRqst = {
+        op: endpoint,
+        departamento_click: departamento
+      };
+
+      if (opcionActiva === 'cuestionario' && preguntaSeleccionada > 0) {
+        dataRqst.pregunta_id = preguntaSeleccionada;
+      }
+
       $.ajax({
         url: "admin/ajax/rqst.php",
         type: "POST",
         dataType: "json",
-        data: {
-          op: endpoint,
-          departamento_click: departamento
-        },
+        data: dataRqst,
         success: (res) => {
           if (!res || !res.success || !res.votos || res.votos.length === 0) {
             this.mostrarSondeoVacio();
