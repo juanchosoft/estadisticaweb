@@ -1,11 +1,32 @@
-const ColoresCandidatos = {
+// Colores por defecto (se sobreescriben con los dinámicos del mapa)
+let ColoresCandidatos = {
   1: "#1f77b4",
   2: "#ff7f0e",
   3: "#2ca02c",
   4: "#d62728"
 };
 
+// Usar colores dinámicos si están disponibles
+if (typeof window.ColoresCandidatosDinamicos !== 'undefined' && window.ColoresCandidatosDinamicos) {
+  ColoresCandidatos = window.ColoresCandidatosDinamicos;
+}
+
 const COLOR_TEMA = "#20427F";
+
+// Paleta de colores para gráficos (usada cuando no hay colores específicos)
+const PALETA_COLORES = [
+    "#1f77b4", // azul
+    "#ff7f0e", // naranja
+    "#2ca02c", // verde
+    "#d62728", // rojo
+    "#9467bd", // morado
+    "#8c564b", // marrón
+    "#e377c2", // rosa
+    "#7f7f7f", // gris
+    "#bcbd22", // amarillo verdoso
+    "#17becf"  // cian
+];
+
 
 $(document).ready(function () {
 
@@ -61,13 +82,22 @@ $(document).ready(function () {
      GRAFICO GENERAL PRO
   ========================= */
   function cargarGraficoGeneral() {
+    const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
+
+    // Si es encuesta/cuestionario, usar endpoint diferente
+    const endpoint = (opcionActiva === 'cuestionario') ? 'encuesta_general_index' : 'sondeo_general_index';
+
     $.ajax({
       url: "admin/ajax/rqst.php",
       type: "POST",
       dataType: "json",
-      data: { op: "sondeo_presidencial_general" },
+      data: { op: endpoint },
       success: function (res) {
-        if (!res || !res.success || !res.votos) return;
+        console.log('cargarGraficoGeneral - respuesta:', res);
+        if (!res || !res.success || !res.votos) {
+          console.log('cargarGraficoGeneral - respuesta inválida o sin votos');
+          return;
+        }
 
         const canvas = document.getElementById('graficoGeneral');
         if (!canvas) return;
@@ -90,20 +120,30 @@ $(document).ready(function () {
 
         const labels = res.votos.map(v => dividirEnTresLineas(v.nombre_completo));
         const data = res.votos.map(v => Number(v.total || 0));
-        const imagenes = res.votos.map(v => v.foto_url);
 
-        const imgs = imagenes.map(src => {
-          const img = new Image();
-          img.src = src;
-          return img;
+        // Verificar qué imágenes son válidas
+        const imagenesValidas = res.votos.map(v => {
+          const url = v.foto_url || '';
+          return url.trim() !== '' &&
+                 !url.includes('option_default') &&
+                 !url.includes('default.png');
         });
 
+        const imgs = res.votos.map((v, i) => {
+          if (imagenesValidas[i]) {
+            const img = new Image();
+            img.src = v.foto_url;
+            return img;
+          }
+          return null;
+        });
+
+        // Nombres para iniciales cuando no hay imagen
+        const nombres = res.votos.map(v => v.nombre_completo || '?');
+
         // Paleta (puedes dejarlo así o mapear por candidato si viene ID)
-        const colores = [
-          "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
-          "#9467bd", "#8c564b", "#e377c2", "#7f7f7f",
-          "#bcbd22", "#17becf"
-        ];
+        const colores = PALETA_COLORES;
+
         const coloresAsignados = data.map((v, i) => colores[i % colores.length]);
 
         const fotoLabelPlugin = {
@@ -119,10 +159,29 @@ $(document).ready(function () {
             chart.data.labels.forEach((label, i) => {
               const y = yAxis.getPixelForTick(i);
               const img = imgs[i];
-
-              // Foto
               const imgY = y - 15;
-              try { ctx.drawImage(img, 5, imgY, 30, 30); } catch (e) {}
+
+              if (img && imagenesValidas[i]) {
+                // Foto válida
+                try { ctx.drawImage(img, 5, imgY, 30, 30); } catch (e) {}
+              } else {
+                // Círculo con inicial
+                const color = coloresAsignados[i] || "#1f77b4";
+                ctx.beginPath();
+                ctx.arc(20, y, 15, 0, 2 * Math.PI);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.closePath();
+
+                // Inicial
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+                ctx.textAlign = "center";
+                const inicial = (nombres[i] || '?').charAt(0).toUpperCase();
+                ctx.fillText(inicial, 20, y + 1);
+                ctx.textAlign = "left";
+                ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+              }
 
               // Texto multilínea
               label.forEach((line, lineIndex) => {
@@ -157,6 +216,12 @@ $(document).ready(function () {
             layout: { padding: { left: 86 } }
           }
         });
+      },
+      error: function (xhr, status, error) {
+        console.error('Error en AJAX cargarGraficoGeneral:', status, error, xhr.responseText);
+      },
+      complete: function() {
+        console.log('cargarGraficoGeneral - petición completada');
       }
     });
   }
@@ -188,15 +253,9 @@ $(document).ready(function () {
     `;
   }
 
-  function obtenerColorGanador(votos) {
-    // Si viene id_candidato / candidato_id úsalo, si no: por el top 1
-    if (!votos || votos.length === 0) return COLOR_TEMA;
-
-    // intenta detectar propiedad id
-    const top = votos.slice().sort((a,b)=>Number(b.total||0)-Number(a.total||0))[0];
-    const id = Number(top.id_candidato || top.candidato_id || top.tbl_candidato_id || 0);
-
-    return ColoresCandidatos[id] || COLOR_TEMA;
+  // Función para obtener color por ID o índice
+  function obtenerColorPorIdOIndice(id, index) {
+    return ColoresCandidatos[id] || PALETA_COLORES[index % PALETA_COLORES.length] || COLOR_TEMA;
   }
 
   /* =========================
@@ -343,12 +402,15 @@ $(document).ready(function () {
 
       $('#resultadosContent').html(montarSpinner());
 
+      const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
+      const endpoint = (opcionActiva === 'cuestionario') ? 'encuesta_mapa_index' : 'sondeo_presidencial_mapa';
+
       $.ajax({
         url: "admin/ajax/rqst.php",
         type: "POST",
         dataType: "json",
         data: {
-          op: "sondeo_presidencial_mapa",
+          op: endpoint,
           departamento_click: departamento
         },
         success: (res) => {
@@ -372,8 +434,6 @@ $(document).ready(function () {
       let total = votos.reduce((t, v) => t + Number(v.total || 0), 0);
       votos.sort((a, b) => Number(b.total || 0) - Number(a.total || 0));
 
-      const colorGanador = obtenerColorGanador(votos);
-
       let html = "";
       votos.forEach((v, idx) => {
         const votosNum = Number(v.total || 0);
@@ -381,12 +441,24 @@ $(document).ready(function () {
 
         // intenta detectar id del candidato para color individual
         const id = Number(v.id_candidato || v.candidato_id || v.tbl_candidato_id || 0);
-        const color = ColoresCandidatos[id] || (idx === 0 ? colorGanador : COLOR_TEMA);
+        const color = obtenerColorPorIdOIndice(id, idx);
+
+        // Verificar si hay una foto válida (no vacía y no un placeholder genérico)
+        const tieneImagen = v.foto_url &&
+                           v.foto_url.trim() !== '' &&
+                           !v.foto_url.includes('option_default') &&
+                           !v.foto_url.includes('default.png');
+
+        // Si hay imagen, mostrarla; si no, mostrar un círculo con el color
+        const imagenHtml = tieneImagen
+          ? `<img src="${v.foto_url}" style="width:52px;height:52px;object-fit:cover;border-radius:999px;border:3px solid rgba(32,66,127,.18);">`
+          : `<div style="width:52px;height:52px;border-radius:999px;background:${color};display:flex;align-items:center;justify-content:center;border:3px solid rgba(32,66,127,.18);">
+               <span style="color:#fff;font-weight:700;font-size:1.2rem;">${(v.nombre_completo || '?').charAt(0).toUpperCase()}</span>
+             </div>`;
 
         html += `
           <div class="p-3 border-bottom d-flex gap-3 align-items-center" style="background:${idx===0 ? "rgba(32,66,127,.04)" : "transparent"};">
-            <img src="${v.foto_url}"
-              style="width:52px;height:52px;object-fit:cover;border-radius:999px;border:3px solid rgba(32,66,127,.18);">
+            ${imagenHtml}
             <div class="flex-grow-1">
               <div class="d-flex justify-content-between align-items-start gap-2">
                 <strong style="color:#0f172a;">${v.nombre_completo}</strong>
@@ -420,10 +492,10 @@ $(document).ready(function () {
       const labels = votos.map(v => v.nombre_completo);
       const data = votos.map(v => Number(v.total || 0));
 
-      // colores por candidato si hay id
+      // colores por candidato si hay id, o por índice
       const bg = votos.map((v, idx) => {
         const id = Number(v.id_candidato || v.candidato_id || v.tbl_candidato_id || 0);
-        return ColoresCandidatos[id] || (idx === 0 ? COLOR_TEMA : "rgba(32,66,127,.65)");
+        return obtenerColorPorIdOIndice(id, idx);
       });
 
       grafico = new Chart(ctx, {

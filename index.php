@@ -71,7 +71,13 @@ function e(string $v): string {
 /**
  * ✅ Includes con rutas absolutas
  */
-require_once __DIR__ . '/admin/include/head.php';
+include './admin/classes/DbConection.php';
+include './admin/classes/Util.php';
+include './admin/classes/Sondeo.php';
+include './admin/classes/RespuestaCuestionario.php';
+// Obtener la opción activa de configuración
+$config = Util::getInformacionConfiguracion();
+$opcionActivaWeb = $config[0]['opcion_activa_web'] ?? 'sondeo';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -79,14 +85,52 @@ require_once __DIR__ . '/admin/include/head.php';
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elecciones Colombia</title>
 
   <!-- ✅ CSRF disponible para JS -->
   <meta name="csrf-token" content="<?= e($CSRF_TOKEN) ?>">
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600&family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Icon Font Stylesheet -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Libraries Stylesheet -->
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Template Stylesheet -->
+  <link href="css/style.css" rel="stylesheet">
 
   <style>
  :root{
   --altura-menu: 0px;
   --gap-top: 3px; /* ~2mm */
+
+  --nav-blue: #20427F;
+  --nav-blue-2: #132b52;
+
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --ink: #0f172a;
+  --muted: #64748b;
+
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+
+  --shadow-soft: 0 14px 34px rgba(2, 6, 23, .10);
+  --shadow-mid: 0 22px 60px rgba(2, 6, 23, .16);
+
+  --border: 1px solid rgba(2, 6, 23, .08);
 }
 
 body{
@@ -589,6 +633,10 @@ document.addEventListener("DOMContentLoaded", function () {
 <script type="text/javascript" src="./admin/js/lib/data-md5.js"></script>
 
 <script src="js/login.js"></script>
+<script>
+  // Opción activa de configuración para el index.js
+  window.OPCION_ACTIVA_WEB = "<?php echo addslashes($opcionActivaWeb); ?>";
+</script>
 <script src="admin/js/index.js"></script>
 
 <?php

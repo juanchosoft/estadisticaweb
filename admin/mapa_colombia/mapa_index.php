@@ -4,24 +4,93 @@ ini_set('display_errors', 1);
 
 define("DS", DIRECTORY_SEPARATOR);
 
+// Incluir solo las clases necesarias con rutas absolutas
+if (!class_exists('DbConection')) {
+    require_once __DIR__ . '/../classes/DbConection.php';
+}
+if (!class_exists('Util')) {
+    require_once __DIR__ . '/../classes/Util.php';
+}
 require_once __DIR__ . '/../classes/Colombia.php';
 require_once __DIR__ . '/../db/colores.php';
-require_once './admin/include/generic_classes.php';
 require_once __DIR__ . '/../classes/Sondeo.php';
 
 $colombia = Colombia::getInformacionMapaColombia(NULL);
 $responseColombia = $colombia['output']['response'];
 
-/* COLORES POR CANDIDATO */
-$coloresCandidatos = [
-    33 => "#2ca02c", // verde
-    32 => "#1f77b4", // azul
-    34 => "#d62728", // rojo
-    35 => "#ff7f0e"  // naranja
+/* PALETA DE COLORES DISPONIBLES */
+$paletaColores = [
+    "#1f77b4", // azul
+    "#ff7f0e", // naranja
+    "#2ca02c", // verde
+    "#d62728", // rojo
+    "#9467bd", // morado
+    "#8c564b", // marrón
+    "#e377c2", // rosa
+    "#7f7f7f", // gris
+    "#bcbd22", // amarillo verdoso
+    "#17becf"  // cian
 ];
+
+/* OBTENER COLORES DINÁMICOS BASADOS EN EL SONDEO ACTIVO */
+$coloresCandidatos = [];
+
+// Obtener el sondeo activo y sus candidatos/opciones
+$db = new DbConection();
+$pdo = $db->openConect();
+
+$qSondeo = "SELECT id FROM " . $db->getTable('tbl_sondeo') . " WHERE habilitado = 'si' ORDER BY dtcreate DESC LIMIT 1";
+$stmt = $pdo->prepare($qSondeo);
+$stmt->execute();
+$sondeoActivo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($sondeoActivo) {
+    $idSondeo = $sondeoActivo['id'];
+
+    // Verificar si tiene candidatos
+    $qCheck = "SELECT COUNT(*) as total FROM " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " WHERE tbl_sondeo_id = :id";
+    $stmt = $pdo->prepare($qCheck);
+    $stmt->execute([":id" => $idSondeo]);
+    $tieneCandidatos = $stmt->fetch(PDO::FETCH_ASSOC)['total'] > 0;
+
+    if ($tieneCandidatos) {
+        // Obtener IDs de candidatos
+        $qCand = "SELECT p.id FROM " . $db->getTable('tbl_participantes') . " p
+                  INNER JOIN " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " sp ON sp.tbl_participante_id = p.id
+                  WHERE sp.tbl_sondeo_id = :id ORDER BY p.id";
+        $stmt = $pdo->prepare($qCand);
+        $stmt->execute([":id" => $idSondeo]);
+        $candidatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($candidatos as $index => $cand) {
+            $coloresCandidatos[$cand['id']] = $paletaColores[$index % count($paletaColores)];
+        }
+    } else {
+        // Obtener IDs de opciones
+        $qOpc = "SELECT id FROM " . $db->getTable('tbl_sondeo_x_opciones') . " WHERE tbl_sondeo_id = :id ORDER BY id";
+        $stmt = $pdo->prepare($qOpc);
+        $stmt->execute([":id" => $idSondeo]);
+        $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($opciones as $index => $opc) {
+            $coloresCandidatos[$opc['id']] = $paletaColores[$index % count($paletaColores)];
+
+        }
+    }
+}
+
+$db->closeConect();
 
 $ganadoresDepartamentos = Sondeo::ganadorPorTodosLosDepartamentos();
 ?>
+<!-- DEBUG: Ver en consola -->
+<script>
+// console.log("=== DEBUG MAPA ===");
+// console.log("Sondeo activo ID:", <?php echo json_encode($sondeoActivo['id'] ?? null); ?>);
+// console.log("Tiene candidatos:", <?php echo json_encode($tieneCandidatos ?? false); ?>);
+// console.log("Colores asignados:", <?php echo json_encode($coloresCandidatos); ?>);
+console.log("Ganadores por departamento:", <?php echo json_encode($ganadoresDepartamentos); ?>);
+</script>
 <!DOCTYPE html>
 <html>
 <head>
@@ -123,7 +192,6 @@ $ganadoresDepartamentos = Sondeo::ganadorPorTodosLosDepartamentos();
     </pattern>
 </defs>
 
-
 <?php foreach ($responseColombia as $value): ?>
 
     <?php if ($value['habilitado'] !== "si") continue; ?>
@@ -136,17 +204,12 @@ $ganadoresDepartamentos = Sondeo::ganadorPorTodosLosDepartamentos();
         // REGLA PARA COLORES
         // ------------------------------
         if (!$infoGanador) {
-
             // SIN DATOS
             $colorFill = "#d9d9d9";
-
         } elseif ($infoGanador["empate"] === true) {
-
             // EMPATE
-$colorFill = "url(#rayasAzules)";
-
+            $colorFill = "url(#rayasAzules)";
         } else {
-
             // GANADOR CLARO
             $colorFill = $coloresCandidatos[$infoGanador["ganador"]] ?? "#d9d9d9";
         }
@@ -208,6 +271,9 @@ if ($nombre === 'Valle Del Cauca'): ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+// Colores dinámicos generados desde PHP
+window.ColoresCandidatosDinamicos = <?php echo json_encode($coloresCandidatos); ?>;
+
 $(document).on("click", ".mapaClick", function(e) {
 
     e.preventDefault();

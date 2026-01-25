@@ -558,62 +558,78 @@ public static function obtenerRespuestas($rqst)
 }
 public static function obtenerSondeoMapa($rqst)
 {
-    $idSondeo = 30;
     $depClick = $rqst['departamento_click'] ?? null;
 
     $db = new DbConection();
     $pdo = $db->openConect();
 
-    // SONDEO
-    $qSondeo = "
+    // Obtener el primer sondeo habilitado
+    $qBuscarSondeo = "
         SELECT id, sondeo, descripcion_sondeo
         FROM " . $db->getTable('tbl_sondeo') . "
-        WHERE id = :id
+        WHERE habilitado = 'si'
+        ORDER BY dtcreate DESC
+        LIMIT 1
     ";
-    $stmt = $pdo->prepare($qSondeo);
-    $stmt->execute([":id" => $idSondeo]);
+    $stmt = $pdo->prepare($qBuscarSondeo);
+    $stmt->execute();
     $sondeo = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // CANDIDATOS
-    $qCand = "
-        SELECT 
-            p.id,
-            p.nombre_completo,
-            p.foto,
-            CONCAT('uploads/fotos/', p.foto) AS foto_url
-        FROM " . $db->getTable('tbl_participantes') . " p
-        INNER JOIN " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " sp
-            ON sp.tbl_participante_id = p.id
-        WHERE sp.tbl_sondeo_id = :id
-        ORDER BY p.nombre_completo ASC
-    ";
-    $stmt = $pdo->prepare($qCand);
-    $stmt->execute([":id" => $idSondeo]);
-    $candidatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!$sondeo) {
+        return ["success" => false, "message" => "No hay sondeos habilitados"];
+    }
 
-    // VOTOS POR CANDIDATO (FILTRO REAL POR DEPARTAMENTO)
-    $qVotos = "
-        SELECT 
-            p.id AS candidato_id,
-            p.nombre_completo,
-            p.foto,
-            CONCAT('uploads/fotos/', p.foto) AS foto_url,
-            COUNT(r.id) AS total
-        FROM " . $db->getTable('tbl_participantes') . " p
-        INNER JOIN " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " sp
-            ON sp.tbl_participante_id = p.id
-        LEFT JOIN " . $db->getTable('tbl_respuestas_sondeos') . " r
-            ON r.tbl_candidato_id = p.id
-            AND r.tbl_sondeo_id = :id
-            " . (!empty($depClick) ? " AND r.codigo_departamento = :dep " : "") . "
-        WHERE sp.tbl_sondeo_id = :id
-        GROUP BY p.id, p.nombre_completo, p.foto
-        ORDER BY total DESC
-    ";
+    $idSondeo = $sondeo['id'];
+
+    // Verificar si el sondeo tiene candidatos (participantes)
+    $qCheckCandidatos = "SELECT COUNT(*) as total FROM " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " WHERE tbl_sondeo_id = :id";
+    $stmt = $pdo->prepare($qCheckCandidatos);
+    $stmt->execute([":id" => $idSondeo]);
+    $tieneCandidatos = $stmt->fetch(PDO::FETCH_ASSOC)['total'] > 0;
 
     $params = [":id" => $idSondeo];
     if (!empty($depClick)) {
         $params[":dep"] = $depClick;
+    }
+
+    if ($tieneCandidatos) {
+        // Sondeo con candidatos (participantes)
+        $qVotos = "
+            SELECT
+                p.id AS candidato_id,
+                p.nombre_completo,
+                p.foto,
+                CONCAT('uploads/fotos/', p.foto) AS foto_url,
+                COUNT(r.id) AS total
+            FROM " . $db->getTable('tbl_participantes') . " p
+            INNER JOIN " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " sp
+                ON sp.tbl_participante_id = p.id
+            LEFT JOIN " . $db->getTable('tbl_respuestas_sondeos') . " r
+                ON r.tbl_candidato_id = p.id
+                AND r.tbl_sondeo_id = :id
+                " . (!empty($depClick) ? " AND r.codigo_departamento = :dep " : "") . "
+            WHERE sp.tbl_sondeo_id = :id
+            GROUP BY p.id, p.nombre_completo, p.foto
+            ORDER BY total DESC
+        ";
+    } else {
+        // Sondeo con solo opciones (sin candidatos)
+        $qVotos = "
+            SELECT
+                o.id AS candidato_id,
+                o.opcion AS nombre_completo,
+                '' AS foto,
+                'img/option_default.png' AS foto_url,
+                COUNT(r.id) AS total
+            FROM " . $db->getTable('tbl_sondeo_x_opciones') . " o
+            LEFT JOIN " . $db->getTable('tbl_respuestas_sondeos') . " r
+                ON r.tbl_sondeo_x_opciones_id = o.id
+                AND r.tbl_sondeo_id = :id
+                " . (!empty($depClick) ? " AND r.codigo_departamento = :dep " : "") . "
+            WHERE o.tbl_sondeo_id = :id
+            GROUP BY o.id, o.opcion
+            ORDER BY total DESC
+        ";
     }
 
     $stmt = $pdo->prepare($qVotos);
@@ -623,48 +639,82 @@ public static function obtenerSondeoMapa($rqst)
     return [
         "success" => true,
         "sondeo" => $sondeo,
-        "candidatos" => $candidatos,
         "votos" => $votos
     ];
 }
 
 public static function obtenerSondeoGeneral($rqst)
 {
-    $idSondeo = 30;
-
     $db = new DbConection();
     $pdo = $db->openConect();
 
-    $qSondeo = "
-        SELECT id, sondeo, descripcion_sondeo
+    // Obtener el primer sondeo habilitado y vigente
+    $qBuscarSondeo = "
+        SELECT id, sondeo, descripcion_sondeo, fecha_inicio, fecha_fin
         FROM " . $db->getTable('tbl_sondeo') . "
-        WHERE id = :id
+        WHERE habilitado = 'si'
+        ORDER BY dtcreate DESC
+        LIMIT 1
     ";
-    $stmt = $pdo->prepare($qSondeo);
-    $stmt->execute([":id" => $idSondeo]);
+    $stmt = $pdo->prepare($qBuscarSondeo);
+    $stmt->execute();
     $sondeo = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $qVotos = "
-        SELECT 
-            p.id AS candidato_id,
-            p.nombre_completo,
-            p.foto,
-            CONCAT('uploads/fotos/', p.foto) AS foto_url,
-            COUNT(r.id) AS total
-        FROM " . $db->getTable('tbl_participantes') . " p
-        INNER JOIN " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " sp
-            ON sp.tbl_participante_id = p.id
-        LEFT JOIN " . $db->getTable('tbl_respuestas_sondeos') . " r
-            ON r.tbl_candidato_id = p.id
-            AND r.tbl_sondeo_id = :id
-        WHERE sp.tbl_sondeo_id = :id
-        GROUP BY p.id, p.nombre_completo, p.foto
-        ORDER BY total DESC
-    ";
+    if (!$sondeo) {
+        return ["success" => false, "message" => "No hay sondeos habilitados"];
+    }
 
-    $stmt = $pdo->prepare($qVotos);
+    $idSondeo = $sondeo['id'];
+
+    // Verificar si el sondeo tiene candidatos (participantes)
+    $qCheckCandidatos = "SELECT COUNT(*) as total FROM " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " WHERE tbl_sondeo_id = :id";
+    $stmt = $pdo->prepare($qCheckCandidatos);
     $stmt->execute([":id" => $idSondeo]);
-    $votos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $tieneCandidatos = $stmt->fetch(PDO::FETCH_ASSOC)['total'] > 0;
+
+    if ($tieneCandidatos) {
+        // Sondeo con candidatos (participantes)
+        $qVotos = "
+            SELECT
+                p.id AS candidato_id,
+                p.nombre_completo,
+                p.foto,
+                CONCAT('uploads/fotos/', p.foto) AS foto_url,
+                COUNT(r.id) AS total
+            FROM " . $db->getTable('tbl_participantes') . " p
+            INNER JOIN " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " sp
+                ON sp.tbl_participante_id = p.id
+            LEFT JOIN " . $db->getTable('tbl_respuestas_sondeos') . " r
+                ON r.tbl_candidato_id = p.id
+                AND r.tbl_sondeo_id = :id
+            WHERE sp.tbl_sondeo_id = :id
+            GROUP BY p.id, p.nombre_completo, p.foto
+            ORDER BY total DESC
+        ";
+        $stmt = $pdo->prepare($qVotos);
+        $stmt->execute([":id" => $idSondeo]);
+        $votos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        // Sondeo con solo opciones (sin candidatos)
+        $qVotos = "
+            SELECT
+                o.id AS candidato_id,
+                o.opcion AS nombre_completo,
+                '' AS foto,
+                'img/option_default.png' AS foto_url,
+                COUNT(r.id) AS total
+            FROM " . $db->getTable('tbl_sondeo_x_opciones') . " o
+            LEFT JOIN " . $db->getTable('tbl_respuestas_sondeos') . " r
+                ON r.tbl_sondeo_x_opciones_id = o.id
+                AND r.tbl_sondeo_id = :id
+            WHERE o.tbl_sondeo_id = :id
+            GROUP BY o.id, o.opcion
+            ORDER BY total DESC
+        ";
+        $stmt = $pdo->prepare($qVotos);
+        $stmt->execute([":id" => $idSondeo]);
+        $votos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     return [
         "success" => true,
@@ -678,53 +728,131 @@ public static function ganadorPorDepartamento($codigoDep)
     $db = new DbConection();
     $pdo = $db->openConect();
 
-    $q = "
-        SELECT 
-            r.codigo_departamento,
-            r.tbl_candidato_id,
-            COUNT(*) as total
-        FROM tbl_respuestas_sondeos r
-        WHERE r.tbl_sondeo_id = 30
-        AND r.codigo_departamento = :dep
-        GROUP BY r.tbl_candidato_id
-    ";
+    // Obtener el primer sondeo habilitado
+    $qSondeo = "SELECT id FROM " . $db->getTable('tbl_sondeo') . " WHERE habilitado = 'si' ORDER BY dtcreate DESC LIMIT 1";
+    $stmt = $pdo->prepare($qSondeo);
+    $stmt->execute();
+    $sondeo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$sondeo) return null;
+    $idSondeo = $sondeo['id'];
+
+    // Verificar si el sondeo tiene candidatos
+    $qCheckCandidatos = "SELECT COUNT(*) as total FROM " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " WHERE tbl_sondeo_id = :id";
+    $stmt = $pdo->prepare($qCheckCandidatos);
+    $stmt->execute([":id" => $idSondeo]);
+    $tieneCandidatos = $stmt->fetch(PDO::FETCH_ASSOC)['total'] > 0;
+
+    if ($tieneCandidatos) {
+        // Sondeo con candidatos
+        $q = "
+            SELECT
+                r.codigo_departamento,
+                r.tbl_candidato_id AS ganador_id,
+                COUNT(*) as total
+            FROM " . $db->getTable('tbl_respuestas_sondeos') . " r
+            WHERE r.tbl_sondeo_id = :id
+            AND r.codigo_departamento = :dep
+            AND r.tbl_candidato_id IS NOT NULL
+            GROUP BY r.tbl_candidato_id
+        ";
+    } else {
+        // Sondeo con solo opciones
+        $q = "
+            SELECT
+                r.codigo_departamento,
+                r.tbl_sondeo_x_opciones_id AS ganador_id,
+                COUNT(*) as total
+            FROM " . $db->getTable('tbl_respuestas_sondeos') . " r
+            WHERE r.tbl_sondeo_id = :id
+            AND r.codigo_departamento = :dep
+            AND r.tbl_sondeo_x_opciones_id IS NOT NULL
+            GROUP BY r.tbl_sondeo_x_opciones_id
+        ";
+    }
 
     $stmt = $pdo->prepare($q);
-    $stmt->execute([":dep" => $codigoDep]);
+    $stmt->execute([":id" => $idSondeo, ":dep" => $codigoDep]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$rows) return null;
 
     $max = max(array_column($rows, 'total'));
 
-    // candidatos empatados
+    // candidatos/opciones empatados
     $empatados = array_filter($rows, fn($r) => $r['total'] == $max);
 
     return [
         "empate" => count($empatados) > 1,
-        "ganador" => count($empatados) > 1 ? null : $empatados[array_key_first($empatados)]['tbl_candidato_id']
+        "ganador" => count($empatados) > 1 ? null : $empatados[array_key_first($empatados)]['ganador_id']
     ];
 }
+
+/**
+ * Método para obtener el ganador por cada departamento
+ * @return array Array asociativo con código de departamento como clave y datos del ganador
+ */
 public static function ganadorPorTodosLosDepartamentos()
 {
     $db = new DbConection();
     $pdo = $db->openConect();
 
     try {
-        $sql = "
-            SELECT 
-                r.codigo_departamento,
-                r.tbl_candidato_id,
-                COUNT(*) AS total
-            FROM " . $db->getTable('tbl_respuestas_sondeos') . " r
-            WHERE r.tbl_sondeo_id = 30
-            GROUP BY r.codigo_departamento, r.tbl_candidato_id
-            ORDER BY r.codigo_departamento, total DESC
-        ";
+        // Obtener el primer sondeo habilitado
+        $qSondeo = "SELECT id FROM " . $db->getTable('tbl_sondeo') . " WHERE habilitado = 'si' ORDER BY dtcreate DESC LIMIT 1";
+        $stmt = $pdo->prepare($qSondeo);
+        $stmt->execute();
+        $sondeo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$sondeo) return [];
+        $idSondeo = $sondeo['id'];
+
+        // Verificar si el sondeo tiene candidatos
+        $qCheckCandidatos = "SELECT COUNT(*) as total FROM " . $db->getTable('tbl_sondeo_x_tbl_participantes') . " WHERE tbl_sondeo_id = :id";
+        $stmt = $pdo->prepare($qCheckCandidatos);
+        $stmt->execute([":id" => $idSondeo]);
+        $tieneCandidatos = $stmt->fetch(PDO::FETCH_ASSOC)['total'] > 0;
+
+        if ($tieneCandidatos) {
+            // Sondeo con candidatos
+            $sql = "
+                SELECT
+                    r.codigo_departamento,
+                    r.tbl_candidato_id AS ganador_id,
+                    COUNT(*) AS total
+                FROM " . $db->getTable('tbl_respuestas_sondeos') . " r
+                WHERE r.tbl_sondeo_id = :id
+                AND r.tbl_candidato_id IS NOT NULL
+                GROUP BY r.codigo_departamento, r.tbl_candidato_id
+                ORDER BY r.codigo_departamento, total DESC
+            ";
+        } else {
+            // Sondeo con solo opciones
+            $sql = "
+                SELECT
+                    r.codigo_departamento,
+                    r.tbl_sondeo_x_opciones_id AS ganador_id,
+                    COUNT(*) AS total
+                FROM " . $db->getTable('tbl_respuestas_sondeos') . " r
+                WHERE r.tbl_sondeo_id = :id
+                AND r.tbl_sondeo_x_opciones_id IS NOT NULL
+                GROUP BY r.codigo_departamento, r.tbl_sondeo_x_opciones_id
+                ORDER BY r.codigo_departamento, total DESC
+            ";
+
+            // DEBUG: Log para ver qué pasa
+            error_log("=== DEBUG ganadorPorTodosLosDepartamentos ===");
+            error_log("Sondeo ID: " . $idSondeo);
+            error_log("SQL: " . $sql);
+        }
 
         $stmt = $pdo->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([":id" => $idSondeo]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // DEBUG: Log de resultados
+        error_log("Rows encontradas: " . count($rows));
+        error_log("Rows data: " . json_encode($rows));
 
         $resultado = [];
 
@@ -736,8 +864,8 @@ public static function ganadorPorTodosLosDepartamentos()
 
                 $resultado[$dep] = [
                     "empate" => false,
-                    "ganador" => $row['tbl_candidato_id'],
-                    "max_votos" => $row['total'] 
+                    "ganador" => $row['ganador_id'],
+                    "max_votos" => $row['total']
                 ];
 
             } else {

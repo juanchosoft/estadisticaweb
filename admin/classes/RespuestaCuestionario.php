@@ -612,4 +612,168 @@ class RespuestaCuestionario
             return Util::error_general('Error al obtener votantes que no respondieron: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Obtiene resultados generales de encuestas para mostrar en el index (gráfico general)
+     * Similar a obtenerSondeoGeneral pero para encuestas
+     */
+    public static function obtenerEncuestaGeneralIndex($rqst)
+    {
+        $db = new DbConection();
+        $pdo = $db->openConect();
+
+        try {
+            // Obtener la primera ficha técnica habilitada
+            $qFicha = "SELECT id, realizada_por_o_encomendada_por as nombre
+                       FROM " . $db->getTable('tbl_ficha_tecnica_encuestas') . "
+                       WHERE habilitado = 'si'
+                       ORDER BY dtcreate DESC
+                       LIMIT 1";
+            $stmt = $pdo->prepare($qFicha);
+            $stmt->execute();
+            $ficha = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$ficha) {
+                return ["success" => false, "message" => "No hay encuestas habilitadas"];
+            }
+
+            // Obtener la primera pregunta de opción múltiple de esta encuesta
+            $qPregunta = "SELECT p.id, p.texto_pregunta
+                          FROM " . $db->getTable('tbl_preguntas') . " p
+                          WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
+                          AND p.tipo_pregunta IN ('radio', 'checkbox')
+                          ORDER BY p.orden ASC
+                          LIMIT 1";
+            $stmt = $pdo->prepare($qPregunta);
+            $stmt->execute([":ficha_id" => $ficha['id']]);
+            $pregunta = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pregunta) {
+                return ["success" => false, "message" => "No hay preguntas de opción múltiple"];
+            }
+
+            // Obtener conteo de votos por opción
+            $qVotos = "SELECT
+                          o.id AS candidato_id,
+                          o.texto_opcion AS nombre_completo,
+                          '' AS foto,
+                          'img/option_default.png' AS foto_url,
+                          COUNT(r.id) AS total
+                       FROM " . $db->getTable('tbl_opciones_respuesta') . " o
+                       LEFT JOIN " . $db->getTable('tbl_cuestionario_respuestas') . " r
+                          ON r.tbl_opcion_respuesta_id = o.id
+                       WHERE o.tbl_pregunta_id = :pregunta_id
+                       GROUP BY o.id, o.texto_opcion
+                       ORDER BY total DESC";
+
+            $stmt = $pdo->prepare($qVotos);
+            $stmt->execute([":pregunta_id" => $pregunta['id']]);
+            $votos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $db->closeConect();
+
+            return [
+                "success" => true,
+                "sondeo" => [
+                    "id" => $ficha['id'],
+                    "sondeo" => $ficha['nombre'],
+                    "descripcion_sondeo" => $pregunta['texto_pregunta']
+                ],
+                "votos" => $votos
+            ];
+
+        } catch (Exception $e) {
+            $db->closeConect();
+            return ["success" => false, "message" => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Obtiene resultados de encuesta filtrados por departamento (para el mapa del index)
+     */
+    public static function obtenerEncuestaMapaIndex($rqst)
+    {
+        $depClick = $rqst['departamento_click'] ?? null;
+
+        $db = new DbConection();
+        $pdo = $db->openConect();
+
+        try {
+            // Obtener la primera ficha técnica habilitada
+            $qFicha = "SELECT id, realizada_por_o_encomendada_por as nombre
+                       FROM " . $db->getTable('tbl_ficha_tecnica_encuestas') . "
+                       WHERE habilitado = 'si'
+                       ORDER BY dtcreate DESC
+                       LIMIT 1";
+            $stmt = $pdo->prepare($qFicha);
+            $stmt->execute();
+            $ficha = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$ficha) {
+                return ["success" => false, "message" => "No hay encuestas habilitadas"];
+            }
+
+            // Obtener la primera pregunta de opción múltiple
+            $qPregunta = "SELECT p.id, p.texto_pregunta
+                          FROM " . $db->getTable('tbl_preguntas') . " p
+                          WHERE p.tbl_ficha_tecnica_encuesta_id = :ficha_id
+                          AND p.tipo_pregunta IN ('radio', 'checkbox')
+                          ORDER BY p.orden ASC
+                          LIMIT 1";
+            $stmt = $pdo->prepare($qPregunta);
+            $stmt->execute([":ficha_id" => $ficha['id']]);
+            $pregunta = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pregunta) {
+                return ["success" => false, "message" => "No hay preguntas de opción múltiple"];
+            }
+
+            // Obtener conteo de votos por opción filtrado por departamento
+            $depFilter = "";
+            $params = [":pregunta_id" => $pregunta['id']];
+
+            if (!empty($depClick)) {
+                $depFilter = " AND v.codigo_departamento = :dep ";
+                $params[":dep"] = $depClick;
+            }
+
+            $qVotos = "SELECT
+                          o.id AS candidato_id,
+                          o.texto_opcion AS nombre_completo,
+                          '' AS foto,
+                          'img/option_default.png' AS foto_url,
+                          COUNT(r.id) AS total
+                       FROM " . $db->getTable('tbl_opciones_respuesta') . " o
+                       LEFT JOIN " . $db->getTable('tbl_cuestionario_respuestas') . " r
+                          ON r.tbl_opcion_respuesta_id = o.id
+                       LEFT JOIN " . $db->getTable('tbl_cuestionario_intentos') . " i
+                          ON r.tbl_intento_id = i.id
+                       LEFT JOIN " . $db->getTable('tbl_votantes') . " v
+                          ON i.tbl_votante_id = v.id
+                       WHERE o.tbl_pregunta_id = :pregunta_id
+                       $depFilter
+                       GROUP BY o.id, o.texto_opcion
+                       ORDER BY total DESC";
+
+            $stmt = $pdo->prepare($qVotos);
+            $stmt->execute($params);
+            $votos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $db->closeConect();
+
+            return [
+                "success" => true,
+                "sondeo" => [
+                    "id" => $ficha['id'],
+                    "sondeo" => $ficha['nombre'],
+                    "descripcion_sondeo" => $pregunta['texto_pregunta']
+                ],
+                "votos" => $votos
+            ];
+
+        } catch (Exception $e) {
+            $db->closeConect();
+            return ["success" => false, "message" => $e->getMessage()];
+        }
+    }
 }
