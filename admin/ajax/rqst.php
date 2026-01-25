@@ -5,7 +5,7 @@ session_start();
  */
 $rqst = $_REQUEST;
 $op = isset($rqst['op']) ? $rqst['op'] : '';
-header("Content-type: application/javascript; charset=utf-8");
+header("Content-type: application/json; charset=utf-8");
 header("Cache-Control: max-age=15, must-revalidate");
 header('Access-Control-Allow-Origin: *');
 
@@ -248,9 +248,20 @@ case 'sondeo_presidencial_mapa':
     include '../classes/Sondeo.php';
     echo json_encode(Sondeo::obtenerSondeoMapa($rqst));
 break;
-case 'sondeo_presidencial_general':
+case 'sondeo_general_index':
     include '../classes/Sondeo.php';
     echo json_encode(Sondeo::obtenerSondeoGeneral($rqst));
+break;
+
+// Endpoints para encuestas en el index.php
+case 'encuesta_general_index':
+    include '../classes/RespuestaCuestionario.php';
+    echo json_encode(RespuestaCuestionario::obtenerEncuestaGeneralIndex($rqst));
+break;
+
+case 'encuesta_mapa_index':
+    include '../classes/RespuestaCuestionario.php';
+    echo json_encode(RespuestaCuestionario::obtenerEncuestaMapaIndex($rqst));
 break;
 
 case 'mapa_colores_departamentos':
@@ -267,6 +278,14 @@ case 'mapa_colores_departamentos':
     echo json_encode([
         "success" => true,
         "data" => $respuesta
+    ]);
+break;
+
+default:
+    echo json_encode([
+        "success" => false,
+        "message" => "Operación no válida: " . $op,
+        "op_received" => $op
     ]);
 break;
 
