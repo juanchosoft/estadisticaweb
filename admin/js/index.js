@@ -452,24 +452,24 @@ $(document).ready(function () {
 
         // Si hay imagen, mostrarla; si no, mostrar un círculo con el color
         const imagenHtml = tieneImagen
-          ? `<img src="${v.foto_url}" style="width:52px;height:52px;object-fit:cover;border-radius:999px;border:3px solid rgba(32,66,127,.18);">`
-          : `<div style="width:52px;height:52px;border-radius:999px;background:${color};display:flex;align-items:center;justify-content:center;border:3px solid rgba(32,66,127,.18);">
-               <span style="color:#fff;font-weight:700;font-size:1.2rem;">${(v.nombre_completo || '?').charAt(0).toUpperCase()}</span>
+          ? `<img src="${v.foto_url}" style="width:38px;height:38px;object-fit:cover;border-radius:999px;border:2px solid rgba(32,66,127,.18);">`
+          : `<div style="width:38px;height:38px;border-radius:999px;background:${color};display:flex;align-items:center;justify-content:center;border:2px solid rgba(32,66,127,.18);">
+               <span style="color:#fff;font-weight:700;font-size:0.9rem;">${(v.nombre_completo || '?').charAt(0).toUpperCase()}</span>
              </div>`;
 
         html += `
-          <div class="p-3 border-bottom d-flex gap-3 align-items-center" style="background:${idx===0 ? "rgba(32,66,127,.04)" : "transparent"};">
+          <div class="p-2 border-bottom d-flex gap-2 align-items-center" style="background:${idx===0 ? "rgba(32,66,127,.04)" : "transparent"};">
             ${imagenHtml}
             <div class="flex-grow-1">
               <div class="d-flex justify-content-between align-items-start gap-2">
-                <strong style="color:#0f172a;">${v.nombre_completo}</strong>
-                ${idx === 0 ? `<span class="badge" style="background:${color}; color:#fff; font-weight:900; border-radius:999px;">Líder</span>` : ``}
+                <strong style="color:#0f172a; font-size: 0.9rem;">${v.nombre_completo}</strong>
+                ${idx === 0 ? `<span class="badge" style="background:${color}; color:#fff; font-weight:900; border-radius:999px; font-size: 0.7rem;">Líder</span>` : ``}
               </div>
-              <div class="d-flex justify-content-between text-muted fw-bold" style="font-size:.92rem;">
+              <div class="d-flex justify-content-between text-muted fw-bold" style="font-size:.8rem;">
                 <span>${votosNum} votos</span>
                 <span>${porcentaje}%</span>
               </div>
-              <div class="progress mt-2" style="height:7px;border-radius:999px;background:rgba(2,6,23,.06);">
+              <div class="progress mt-1" style="height:5px;border-radius:999px;background:rgba(2,6,23,.06);">
                 <div class="progress-bar" style="width:${porcentaje}%; background:${color}; border-radius:999px;"></div>
               </div>
             </div>
