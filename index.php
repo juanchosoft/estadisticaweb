@@ -377,6 +377,10 @@ body{
       overflow: hidden;
       box-shadow: 0 20px 55px rgba(2,6,23,.20);
     }
+    #resultadosCard .card-body {
+      max-height: 420px;
+      overflow-y: auto;
+    }
     #resultadosCard .card-header{
       background: #fff !important;
       border-bottom: 1px solid rgba(2,6,23,.08) !important;
