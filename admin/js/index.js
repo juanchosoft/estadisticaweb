@@ -142,9 +142,10 @@ $(document).ready(function () {
         const nombres = res.votos.map(v => v.nombre_completo || '?');
 
         // Paleta (puedes dejarlo así o mapear por candidato si viene ID)
-        const colores = PALETA_COLORES;
-
-        const coloresAsignados = data.map((v, i) => colores[i % colores.length]);
+        const coloresAsignados = res.votos.map((v, i) => {
+          const id = v.candidato_id || v.id;
+          return ColoresCandidatos[id] || PALETA_COLORES[i % PALETA_COLORES.length];
+        });
 
         const fotoLabelPlugin = {
           id: 'fotoLabelPlugin',
