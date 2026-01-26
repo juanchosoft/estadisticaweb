@@ -88,7 +88,7 @@ foreach ($departamentosResponse as $dep) {
     /* Header */
     .form-hero{
       padding: 22px 22px;
-      background: linea-gradient(135deg, rgba(32,66,127,.10), rgba(14,165,233,.06));r
+      background: linear-gradient(135deg, rgba(32,66,127,.10), rgba(14,165,233,.06));
       border-bottom: 1px solid rgba(15,23,42,.08);
     }
     .form-hero .title{
@@ -649,6 +649,15 @@ foreach ($departamentosResponse as $dep) {
 
 
 
+          <!-- <div class="col-md-6">
+            <label class="form-label">Contraseña *</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" class="form-control" id="password" name="password" required
+                     placeholder="Mínimo 8 caracteres">
+            </div>
+            <div class="help">Tip: usa letras + números para mayor seguridad.</div>
+          </div> -->
         </div>
       </div>
 
@@ -875,19 +884,18 @@ foreach ($departamentosResponse as $dep) {
   </div>
 </div>
 <!-- MODAL LOGIN (colores iguales al navbar) -->
-<div class="hero">
+<div class="modal fade modal-pro" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="hero">
         <div class="d-flex align-items-start justify-content-between gap-3">
           <div>
-     
-           <div class="logo-wrap">
-            <img 
-              src="assets/img/admin/estadistica3.png" 
-              alt="Estadística 360"
-              class="logo-estadistica" >
-          </div>
-  
-           
-            <h5 class="blanco"><i class="fa fa-unlock-alt me-2 blanco"></i>Inicia sesión</h5>
+            <div class="modal-logo-pill mb-2">
+              <img src="assets/img/admin/estadistica3.png" alt="Logo">
+              <div class="fw-bold">Votaciones</div>
+            </div>
+            <h5><i class="fa fa-unlock-alt me-2"></i>Inicia sesión</h5>
             <p>Ingresa para votar, ver resultados y participar.</p>
           </div>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -928,16 +936,6 @@ foreach ($departamentosResponse as $dep) {
         </form>
       </div>
 
-      <div class="modal-footer d-flex gap-2">
-        <button type="button" class="btn btn-soft w-50" data-bs-dismiss="modal">Ahora no</button>
-        <a href="registro.php" target="_blank" class="btn btn-primary-blue w-50">
-          <i class="fa fa-user-plus me-2"></i>Registrarme
-        </a>
-      </div>
-
-    </div>
-  </div>
-</div>
 <?php include './admin/include/footer.php'; ?>
 
 <!-- Libs -->

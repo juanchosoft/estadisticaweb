@@ -99,6 +99,7 @@
   #mainNavbar .navbar-toggler:focus{
     box-shadow: 0 0 0 .25rem rgba(255,255,255,.18);
   }
+  
 
   /* Botones */
   .btn-vota{

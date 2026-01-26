@@ -10,8 +10,7 @@
   .modal-pro .hero{
     padding: 1.15rem 1.25rem;
     color:#fff;
-    background: radial-gradient(1200px 400px at 0% 0%, rgba(255,255,255,.22), transparent 60%),
-                linear-gradient(135deg, #0d6efd, #22c55e);
+    background: #20427F !important;
   }
   .modal-pro .hero h5{ margin:0; font-weight: 900; letter-spacing: .2px; }
   .modal-pro .hero p{ margin:.35rem 0 0; opacity:.95; font-weight: 600; }
@@ -54,7 +53,7 @@
     padding: .9rem 1rem;
     font-weight: 900;
     color:#fff !important;
-    background: linear-gradient(135deg, #0d6efd, #22c55e);
+    background: #20427F !important;
     box-shadow: 0 14px 30px rgba(13,110,253,.22);
   }
   .btn-login-primary:hover{ filter: brightness(1.03); }

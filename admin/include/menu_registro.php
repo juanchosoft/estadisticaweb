@@ -99,41 +99,10 @@
   #mainNavbar .navbar-toggler:focus{
     box-shadow: 0 0 0 .25rem rgba(255,255,255,.18);
   }
+  
 
   /* Botones */
-  .btn-vota{
-    position: relative;
-    border: 0 !important;
-    color: #fff !important;
-    font-weight: 900;
-    letter-spacing: .2px;
-    padding: .78rem 1.08rem;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #ff2d55, #ff7a00, #ffcc00);
-    box-shadow: 0 16px 34px rgba(255, 122, 0, .28);
-    transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
-    white-space: nowrap;
-  }
-  .btn-vota:hover{
-    transform: translateY(-1px);
-    box-shadow: 0 20px 40px rgba(255, 122, 0, .34);
-    filter: brightness(1.02);
-  }
-  .btn-vota .pulse-dot{
-    width: 10px; height: 10px;
-    border-radius: 999px;
-    background: #fff;
-    margin-right: .55rem;
-    box-shadow: 0 0 0 0 rgba(255,255,255,.75);
-    animation: pulse 1.6s infinite;
-    display:inline-block;
-    vertical-align: middle;
-  }
-  @keyframes pulse{
-    0% { box-shadow: 0 0 0 0 rgba(255,255,255,.75); }
-    70%{ box-shadow: 0 0 0 14px rgba(255,255,255,0); }
-    100%{ box-shadow: 0 0 0 0 rgba(255,255,255,0); }
-  }
+  
 
   .btn-login{
     border-radius: 999px;
@@ -161,9 +130,7 @@
   .modal-pro .hero{
     padding: 1.15rem 1.25rem;
     color:#fff;
-    background:
-      radial-gradient(1200px 400px at 0% 0%, rgba(255,255,255,.18), transparent 60%),
-      linear-gradient(135deg, var(--nav-blue), var(--nav-blue-2));
+    background:  #20427F !important;  
   }
   .modal-pro .hero h5{ margin: 0; font-weight: 900; letter-spacing: .2px; }
   .modal-pro .hero p{ margin: .35rem 0 0; opacity: .95; font-weight: 700; }
@@ -268,7 +235,47 @@
     font-weight: 900;
     color: var(--nav-blue);
   }
+  .blanco { 
+    color: #ffffff;
+   }
   .login-mini-links a:hover{ text-decoration: underline; }
+  /* =========================
+   LOGO PRO SAAS
+========================= */
+.logo-wrap{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.logo-estadistica{
+  max-width: 180px;     /* PC */
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transition: all .25s ease;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.18));
+}
+
+/* Tablet */
+@media (max-width: 991px){
+  .logo-estadistica{
+    max-width: 200px;
+  }
+}
+
+/* Celular */
+@media (max-width: 576px){
+  .logo-estadistica{
+    max-width: 160px;
+  }
+}
+.logo-estadistica{
+  filter: drop-shadow(0 6px 14px rgba(255,255,255,.25));
+}
+
 </style>
 
 <div class="container-fluid p-0">
@@ -278,12 +285,14 @@
     <a href="index.php" class="navbar-brand ms-3" aria-label="Ir al inicio">
       <div class="brand-pill">
         <img src="assets/img/admin/estadistica3.png" alt="Logo" class="logo-chip">
-        <!-- Si NO quieres texto, borra este bloque -->        
+        <!-- Si NO quieres texto, borra este bloque -->
+        
       </div>
     </a>
 
     <!-- Acciones mobile -->
-    <div class="d-lg-none ms-auto d-flex align-items-center gap-2 me-2">    
+    <div class="d-lg-none ms-auto d-flex align-items-center gap-2 me-2">
+  
 
       <button type="button" class="btn btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
         <i class="fa fa-user me-2"></i>Ingresar
@@ -306,79 +315,17 @@
       </div>
 
       <!-- Acciones desktop -->
-      <div class="d-none d-lg-flex align-items-center gap-2 ms-lg-3 me-3">    
-
+      <div class="d-none d-lg-flex align-items-center gap-2 ms-lg-3 me-3">
         <button type="button" class="btn btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
-        <i class="fa fa-user me-2"></i>Ingresar
-      </button>
+          <i class="fa fa-user me-2"></i>Ingresar
+        </button>
       </div>
     </div>
 
   </nav>
 </div>
 
-<!-- MODAL VOTA (invita a registrarse) -->
-<div class="modal fade modal-pro" id="votaModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
 
-      <div class="hero">
-        <div class="d-flex align-items-start justify-content-between gap-3">
-          <div>
-            <div class="modal-logo-pill mb-2">
-              <img src="assets/img/admin/estadistica3.png" alt="Logo">
-              <div class="fw-bold">Votaciones</div>
-            </div>
-            <h5><i class="fa fa-bolt me-2"></i>¡Tu voto cuenta!</h5>
-            <p>Regístrate en menos de 1 minuto y participa.</p>
-          </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-      </div>
-
-      <div class="modal-body">
-        <div class="fw-bold" style="color:#0f172a;font-size:1.06rem;">
-          Antes de votar, necesitamos validar tu registro ✅
-        </div>
-        <div class="text-muted mt-1" style="font-weight:700;">
-          Esto ayuda a que el proceso sea transparente y seguro.
-        </div>
-
-        <div class="benefits">
-          <div class="benefit">
-            <i class="fa fa-shield"></i>
-            <div>
-              <div class="fw-bold" style="color:#0f172a;">Votación segura</div>
-              <div class="text-muted" style="font-weight:700;">Protegemos la integridad del voto.</div>
-            </div>
-          </div>
-          <div class="benefit">
-            <i class="fa fa-clock"></i>
-            <div>
-              <div class="fw-bold" style="color:#0f172a;">Rápido y sencillo</div>
-              <div class="text-muted" style="font-weight:700;">Te toma menos de 60 segundos.</div>
-            </div>
-          </div>
-          <div class="benefit">
-            <i class="fa fa-star"></i>
-            <div>
-              <div class="fw-bold" style="color:#0f172a;">Tu voz tiene poder</div>
-              <div class="text-muted" style="font-weight:700;">Participa y haz parte del cambio.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer d-flex gap-2">
-        <button type="button" class="btn btn-soft w-50" data-bs-dismiss="modal">Ahora no</button>
-        <a href="registro.php" target="_blank" class="btn btn-primary-blue w-50">
-          <i class="fa fa-user-plus me-2"></i>Inscríbete
-        </a>
-      </div>
-
-    </div>
-  </div>
-</div>
 
 <!-- MODAL LOGIN (colores iguales al navbar) -->
 <div class="modal fade modal-pro" id="loginModal" tabindex="-1" aria-hidden="true">
@@ -388,11 +335,16 @@
       <div class="hero">
         <div class="d-flex align-items-start justify-content-between gap-3">
           <div>
-            <div class="modal-logo-pill mb-2">
-              <img src="assets/img/admin/estadistica3.png" alt="Logo">
-              <div class="fw-bold">Votaciones</div>
-            </div>
-            <h5><i class="fa fa-unlock-alt me-2"></i>Inicia sesión</h5>
+     
+           <div class="logo-wrap">
+            <img 
+              src="assets/img/admin/estadistica3.png" 
+              alt="Estadística 360"
+              class="logo-estadistica" >
+          </div>
+  
+           
+            <h5 class="blanco"><i class="fa fa-unlock-alt me-2 blanco"></i>Inicia sesión</h5>
             <p>Ingresa para votar, ver resultados y participar.</p>
           </div>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
