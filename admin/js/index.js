@@ -1,4 +1,13 @@
-// Colores por defecto (se sobreescriben con los dinámicos del mapa)
+/* =========================================================
+   Estadísticas 360 Web - Dashboard JS (Charts + Mapa)
+   - Chart.js horizontal bar con fotos/iniciales
+   - Modo sondeo / cuestionario
+   - Mapa ganadores + card detalle
+========================================================= */
+
+/* =========================
+   Colores base
+========================= */
 let ColoresCandidatos = {
   1: "#1f77b4",
   2: "#ff7f0e",
@@ -7,95 +16,164 @@ let ColoresCandidatos = {
 };
 
 // Usar colores dinámicos si están disponibles
-if (typeof window.ColoresCandidatosDinamicos !== 'undefined' && window.ColoresCandidatosDinamicos) {
+if (typeof window.ColoresCandidatosDinamicos !== "undefined" && window.ColoresCandidatosDinamicos) {
   ColoresCandidatos = window.ColoresCandidatosDinamicos;
 }
 
 const COLOR_TEMA = "#20427F";
 
-// Paleta de colores para gráficos (usada cuando no hay colores específicos)
+// Paleta fallback
 const PALETA_COLORES = [
-    "#1f77b4", // azul
-    "#ff7f0e", // naranja
-    "#2ca02c", // verde
-    "#d62728", // rojo
-    "#9467bd", // morado
-    "#8c564b", // marrón
-    "#e377c2", // rosa
-    "#7f7f7f", // gris
-    "#bcbd22", // amarillo verdoso
-    "#17becf"  // cian
+  "#1f77b4",
+  "#ff7f0e",
+  "#2ca02c",
+  "#d62728",
+  "#9467bd",
+  "#8c564b",
+  "#e377c2",
+  "#7f7f7f",
+  "#bcbd22",
+  "#17becf"
 ];
 
-
 $(document).ready(function () {
-
-  let grafico = null;
-  let graficoGeneral = null;
-  let preguntaSeleccionada = 0; // Para modo cuestionario
+  let grafico = null;         // graficoVotos
+  let graficoGeneral = null;  // graficoGeneral
+  let preguntaSeleccionada = 0;
 
   /* =========================
-     MODO CUESTIONARIO: Cargar preguntas
+     Helpers UI / Util
+  ========================= */
+  function isMobile() {
+    return window.matchMedia("(max-width: 575px)").matches;
+  }
+
+  function montarSpinner() {
+    return `
+      <div class="text-center p-4">
+        <div class="spinner-border" style="color:${COLOR_TEMA};" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2 mb-0 text-muted fw-bold">Cargando sondeo...</p>
+      </div>
+    `;
+  }
+
+  function montarVacio() {
+    return `
+      <div class="p-4 text-center">
+        <div class="fw-bold" style="color:#0f172a;">Sin datos disponibles</div>
+        <div class="text-muted fw-bold" style="font-size:.92rem;">Intenta con otro departamento.</div>
+      </div>
+    `;
+  }
+
+  function obtenerColorPorIdOIndice(id, index) {
+    return ColoresCandidatos[id] || PALETA_COLORES[index % PALETA_COLORES.length] || COLOR_TEMA;
+  }
+
+  function dividirEnTresLineas(nombre) {
+    const palabras = (nombre || "").split(" ").filter(Boolean);
+    if (palabras.length <= 1) return [palabras[0] || ""];
+    if (palabras.length === 2) return [palabras[0], palabras[1]];
+
+    const linea1 = palabras[0];
+    const linea2 = palabras[1] + (palabras[2] ? " " + palabras[2] : "");
+    const linea3 = palabras.slice(3).join(" ");
+
+    const lineas = [linea1, linea2];
+    if (linea3.trim() !== "") lineas.push(linea3);
+    return lineas;
+  }
+
+  // ✅ Calcula padding izquierdo sin matar el chart (limita por % del canvas)
+  function calcularPaddingIzquierdo(ctx, labelsMultiLinea, canvasEl, font = "12px system-ui") {
+    ctx.save();
+    ctx.font = font;
+
+    let maxW = 0;
+    (labelsMultiLinea || []).forEach(lines => {
+      (lines || []).forEach(line => {
+        const w = ctx.measureText(String(line || "")).width;
+        if (w > maxW) maxW = w;
+      });
+    });
+
+    ctx.restore();
+
+    // foto 30px + gap + texto + margen
+    let pad = Math.ceil(maxW + 30 + 14 + 26);
+
+    // ✅ NUNCA permitir que coma el ancho del chart
+    const canvasW = (canvasEl?.clientWidth || canvasEl?.width || 700);
+    const maxPad = Math.floor(canvasW * 0.45); // 45% desktop
+    pad = Math.min(pad, maxPad);
+
+    // mínimos sanos
+    pad = Math.max(140, pad);
+
+    // mobile: permite un poco más pero con control
+    if (window.matchMedia("(max-width: 575px)").matches) {
+      const maxPadMobile = Math.floor(canvasW * 0.52);
+      pad = Math.min(pad, maxPadMobile);
+      pad = Math.max(125, pad);
+    }
+    return pad;
+  }
+
+  /* =========================
+     MODO CUESTIONARIO: Preguntas
   ========================= */
   function cargarPreguntasCuestionario() {
-    const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
-    if (opcionActiva !== 'cuestionario') return;
+    const opcionActiva = window.OPCION_ACTIVA_WEB || "sondeo";
+    if (opcionActiva !== "cuestionario") return;
 
     $.ajax({
       url: "admin/ajax/rqst.php",
       type: "POST",
       dataType: "json",
-      data: { op: 'encuesta_preguntas_activas' },
+      data: { op: "encuesta_preguntas_activas" },
       success: function (res) {
-        console.log('Preguntas cuestionario:', res);
         if (!res || !res.success) {
-          $('#selectorPregunta').html('<option value="">Sin preguntas disponibles</option>');
-          $('#fichaTecnicaNombre').text('No hay cuestionario activo');
+          $("#selectorPregunta").html('<option value="">Sin preguntas disponibles</option>');
+          $("#fichaTecnicaNombre").text("No hay cuestionario activo");
           return;
         }
 
-        // Mostrar nombre de la ficha técnica
         if (res.ficha && res.ficha.nombre) {
-          $('#fichaTecnicaNombre').text(res.ficha.nombre);
+          $("#fichaTecnicaNombre").text(res.ficha.nombre);
         }
 
-        // Llenar selector de preguntas
-        let options = '';
+        let options = "";
         if (res.preguntas && res.preguntas.length > 0) {
           res.preguntas.forEach((p, idx) => {
-            const selected = idx === 0 ? 'selected' : '';
+            const selected = idx === 0 ? "selected" : "";
             options += `<option value="${p.id}" ${selected}>${p.texto_pregunta}</option>`;
           });
-          $('#selectorPregunta').html(options);
+          $("#selectorPregunta").html(options);
 
-          // Guardar la primera pregunta como seleccionada
-          preguntaSeleccionada = res.preguntas[0].id;
+          preguntaSeleccionada = parseInt(res.preguntas[0].id) || 0;
 
-          // Cargar gráfico con la primera pregunta
           cargarGraficoGeneral(preguntaSeleccionada);
-          
-          // Actualizar colores del mapa con la primera pregunta
           actualizarColoresMapaCuestionario(preguntaSeleccionada);
         } else {
-          $('#selectorPregunta').html('<option value="">Sin preguntas disponibles</option>');
+          $("#selectorPregunta").html('<option value="">Sin preguntas disponibles</option>');
         }
       },
-      error: function() {
-        $('#selectorPregunta').html('<option value="">Error al cargar</option>');
+      error: function () {
+        $("#selectorPregunta").html('<option value="">Error al cargar</option>');
       }
     });
   }
 
-  // Evento: cambio de pregunta seleccionada
-  $(document).on('change', '#selectorPregunta', function() {
+  $(document).on("change", "#selectorPregunta", function () {
     preguntaSeleccionada = parseInt($(this).val()) || 0;
-    console.log('Pregunta seleccionada:', preguntaSeleccionada);
     cargarGraficoGeneral(preguntaSeleccionada);
     actualizarColoresMapaCuestionario(preguntaSeleccionada);
   });
 
   /* =========================
-     MAPA: actualizar colores para cuestionario
+     MAPA: colores cuestionario
   ========================= */
   function actualizarColoresMapaCuestionario(preguntaId) {
     if (!preguntaId) return;
@@ -109,26 +187,22 @@ $(document).ready(function () {
         pregunta_id: preguntaId
       },
       success: function (res) {
-        console.log('Colores mapa cuestionario:', res);
         if (!res || !res.success) return;
 
         const colores = res.colores || {};
         const ganadores = res.ganadores || {};
 
-        // Actualizar colores globales
         ColoresCandidatos = colores;
 
-        // Pintar el mapa
         $("#mapaContainer svg path.mapaClick").each(function () {
           const codigo = $(this).data("codigo");
           if (!codigo) return;
 
           const infoGanador = ganadores[codigo];
-
           if (!infoGanador) {
-            $(this).css("fill", "#d9d9d9"); // Sin datos
+            $(this).css("fill", "#d9d9d9");
           } else if (infoGanador.empate === true) {
-            $(this).css("fill", "url(#rayasAzules)"); // Empate
+            $(this).css("fill", "url(#rayasAzules)");
           } else {
             const color = colores[infoGanador.ganador] || "#d9d9d9";
             $(this).css("fill", color);
@@ -139,10 +213,9 @@ $(document).ready(function () {
   }
 
   /* =========================
-     MAPA: pintar ganadores
+     MAPA: pintar ganadores (sondeo)
   ========================= */
   function pintarMapaSegunGanadores() {
-
     const departamentos = [];
     $("#mapaContainer svg g").each(function () {
       const codigo = $(this).find("path").data("codigo");
@@ -173,7 +246,7 @@ $(document).ready(function () {
           if (!ganador) return;
 
           if (ganador.empate) {
-            path.css("fill", "url(#rayas)"); // empate
+            path.css("fill", "url(#rayas)");
           } else {
             const color = ColoresCandidatos[ganador.ganador] || "#999";
             path.css("fill", color);
@@ -184,215 +257,174 @@ $(document).ready(function () {
   }
 
   /* =========================
-     GRAFICO GENERAL PRO
+     GRAFICO GENERAL (horizontal) - FIX labels
   ========================= */
   function cargarGraficoGeneral(preguntaId = 0) {
-    const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
+  const opcionActiva = window.OPCION_ACTIVA_WEB || "sondeo";
+  const endpoint = (opcionActiva === "cuestionario") ? "encuesta_general_index" : "sondeo_general_index";
 
-    // Si es encuesta/cuestionario, usar endpoint diferente
-    const endpoint = (opcionActiva === 'cuestionario') ? 'encuesta_general_index' : 'sondeo_general_index';
+  const requestData = { op: endpoint };
+  if (opcionActiva === "cuestionario" && preguntaId > 0) {
+    requestData.pregunta_id = preguntaId;
+  }
 
-    // Datos a enviar
-    const requestData = { op: endpoint };
-    if (opcionActiva === 'cuestionario' && preguntaId > 0) {
-      requestData.pregunta_id = preguntaId;
-    }
+  $.ajax({
+    url: "admin/ajax/rqst.php",
+    type: "POST",
+    dataType: "json",
+    data: requestData,
+    success: function (res) {
+      if (!res || !res.success || !res.votos) return;
 
-    $.ajax({
-      url: "admin/ajax/rqst.php",
-      type: "POST",
-      dataType: "json",
-      data: requestData,
-      success: function (res) {
-        console.log('cargarGraficoGeneral - respuesta:', res);
-        if (!res || !res.success || !res.votos) {
-          console.log('cargarGraficoGeneral - respuesta inválida o sin votos');
-          return;
-        }
+      const canvas = document.getElementById("graficoGeneral");
+      if (!canvas) return;
 
-        const canvas = document.getElementById('graficoGeneral');
-        if (!canvas) return;
+      if (graficoGeneral) graficoGeneral.destroy();
 
-        if (graficoGeneral) graficoGeneral.destroy();
-
-        function dividirEnTresLineas(nombre) {
-          const palabras = (nombre || "").split(" ").filter(Boolean);
-          if (palabras.length <= 1) return [palabras[0] || ""];
-          if (palabras.length === 2) return [palabras[0], palabras[1]];
-
-          let linea1 = palabras[0];
-          let linea2 = palabras[1] + (palabras[2] ? " " + palabras[2] : "");
-          let linea3 = palabras.slice(3).join(" ");
-
-          const lineas = [linea1, linea2];
-          if (linea3.trim() !== "") lineas.push(linea3);
-          return lineas;
-        }
-
-        const labels = res.votos.map(v => dividirEnTresLineas(v.nombre_completo));
-        const data = res.votos.map(v => Number(v.total || 0));
-
-        // Verificar qué imágenes son válidas
-        const imagenesValidas = res.votos.map(v => {
-          const url = v.foto_url || '';
-          return url.trim() !== '' &&
-                 !url.includes('option_default') &&
-                 !url.includes('default.png');
-        });
-
-        const imgs = res.votos.map((v, i) => {
-          if (imagenesValidas[i]) {
-            const img = new Image();
-            img.src = v.foto_url;
-            return img;
-          }
-          return null;
-        });
-
-        // Nombres para iniciales cuando no hay imagen
-        const nombres = res.votos.map(v => v.nombre_completo || '?');
-
-        // Paleta (puedes dejarlo así o mapear por candidato si viene ID)
-        const coloresAsignados = res.votos.map((v, i) => {
-          const id = v.candidato_id || v.id;
-          return ColoresCandidatos[id] || PALETA_COLORES[i % PALETA_COLORES.length];
-        });
-
-        const fotoLabelPlugin = {
-          id: 'fotoLabelPlugin',
-          afterDraw(chart) {
-            const ctx = chart.ctx;
-            const yAxis = chart.scales.y;
-
-            ctx.textBaseline = "middle";
-            ctx.textAlign = "left";
-            ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-
-            chart.data.labels.forEach((label, i) => {
-              const y = yAxis.getPixelForTick(i);
-              const img = imgs[i];
-              const imgY = y - 15;
-
-              if (img && imagenesValidas[i]) {
-                // Foto válida
-                try { ctx.drawImage(img, 5, imgY, 30, 30); } catch (e) {}
-              } else {
-                // Círculo con inicial
-                const color = coloresAsignados[i] || "#1f77b4";
-                ctx.beginPath();
-                ctx.arc(20, y, 15, 0, 2 * Math.PI);
-                ctx.fillStyle = color;
-                ctx.fill();
-                ctx.closePath();
-
-                // Inicial
-                ctx.fillStyle = "#fff";
-                ctx.font = "bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-                ctx.textAlign = "center";
-                const inicial = (nombres[i] || '?').charAt(0).toUpperCase();
-                ctx.fillText(inicial, 20, y + 1);
-                ctx.textAlign = "left";
-                ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-              }
-
-              // Texto multilínea
-              label.forEach((line, lineIndex) => {
-                ctx.fillStyle = "#0f172a";
-                ctx.fillText(line, 40, y + (lineIndex * 12) - 6);
-              });
-            });
-          }
-        };
-
-        graficoGeneral = new Chart(canvas, {
-          type: 'bar',
-          plugins: [fotoLabelPlugin],
-          data: {
-            labels: labels,
-            datasets: [{
-              label: "",
-              data: data,
-              backgroundColor: coloresAsignados,
-              borderRadius: 10
-            }]
-          },
-          options: {
-            indexAxis: "y",
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { enabled: true } },
-            scales: {
-              x: { beginAtZero: true, grid: { color: "rgba(2,6,23,.08)" } },
-              y: { ticks: { display: false }, grid: { display: false } }
-            },
-            layout: { padding: { left: 86 } }
-          }
-        });
-      },
-      error: function (xhr, status, error) {
-        console.error('Error en AJAX cargarGraficoGeneral:', status, error, xhr.responseText);
-      },
-      complete: function() {
-        console.log('cargarGraficoGeneral - petición completada');
+      // ========= labels/data =========
+      function dividirEnTresLineas(nombre) {
+        const palabras = (nombre || "").split(" ").filter(Boolean);
+        if (palabras.length <= 1) return [palabras[0] || ""];
+        if (palabras.length === 2) return [palabras[0], palabras[1]];
+        const linea1 = palabras[0];
+        const linea2 = palabras[1] + (palabras[2] ? " " + palabras[2] : "");
+        const linea3 = palabras.slice(3).join(" ");
+        const lineas = [linea1, linea2];
+        if (linea3.trim() !== "") lineas.push(linea3);
+        return lineas;
       }
-    });
-  }
 
-  /* =========================
-     UI helpers (card)
-  ========================= */
-  function isMobile() {
-    return window.matchMedia("(max-width: 575px)").matches;
-  }
+      const labels = res.votos.map(v => dividirEnTresLineas(v.nombre_completo));
+      const data = res.votos.map(v => Number(v.total || 0));
 
-  function montarSpinner() {
-    return `
-      <div class="text-center p-4">
-        <div class="spinner-border" style="color:${COLOR_TEMA};" role="status">
-          <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p class="mt-2 mb-0 text-muted fw-bold">Cargando sondeo...</p>
-      </div>
-    `;
-  }
+      const imagenesValidas = res.votos.map(v => {
+        const url = v.foto_url || "";
+        return url.trim() !== "" && !url.includes("option_default") && !url.includes("default.png");
+      });
 
-  function montarVacio() {
-    return `
-      <div class="p-4 text-center">
-        <div class="fw-bold" style="color:#0f172a;">Sin datos disponibles</div>
-        <div class="text-muted fw-bold" style="font-size:.92rem;">Intenta con otro departamento.</div>
-      </div>
-    `;
-  }
+      const imgs = res.votos.map((v, i) => {
+        if (imagenesValidas[i]) {
+          const img = new Image();
+          img.src = v.foto_url;
+          return img;
+        }
+        return null;
+      });
 
-  // Función para obtener color por ID o índice
-  function obtenerColorPorIdOIndice(id, index) {
-    return ColoresCandidatos[id] || PALETA_COLORES[index % PALETA_COLORES.length] || COLOR_TEMA;
-  }
+      const nombres = res.votos.map(v => v.nombre_completo || "?");
 
-  /* =========================
-     MAIN: init
-  ========================= */
-  const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
+      const coloresAsignados = res.votos.map((v, i) => {
+        const id = v.candidato_id || v.id;
+        return ColoresCandidatos[id] || PALETA_COLORES[i % PALETA_COLORES.length];
+      });
 
-  if (opcionActiva === 'cuestionario') {
-    // Modo cuestionario: cargar preguntas primero (el gráfico se carga después)
-    cargarPreguntasCuestionario();
-  } else {
-    // Modo sondeo: cargar gráfico directamente
-    cargarGraficoGeneral();
-  }
+      // ✅ Carril fijo para foto + texto (100% estable)
+      const LANE_DESKTOP = 235;  // espacio a la izquierda
+      const LANE_MOBILE  = 185;
 
-  // Espera a que el SVG esté montado (por include PHP)
-  setTimeout(() => {
-    if (opcionActiva !== 'cuestionario') {
-      pintarMapaSegunGanadores();
+      const LANE = window.matchMedia("(max-width: 575px)").matches ? LANE_MOBILE : LANE_DESKTOP;
+
+      // ✅ Plugin: pinta SIEMPRE en el carril izquierdo (x fijo)
+      const fotoLabelPlugin = {
+        id: "fotoLabelPlugin",
+        afterDraw(chart) {
+          const ctx = chart.ctx;
+          const yAxis = chart.scales.y;
+
+          // coordenadas dentro del carril
+          const imgX  = 14;   // foto
+          const textX = 52;   // texto
+
+          ctx.save();
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "left";
+
+          chart.data.labels.forEach((label, i) => {
+            const y = yAxis.getPixelForTick(i);
+            const img = imgs[i];
+            const imgY = y - 15;
+
+            // Foto / inicial
+            if (img && imagenesValidas[i]) {
+              try { ctx.drawImage(img, imgX, imgY, 30, 30); } catch (e) {}
+            } else {
+              const color = coloresAsignados[i] || "#1f77b4";
+              ctx.beginPath();
+              ctx.arc(imgX + 15, y, 15, 0, 2 * Math.PI);
+              ctx.fillStyle = color;
+              ctx.fill();
+              ctx.closePath();
+
+              ctx.fillStyle = "#fff";
+              ctx.font = "400 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+              ctx.textAlign = "center";
+              ctx.fillText((nombres[i] || "?").charAt(0).toUpperCase(), imgX + 15, y + 1);
+              ctx.textAlign = "left";
+            }
+
+            // Texto multilínea (fijo, nunca encima de barras)
+            ctx.fillStyle = "#0f172a";
+            ctx.font = "00 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+
+            (label || []).forEach((line, lineIndex) => {
+              ctx.fillText(String(line || ""), textX, y + (lineIndex * 12) - 6);
+            });
+          });
+
+          ctx.restore();
+        }
+      };
+
+      // ✅ Truco clave:
+      // 1) Ocultamos ticks del eje Y (no queremos que Chart.js ponga texto)
+      // 2) Reservamos carril con layout.padding.left = LANE
+      graficoGeneral = new Chart(canvas, {
+        type: "bar",
+        plugins: [fotoLabelPlugin],
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: coloresAsignados,
+            borderRadius: 5,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: { color: "rgba(2,6,23,.08)" },
+              ticks: { precision: 0 } // si quieres enteros
+            },
+            y: {
+              ticks: { display: false },
+              grid: { display: false }
+            }
+          },
+          layout: { padding: { left: LANE, right: 14, top: 8, bottom: 8 } }
+        }
+      });
+    },
+    error: function (xhr, status, error) {
+      console.error("Error en AJAX cargarGraficoGeneral:", status, error, xhr.responseText);
     }
-    MapaSondeo.hacerMapaClickeable();
-  }, 250);
+  });
+}
 
+  
+
+  /* =========================
+     Card + Mapa + Grafico depto
+  ========================= */
   const MapaSondeo = {
-
     departamentoActual: "",
     municipioActual: "",
 
@@ -401,43 +433,35 @@ $(document).ready(function () {
     },
 
     hacerMapaClickeable() {
-      $('#mapaContainer svg path').each(function () {
-        $(this).addClass('mapaClick').css('cursor', 'pointer');
+      $("#mapaContainer svg path").each(function () {
+        $(this).addClass("mapaClick").css("cursor", "pointer");
       });
     },
 
     eventos() {
-      // cerrar card
-      $('#closeCard').on('click', function (e) {
+      $("#closeCard").on("click", function (e) {
         e.stopPropagation();
-        $('#resultadosCard').addClass('d-none').removeClass('bottom-sheet');
+        $("#resultadosCard").addClass("d-none").removeClass("bottom-sheet");
       });
 
-      // click afuera
-      $(document).on('click', function (e) {
-        if (!$(e.target).closest('#resultadosCard').length &&
-            !$(e.target).closest('.mapaClick').length) {
-          $('#resultadosCard').addClass('d-none').removeClass('bottom-sheet');
+      $(document).on("click", function (e) {
+        if (!$(e.target).closest("#resultadosCard").length && !$(e.target).closest(".mapaClick").length) {
+          $("#resultadosCard").addClass("d-none").removeClass("bottom-sheet");
         }
       });
 
-      // click dentro card
-      $('#resultadosCard').on('click', function (e) {
+      $("#resultadosCard").on("click", function (e) {
         e.stopPropagation();
       });
 
-      // click en mapa
-      $(document).on('click', '.mapaClick', (e) => {
+      $(document).on("click", ".mapaClick", (e) => {
         this.manejarClickMapa(e);
       });
 
-      // si cambia tamaño, reacomoda si está visible
-      $(window).on('resize', () => {
-        const card = $('#resultadosCard');
-        if (!card.hasClass('d-none')) {
-          if (isMobile()) {
-            this.posicionarBottomSheet();
-          }
+      $(window).on("resize", () => {
+        const card = $("#resultadosCard");
+        if (!card.hasClass("d-none")) {
+          if (isMobile()) this.posicionarBottomSheet();
         }
       });
     },
@@ -447,40 +471,27 @@ $(document).ready(function () {
       e.stopPropagation();
 
       const path = $(e.target);
-
       const nombreReal = path.data("nombre");
       const codigoDane = path.data("codigo");
 
       this.departamentoActual = codigoDane;
       this.municipioActual = "";
 
-      // badge
-      $('#badgeElectoral').text((nombreReal || "RESULTADOS").toUpperCase());
+      $("#badgeElectoral").text((nombreReal || "RESULTADOS").toUpperCase());
 
-      // mostrar card
-      if (isMobile()) {
-        this.posicionarBottomSheet();
-      } else {
-        this.posicionarCard(e.pageX, e.pageY);
-      }
+      if (isMobile()) this.posicionarBottomSheet();
+      else this.posicionarCard(e.pageX, e.pageY);
 
-      // cargar
       this.obtenerSondeo(codigoDane);
     },
 
     posicionarBottomSheet() {
-      const card = $('#resultadosCard');
+      const card = $("#resultadosCard");
       card
-        .removeClass('d-none')
-        .addClass('bottom-sheet')
-        .css({
-          top: "auto",
-          left: "12px",
-          right: "12px",
-          bottom: "12px"
-        });
+        .removeClass("d-none")
+        .addClass("bottom-sheet")
+        .css({ top: "auto", left: "12px", right: "12px", bottom: "12px" });
 
-      // animación suave
       card[0].style.transform = "translateY(10px)";
       card[0].style.opacity = "0";
       requestAnimationFrame(() => {
@@ -504,13 +515,12 @@ $(document).ready(function () {
       if (finalY < 0) finalY = 15;
       if (finalX < 0) finalX = 15;
 
-      $('#resultadosCard')
-        .removeClass('d-none')
-        .removeClass('bottom-sheet')
+      $("#resultadosCard")
+        .removeClass("d-none")
+        .removeClass("bottom-sheet")
         .css({ top: finalY + "px", left: finalX + "px", right: "auto", bottom: "auto" });
 
-      // animación suave
-      const card = $('#resultadosCard')[0];
+      const card = $("#resultadosCard")[0];
       card.style.transform = "scale(.98)";
       card.style.opacity = "0";
       requestAnimationFrame(() => {
@@ -521,18 +531,13 @@ $(document).ready(function () {
     },
 
     obtenerSondeo(departamento) {
+      $("#resultadosContent").html(montarSpinner());
 
-      $('#resultadosContent').html(montarSpinner());
+      const opcionActiva = window.OPCION_ACTIVA_WEB || "sondeo";
+      const endpoint = (opcionActiva === "cuestionario") ? "encuesta_mapa_index" : "sondeo_presidencial_mapa";
 
-      const opcionActiva = window.OPCION_ACTIVA_WEB || 'sondeo';
-      const endpoint = (opcionActiva === 'cuestionario') ? 'encuesta_mapa_index' : 'sondeo_presidencial_mapa';
-
-      const dataRqst = {
-        op: endpoint,
-        departamento_click: departamento
-      };
-
-      if (opcionActiva === 'cuestionario' && preguntaSeleccionada > 0) {
+      const dataRqst = { op: endpoint, departamento_click: departamento };
+      if (opcionActiva === "cuestionario" && preguntaSeleccionada > 0) {
         dataRqst.pregunta_id = preguntaSeleccionada;
       }
 
@@ -567,25 +572,22 @@ $(document).ready(function () {
         const votosNum = Number(v.total || 0);
         const porcentaje = total > 0 ? ((votosNum / total) * 100).toFixed(1) : 0;
 
-        // intenta detectar id del candidato para color individual
         const id = Number(v.id_candidato || v.candidato_id || v.tbl_candidato_id || 0);
         const color = obtenerColorPorIdOIndice(id, idx);
 
-        // Verificar si hay una foto válida (no vacía y no un placeholder genérico)
-        const tieneImagen = v.foto_url &&
-                           v.foto_url.trim() !== '' &&
-                           !v.foto_url.includes('option_default') &&
-                           !v.foto_url.includes('default.png');
+        const tieneImagen =
+          v.foto_url && v.foto_url.trim() !== "" &&
+          !v.foto_url.includes("option_default") &&
+          !v.foto_url.includes("default.png");
 
-        // Si hay imagen, mostrarla; si no, mostrar un círculo con el color
         const imagenHtml = tieneImagen
           ? `<img src="${v.foto_url}" style="width:38px;height:38px;object-fit:cover;border-radius:999px;border:2px solid rgba(32,66,127,.18);">`
           : `<div style="width:38px;height:38px;border-radius:999px;background:${color};display:flex;align-items:center;justify-content:center;border:2px solid rgba(32,66,127,.18);">
-               <span style="color:#fff;font-weight:700;font-size:0.9rem;">${(v.nombre_completo || '?').charAt(0).toUpperCase()}</span>
+               <span style="color:#fff;font-weight:700;font-size:0.9rem;">${(v.nombre_completo || "?").charAt(0).toUpperCase()}</span>
              </div>`;
 
         html += `
-          <div class="p-2 border-bottom d-flex gap-2 align-items-center" style="background:${idx===0 ? "rgba(32,66,127,.04)" : "transparent"};">
+          <div class="p-2 border-bottom d-flex gap-2 align-items-center" style="background:${idx === 0 ? "rgba(32,66,127,.04)" : "transparent"};">
             ${imagenHtml}
             <div class="flex-grow-1">
               <div class="d-flex justify-content-between align-items-start gap-2">
@@ -604,15 +606,16 @@ $(document).ready(function () {
         `;
       });
 
-      $('#resultadosContent').html(html);
+      $("#resultadosContent").html(html);
 
-      // pinta badge del card con color ganador
-      $('#badgeElectoral')
-        .css({ background: "rgba(32,66,127,.06)", borderColor: "rgba(32,66,127,.18)" });
+      $("#badgeElectoral").css({
+        background: "rgba(32,66,127,.06)",
+        borderColor: "rgba(32,66,127,.18)"
+      });
     },
 
     actualizarGrafico(votos) {
-      const ctx = document.getElementById('graficoVotos');
+      const ctx = document.getElementById("graficoVotos");
       if (!ctx) return;
 
       if (grafico) grafico.destroy();
@@ -620,18 +623,17 @@ $(document).ready(function () {
       const labels = votos.map(v => v.nombre_completo);
       const data = votos.map(v => Number(v.total || 0));
 
-      // colores por candidato si hay id, o por índice
       const bg = votos.map((v, idx) => {
         const id = Number(v.id_candidato || v.candidato_id || v.tbl_candidato_id || 0);
         return obtenerColorPorIdOIndice(id, idx);
       });
 
       grafico = new Chart(ctx, {
-        type: 'bar',
+        type: "bar",
         data: {
           labels: labels,
           datasets: [{
-            label: 'Votos',
+            label: "Votos",
             data: data,
             backgroundColor: bg,
             borderRadius: 10
@@ -650,15 +652,27 @@ $(document).ready(function () {
     },
 
     mostrarSondeoVacio() {
-      $('#resultadosContent').html(montarVacio());
+      $("#resultadosContent").html(montarVacio());
     }
   };
+
+  /* =========================
+     INIT
+  ========================= */
+  const opcionActiva = window.OPCION_ACTIVA_WEB || "sondeo";
+
+  if (opcionActiva === "cuestionario") cargarPreguntasCuestionario();
+  else cargarGraficoGeneral();
+
+  setTimeout(() => {
+    if (opcionActiva !== "cuestionario") pintarMapaSegunGanadores();
+    MapaSondeo.hacerMapaClickeable();
+  }, 250);
 
   MapaSondeo.init();
 
   /* =========================
-     CSS extra para bottom-sheet
-     (se agrega aquí por si no quieres tocar CSS)
+     CSS extra bottom-sheet
   ========================= */
   if (!document.getElementById("bottomSheetStyle")) {
     const style = document.createElement("style");
@@ -677,5 +691,4 @@ $(document).ready(function () {
     `;
     document.head.appendChild(style);
   }
-
 });

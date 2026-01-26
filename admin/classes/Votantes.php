@@ -38,6 +38,7 @@ class Votantes
         ? (int)$_SESSION['session_user']['id']
         : 0;
 
+        
     $nombre_completo      = isset($rqst['nombre_completo']) ? trim((string)$rqst['nombre_completo']) : '';
     $ideologia            = isset($rqst['ideologia']) ? trim((string)$rqst['ideologia']) : '';
     $rango_edad           = isset($rqst['rango_edad']) ? trim((string)$rqst['rango_edad']) : '';
