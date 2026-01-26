@@ -8,10 +8,6 @@ function init() {
 }
 
 var VOTANTES = {
-
-  // =========================
-  // EDITAR
-  // =========================
   editData: function (id) {
     q = {};
     q.op = "votantesget";
@@ -36,16 +32,11 @@ var VOTANTES = {
     $("#nivel_ingresos").val(res.nivel_ingresos || "");
     $("#email").val(res.email || "");
     $("#username").val(res.username || "");
-
-    // ✅ NO rellenar password con lo que venga de BD (normalmente viene hash)
     $("#password").val("");
-
     $("#genero").val(res.genero || "");
     $("#tbl_departamento_id").val(res.codigo_departamento || "");
-
     $("#tbl_departamento_id").trigger("change");
     DEPARTAMENTO.getMunicipios();
-
     setTimeout(() => {
       $("#tbl_municipio_id").val(res.codigo_municipio || "");
     }, 500);
@@ -61,9 +52,6 @@ var VOTANTES = {
     $("#spanModulo").text("");
   },
 
-  // =========================
-  // VALIDAR
-  // =========================
   validateData: function () {
     var bValid = true;
     var msj = "Falta ingresar información obligatoria, marcada con asterisco.";
@@ -71,16 +59,9 @@ var VOTANTES = {
     var id = ($("#idVotantes").val() || "").trim();
     var isNew = (id === "");
 
-    // Obligatorios según tu lógica de formulario
     if (($("#nombre_completo").val() || "").trim() === "") bValid = false;
-
-    // ⚠️ En tu PHP email NO es obligatorio. Si lo quieres obligatorio, deja esta línea.
-    // Si NO lo quieres obligatorio, comenta esta línea.
     if (($("#email").val() || "").trim() === "") bValid = false;
-
     if (($("#username").val() || "").trim() === "") bValid = false;
-
-    // Password obligatorio solo para nuevos
     if (isNew && (($("#password").val() || "").trim() === "")) bValid = false;
 
     if (($("#ideologia").val() || "").trim() === "") bValid = false;
@@ -89,8 +70,6 @@ var VOTANTES = {
     if (($("#genero").val() || "").trim() === "") bValid = false;
     if (($("#tbl_departamento_id").val() || "").trim() === "") bValid = false;
     if (($("#tbl_municipio_id").val() || "").trim() === "") bValid = false;
-
-    // Ocupación: en tu PHP NO es obligatorio. Si lo quieres obligatorio, deja esto.
     if (($("#ocupacion").val() || "").trim() === "") bValid = false;
 
     if (($("#estado").val() || "").trim() === "") bValid = false;
@@ -107,17 +86,10 @@ var VOTANTES = {
 
     VOTANTES.savedata();
   },
-
-  // =========================
-  // GUARDAR
-  // =========================
   savedata: function () {
     q = {};
     q.op = "votantessave";
-
-    // helpers
     function v(id) { return (($(id).val() ?? "") + "").trim(); }
-
     q.id                 = v("#idVotantes");
     q.dtcreate           = v("#dtcreate");
     q.tbl_usuario_id      = v("#tbl_usuario_id");
@@ -127,14 +99,10 @@ var VOTANTES = {
     q.nivel_ingresos      = v("#nivel_ingresos");
     q.email               = v("#email");
     q.username            = v("#username");
-
-    // ✅ IMPORTANTE: enviar password en claro.
-    // El backend (PHP) lo hashea con Util::make_hash_pass().
     var pass = v("#password");
     if (pass !== "") {
-      q.password = pass;
+      q.password = hex_md5(pass);
     } else {
-      // Si está vacío NO lo envíes (para que al editar no lo borre)
       q.password = "";
     }
 
@@ -146,8 +114,6 @@ var VOTANTES = {
     q.nivel_educacion     = v("#nivel_educacion");
     q.ocupacion           = v("#ocupacion");
     q.estado              = v("#estado");
-
-    // estos no son necesarios, pero si existen no hacen daño
     q.email_verificado       = v("#email_verificado");
     q.ultimo_acceso          = v("#ultimo_acceso");
     q.intentos_login         = v("#intentos_login");
@@ -155,7 +121,6 @@ var VOTANTES = {
     q.dtupdate               = v("#dtupdate");
     q.ip_registro            = v("#ip_registro");
     q.user_agent             = v("#user_agent");
-
     UTIL.cursorBusy();
 
     $.ajax({
@@ -170,7 +135,7 @@ var VOTANTES = {
           UTIL.mostrarMensajeExitoso("Información guardada correctamente");
           setTimeout(function () {
             window.location = "index.php";
-          }, 1200);
+          }, 1000);
         } else {
           UTIL.mostrarMensajeError((data?.output?.response?.content) || "No se pudo guardar la información.");
         }
@@ -178,8 +143,6 @@ var VOTANTES = {
       error: function (xhr) {
         UTIL.cursorNormal();
         UTIL.mostrarMensajeError("Ha ocurrido un error en la operación ejecutada");
-        // Si quieres ver el error real:
-        // console.log(xhr.responseText);
       }
     });
   },

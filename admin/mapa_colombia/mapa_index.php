@@ -108,14 +108,6 @@ if ($opcionActiva === 'cuestionario') {
     $ganadoresDepartamentos = Sondeo::ganadorPorTodosLosDepartamentos();
 }
 ?>
-<!-- DEBUG: Ver en consola -->
-<script>
-// console.log("=== DEBUG MAPA ===");
-// console.log("Sondeo activo ID:", <?php echo json_encode($sondeoActivo['id'] ?? null); ?>);
-// console.log("Tiene candidatos:", <?php echo json_encode($tieneCandidatos ?? false); ?>);
-// console.log("Colores asignados:", <?php echo json_encode($coloresCandidatos); ?>);
-console.log("Ganadores por departamento:", <?php echo json_encode($ganadoresDepartamentos); ?>);
-</script>
 <!DOCTYPE html>
 <html>
 <head>
