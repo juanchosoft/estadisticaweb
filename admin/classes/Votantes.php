@@ -59,7 +59,7 @@ class Votantes
     // =========================
     // 2) Validaciones
     // =========================
-    if ($nombre_completo === '') return Util::error_missing_data_description('El campo "Nombre completo" es requerido.');
+    // if ($nombre_completo === '') return Util::error_missing_data_description('El campo "Nombre completo" es requerido.');
     if ($ideologia === '')       return Util::error_missing_data_description('El campo "Ideología política" es requerido.');
     if ($rango_edad === '')      return Util::error_missing_data_description('El campo "Rango de edad" es requerido.');
     if ($nivel_ingresos === '')  return Util::error_missing_data_description('El campo "Nivel socioeconómico" es requerido.');

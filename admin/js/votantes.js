@@ -59,7 +59,6 @@ var VOTANTES = {
     var id = ($("#idVotantes").val() || "").trim();
     var isNew = (id === "");
 
-    if (($("#nombre_completo").val() || "").trim() === "") bValid = false;
     if (($("#email").val() || "").trim() === "") bValid = false;
     if (($("#username").val() || "").trim() === "") bValid = false;
     if (isNew && (($("#password").val() || "").trim() === "")) bValid = false;
