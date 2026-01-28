@@ -39,7 +39,7 @@ class Votantes
         : 0;
 
         
-    $nombre_completo      = isset($rqst['nombre_completo']) ? trim((string)$rqst['nombre_completo']) : '';
+    $nombre_completo      = isset($rqst['nombre_completo']) ? trim((string)$rqst['nombre_completo']) : 'USUARIO';
     $ideologia            = isset($rqst['ideologia']) ? trim((string)$rqst['ideologia']) : '';
     $rango_edad           = isset($rqst['rango_edad']) ? trim((string)$rqst['rango_edad']) : '';
     $nivel_ingresos       = isset($rqst['nivel_ingresos']) ? trim((string)$rqst['nivel_ingresos']) : '';

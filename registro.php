@@ -7,6 +7,7 @@ include './admin/classes/Votantes.php';
 include './admin/classes/Departamento.php';
 include './admin/include/generic_info_configuracion.php';
 
+
 // Informacion de departamentos
 $departamentos = Departamento::getAll(null);
 $isValidDep = $departamentos['output']['valid'] ?? false;
@@ -546,7 +547,7 @@ foreach ($departamentosResponse as $dep) {
 
         <!-- ===== LOGIN START (CTA abre modal de login.php) ===== -->
         <div class="login-box">
-          <a href="#" class="login-cta" id="btnOpenLogin" role="button" aria-label="Ya tengo una cuenta, iniciar sesión">
+          <a href="#" class="login-cta" id="btnOpenLogin" role="button" aria-label="Ya tengo una cuenta, iniciar sesión" data-bs-toggle="modal" data-bs-target="#loginModal">
             <span class="login-cta-ic"><i class="fa-solid fa-right-to-bracket"></i></span>
             <span class="login-cta-txt">
               <b>Ya tengo una cuenta</b>
@@ -833,6 +834,43 @@ foreach ($departamentosResponse as $dep) {
 
 <?php include './admin/include/footer.php'; ?>
 
+<!-- Modal Login -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:24px; border:0; box-shadow:0 44px 160px rgba(2,6,23,.35);">
+      <div class="modal-header" style="border:0; padding:18px 18px 10px;">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div style="width:54px;height:54px;border-radius:18px;background:#fff;border:1px solid rgba(15,23,42,.10);display:grid;place-items:center;">
+            <img src="<?= $logo_configuracion ?? 'assets/img/admin/estadistica3.png' ?>" alt="Logo" style="width:78%;height:78%;object-fit:contain;">
+          </div>
+          <div>
+            <b style="font-weight:950;color:#0f172a;font-size:18px;">Iniciar sesión</b><br>
+            <small style="font-weight:750;color:rgba(71,85,105,.96);">Accede para continuar</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" style="padding:6px 18px 16px;">
+        <div style="border:1px solid rgba(15,23,42,.10);background:rgba(255,255,255,.84);border-radius:18px;padding:14px;">
+          <form id="formLoginVotantes" autocomplete="on">
+            <div style="margin-bottom:10px;">
+              <div style="font-weight:900;font-size:13px;color:#111827;margin-bottom:6px;">Correo o Usuario</div>
+              <input type="text" class="form-control" id="login_user" name="login_user" placeholder="Escribe tu usuario o correo" required style="height:56px;border-radius:16px;">
+            </div>
+            <div style="margin-bottom:10px;">
+              <div style="font-weight:900;font-size:13px;color:#111827;margin-bottom:6px;">Contraseña</div>
+              <input type="password" class="form-control" id="login_password" name="login_password" placeholder="Escribe tu contraseña" required style="height:56px;border-radius:16px;">
+            </div>
+            <button type="button" class="btn btn-primary w-100" id="btnLoginSubmit" style="height:56px;border-radius:16px;font-weight:950;background:linear-gradient(135deg,#021b5a,#0B3EDC);border:0;">
+              <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Entrar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Libs -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -915,7 +953,7 @@ foreach ($departamentosResponse as $dep) {
         return;
       }
 
-      const res = await fetch('login.php?only_modal=1', { credentials: 'same-origin' });
+      const res = await fetch('modal_login.php?only_modal=1', { credentials: 'same-origin' });
       const html = await res.text();
 
       // Inserta el modal (solo una vez)
@@ -923,6 +961,18 @@ foreach ($departamentosResponse as $dep) {
       wrap.id = 'loginModalRemoteWrap';
       wrap.innerHTML = html;
       document.body.appendChild(wrap);
+
+      // Ejecutar scripts que vienen en el HTML cargado
+      const scripts = wrap.querySelectorAll('script');
+      scripts.forEach(function(oldScript){
+        const newScript = document.createElement('script');
+        if(oldScript.src){
+          newScript.src = oldScript.src;
+        } else {
+          newScript.textContent = oldScript.textContent;
+        }
+        document.body.appendChild(newScript);
+      });
 
       showLoginModal();
     }
@@ -935,6 +985,51 @@ foreach ($departamentosResponse as $dep) {
     });
   })();
   // ===== LOGIN END =====
+
+  // ===== LOGIN SUBMIT =====
+  document.getElementById('btnLoginSubmit').addEventListener('click', async function(){
+    const nickname = document.getElementById('login_user').value.trim();
+    const hashpass = document.getElementById('login_password').value.trim();
+
+    if(!nickname || !hashpass){
+      UTIL.mostrarMensajeError('Por favor completa todos los campos.');
+      return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Validando...';
+
+    const formData = new FormData();
+    formData.append('nickname', nickname);
+    formData.append('hashpass', hashpass);
+
+    try {
+      const res = await fetch('login_process.php', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if(data.status === 'success'){
+        window.location.href = data.redirect;
+      } else {
+        UTIL.mostrarMensajeError(data.message || 'Error de inicio de sesión.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Entrar';
+      }
+    } catch(err){
+      UTIL.mostrarMensajeError('Error de conexión con el servidor.');
+      console.error(err);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Entrar';
+    }
+  });
+
+  // Enter key en el form de login
+  document.getElementById('formLoginVotantes').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      document.getElementById('btnLoginSubmit').click();
+    }
+  });
 </script>
 
 </body>
