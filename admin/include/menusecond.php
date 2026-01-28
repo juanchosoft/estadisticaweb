@@ -42,7 +42,7 @@
         <!-- DESKTOP -->
         <div class="navbar-nav ms-auto d-none d-lg-flex align-items-center gap-2">
 
-          <a href="visualizar.php" class="nav-link">
+          <a href="resultado.php" class="nav-link">
             <i class="fas fa-chart-bar me-2"></i>
            Ver Resultados
           </a>
@@ -114,7 +114,7 @@
             <i class="fas fa-chevron-right ms-auto"></i>
           </a>
 
-          <a href="visualizar.php" class="nav-link mobile-link">
+          <a href="resultado.php" class="nav-link mobile-link">
             <i class="fas fa-chart-bar"></i>
             <span>Consultar estadísticas</span>
             <i class="fas fa-chevron-right ms-auto"></i>

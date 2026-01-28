@@ -4,16 +4,11 @@
    login.php
    - Modo 1: ?only_modal=1 => imprime SOLO el modal (para fetch)
    - Modo 2: normal => página standalone que auto-abre el modal
+   - Modo 3: INCLUDE_MODAL_ONLY => solo renderiza modal (para include)
    - Bootstrap 5.0 compatible (sin getOrCreateInstance)
    - NO rompe backend: dispara submit y tu JS externo decide
    =====================  LOGIN END  =========================
 ========================================================== */
-
-require './admin/include/generic_classes.php';
-include './admin/include/generic_info_configuracion.php';
-
-/** Logo dinámico */
-$logoLogin = $logo_configuracion ?? $logo ?? $logoSistema ?? 'assets/img/admin/estadistica3.png';
 
 /** ====== RENDER MODAL (reusable) ====== */
 function renderLoginModal($logoLogin, $standalone = false){
@@ -395,6 +390,23 @@ function renderLoginModal($logoLogin, $standalone = false){
   </script>
   <?php
 }
+
+/* ==========================================================
+   MODE: include (cuando se incluye desde otro archivo)
+   Solo renderiza el modal, no carga página standalone
+========================================================== */
+if (defined('INCLUDE_MODAL_ONLY')) {
+  $logoModal = $logo_configuracion ?? $logo ?? $logoSistema ?? 'assets/img/admin/estadistica3.png';
+  renderLoginModal($logoModal, false);
+  return;
+}
+
+// Solo cargar estos archivos si NO es include mode
+require './admin/include/generic_classes.php';
+include './admin/include/generic_info_configuracion.php';
+
+/** Logo dinámico */
+$logoLogin = $logo_configuracion ?? $logo ?? $logoSistema ?? 'assets/img/admin/estadistica3.png';
 
 /* ==========================================================
    MODE: only_modal (para fetch desde registro.php)

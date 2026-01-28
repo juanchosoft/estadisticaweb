@@ -4,6 +4,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/admin/include/app_bootstrap.php';
 
 /**
+ * ✅ Verificar sesión - Solo usuarios logueados
+ */
+if (empty($_SESSION['session_user']['id'])) {
+    header('Location: registro.php');
+    exit;
+}
+
+/**
  * ✅ Includes con rutas absolutas
  */
 require_once __DIR__ . '/admin/classes/DbConection.php';
@@ -53,8 +61,7 @@ $opcionActivaWeb = $config[0]['opcion_activa_web'] ?? 'sondeo';
 
 <?php
 require_once __DIR__ . '/admin/include/loading.php';
-require_once __DIR__ . '/admin/include/menu.php';
-require_once __DIR__ . '/modal_login.php';
+require_once __DIR__ . '/admin/include/menusecond.php';
 ?>
 
 <script>
