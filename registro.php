@@ -1,14 +1,11 @@
-<?php 
+<?php
 $_REQUEST["route_map"] = true;
 
 include './admin/include/head.php';
 require './admin/include/generic_classes.php';
 include './admin/classes/Votantes.php';
 include './admin/classes/Departamento.php';
-
 include './admin/include/generic_info_configuracion.php';
-
-
 
 // Informacion de departamentos
 $departamentos = Departamento::getAll(null);
@@ -20,544 +17,562 @@ foreach ($departamentosResponse as $dep) {
   $optionDep .= "<option value='" . $dep['codigo_departamento'] . "'>" . $dep['codigo_departamento'] . " - " . $dep['departamento'] . "</option>";
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-  <!-- Bootstrap Icons / FontAwesome (si ya lo tienes en tu head.php, puedes quitar estas líneas) -->
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<?php include './modal_login.php'; ?>
+
   <style>
     :root{
+      --primary:#132b52;
+      --primary2:#0b1a33;
+      --sky:#00c2ff;
+
+      --bg:#ffffff;
+      --soft:#f6f8fc;
       --ink:#0f172a;
       --muted:#64748b;
-      --line:rgba(15,23,42,.10);
-      --card:#ffffff;
-      --bg:#f6f8fc;
-      --brand:#20427f;
-      --brand2:#0f2d63;
-      --radius:18px;
-      --shadow: 0 18px 60px rgba(2,6,23,.08);
-      --shadow2: 0 10px 25px rgba(2,6,23,.08);
+      --line: rgba(15,23,42,.10);
+
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+
+      --shadow-strong: 0 34px 120px rgba(2, 6, 23, .14);
+      --shadow-mid: 0 18px 60px rgba(2, 6, 23, .10);
     }
 
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
     body{
-      background: radial-gradient(1200px 600px at 20% -10%, rgba(32,66,127,.14), transparent 60%),
-                  radial-gradient(900px 450px at 90% 10%, rgba(14,165,233,.12), transparent 55%),
-                  var(--bg);
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 18% -10%, rgba(19,43,82,.16), transparent 60%),
+        radial-gradient(900px 450px at 90% 10%, rgba(0,194,255,.10), transparent 55%),
+        linear-gradient(#fff, #fff);
+      overflow-x:hidden;
     }
 
-    /* Navbar */
+    /* Navbar (si tu head.php ya lo trae, esto lo mejora sin romperlo) */
     #mainNavbar{
-      border-bottom: 1px solid rgba(15,23,42,.06);
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
+      box-shadow: 0 14px 40px rgba(2,6,23,.18);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
-    #mainNavbar.scrolled{
-      box-shadow: var(--shadow2);
-    }
-    .nav-link{
-      color: #334155 !important;
-      font-weight: 600;
-    }
-    .nav-link:hover{
-      color: var(--brand) !important;
-    }
+    #mainNavbar .nav-link{ color:#fff !important; font-weight:700; opacity:.95; }
+    #mainNavbar .nav-link:hover{ opacity:1; }
 
-    /* Shell */
-    .page-wrap{
-      max-width: 980px;
+    /* Page container */
+    .wrap{
+      max-width: 1040px;
       margin: 0 auto;
-      padding: 28px 14px 60px;
+      padding: 18px 14px 70px;
+      padding-bottom: calc(70px + env(safe-area-inset-bottom));
+    }
+    @media (max-width: 520px){
+      .wrap{ padding: 14px 10px 60px; }
     }
 
-    /* Card */
-    .saas-card{
-      background: var(--card);
-      border: 1px solid rgba(15,23,42,.08);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    /* Big card */
+    .card-pro{
+      background: rgba(255,255,255,.88);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-strong);
       overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
-    /* Header */
-    .form-hero{
-      padding: 22px 22px;
-      background: linear-gradient(135deg, rgba(32,66,127,.10), rgba(14,165,233,.06));
+    /* Hero */
+    .hero{
+      padding: 16px 14px 14px;
+      background:
+        radial-gradient(900px 260px at 12% 0%, rgba(19,43,82,.18), transparent 60%),
+        radial-gradient(700px 240px at 90% 10%, rgba(0,194,255,.12), transparent 60%),
+        linear-gradient(135deg, rgba(19,43,82,.06), rgba(0,194,255,.05));
       border-bottom: 1px solid rgba(15,23,42,.08);
     }
-    .form-hero .title{
-      font-size: 1.25rem;
-      font-weight: 900;
-      margin: 0;
-      letter-spacing: .2px;
+
+    .hero-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .form-hero .subtitle{
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-weight: 600;
-      font-size: .95rem;
-      line-height: 1.35;
-    }
+
     .pill{
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 9px 12px;
       border-radius: 999px;
+      background: rgba(19,43,82,.08);
+      border: 1px solid rgba(19,43,82,.14);
+      color: var(--primary);
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .title{
+      margin: 10px 0 6px;
+      font-size: clamp(22px, 5.2vw, 34px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      font-weight: 950;
+    }
+
+    .subtitle{
+      margin:0;
+      color: rgba(71,85,105,.98);
+      font-weight: 650;
+      font-size: clamp(14px, 3.8vw, 16px);
+      max-width: 65ch;
+    }
+
+    /* ===========================
+       ===== LOGIN (CTA) =====
+       =========================== */
+    /* ===== LOGIN START ===== */
+    .login-box{
+      width:100%;
+      display:flex;
+      justify-content:flex-end;
+      align-items:flex-start;
+      position: relative;
+      z-index: 20;
+    }
+
+    .login-cta{
+      text-decoration: none !important;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+
+      display:flex !important;
+      align-items:center !important;
+      gap: 10px !important;
+
+      padding: 12px 14px !important;
+      border-radius: 18px !important;
+
+      background: linear-gradient(135deg, #021b5a, #0B3EDC) !important;
+      color:#fff !important;
+
+      border: 1px solid rgba(255,255,255,.22) !important;
+      box-shadow: 0 18px 55px rgba(11,62,220,.32) !important;
+
+      position: relative;
+      overflow:hidden;
+      transform: translateZ(0);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      min-width: 260px;
+      max-width: 380px;
+    }
+
+    .login-cta:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 26px 80px rgba(11,62,220,.40) !important;
+      filter: saturate(1.12);
+    }
+
+    .login-cta::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+      transform: translateX(-130%) skewX(-18deg);
+      animation: loginShine 2.6s ease-in-out infinite;
+      pointer-events:none;
+      opacity: .95;
+    }
+    @keyframes loginShine{
+      0%{ transform: translateX(-130%) skewX(-18deg); opacity:0; }
+      18%{ opacity:1; }
+      45%{ transform: translateX(230%) skewX(-18deg); opacity:0; }
+      100%{ opacity:0; }
+    }
+
+    .login-cta-ic{
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.16);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+      flex: 0 0 auto;
+    }
+    .login-cta-ic i{ color:#fff !important; font-size: 16px; }
+
+    .login-cta-txt{
+      display:flex;
+      flex-direction:column;
+      line-height: 1.05;
+      gap: 4px;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .login-cta-txt b{
+      color:#fff !important;
+      font-weight: 950 !important;
+      font-size: 14px;
+      letter-spacing: .1px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .login-cta-txt small{
+      color: rgba(255,255,255,.88) !important;
       font-weight: 800;
-      font-size: .85rem;
-      border: 1px solid rgba(32,66,127,.18);
-      background: rgba(32,66,127,.06);
-      color: var(--brand);
+      font-size: 12px;
+    }
+
+    .login-cta-go{
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.14);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.16);
+      flex: 0 0 auto;
+    }
+    .login-cta-go i{ color:#fff !important; }
+
+    @media (max-width: 520px){
+      .login-box{ justify-content: stretch; }
+      .login-cta{
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        padding: 12px !important;
+        border-radius: 20px !important;
+      }
+    }
+    /* ===== LOGIN END ===== */
+
+    /* Steps */
+    .steps{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .step{
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
+      padding: 12px 12px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.90);
+      border: 1px solid rgba(15,23,42,.08);
+      box-shadow: 0 12px 34px rgba(2,6,23,.06);
+    }
+    .step .n{
+      width: 34px; height: 34px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      font-weight: 950;
+      color: var(--primary);
+      background: rgba(19,43,82,.10);
+      flex: 0 0 auto;
+    }
+    .step b{ display:block; font-weight: 950; font-size: 14px; }
+    .step span{ display:block; color: rgba(71,85,105,.98); font-weight: 650; font-size: 13px; margin-top: 2px; }
+
+    @media (min-width: 900px){
+      .hero{ padding: 22px 24px 20px; }
+      .steps{ grid-template-columns: 1fr 1fr; }
     }
 
     /* Sections */
-    .section{
-      padding: 18px 22px 6px;
-    }
-    .section-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      margin: 0 0 10px;
-    }
-    .section-title h5{
-      margin: 0;
-      font-weight: 900;
-      font-size: 1.03rem;
-    }
-    .section-title small{
-      color: var(--muted);
-      font-weight: 600;
-    }
-    .divider{
-      border-top: 1px dashed rgba(15,23,42,.18);
-      margin: 10px 0 0;
+    .section{ padding: 18px 14px; }
+    @media (min-width: 900px){
+      .section{ padding: 18px 24px; }
     }
 
-    /* Form controls */
-    .form-label{
-      font-weight: 800;
-      color: #1f2937;
-    }
-    .help{
-      color: var(--muted);
-      font-size: .85rem;
-      font-weight: 600;
-      margin-top: 4px;
-    }
-    .input-group-text{
-      background: #f8fafc;
-      border-color: rgba(15,23,42,.12);
-      color: #334155;
-    }
-    .form-control, .form-select{
-      border-color: rgba(15,23,42,.12);
-    }
-    .form-control:focus, .form-select:focus{
-      border-color: rgba(32,66,127,.45);
-      box-shadow: 0 0 0 .2rem rgba(32,66,127,.12);
-    }
-
-    /* Footer actions */
-    .actions{
-      padding: 18px 22px 24px;
-      border-top: 1px solid rgba(15,23,42,.08);
-      background: rgba(248,250,252,.6);
+    .sec-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap: 12px;
       flex-wrap: wrap;
+      margin-bottom: 10px;
     }
-    .actions .left{
-      color: var(--muted);
+    .sec-head h3{
+      margin:0;
+      font-weight: 950;
+      font-size: 16px;
+      letter-spacing: -.01em;
+      color: var(--primary);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .sec-head small{
+      color: rgba(71,85,105,.98);
       font-weight: 700;
-      font-size: .9rem;
+    }
+
+    /* Inputs - accesibles */
+    .form-label{
+      font-weight: 900;
+      color: #111827;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .help{
+      margin-top: 6px;
+      color: rgba(71,85,105,.98);
+      font-weight: 650;
+      font-size: 13px;
+    }
+
+    .input-wrap{ position: relative; }
+
+    .form-control, .form-select{
+      height: 56px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,.14);
+      background: #fff;
+      padding-left: 48px;
+      padding-right: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      transition: border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+    }
+    .form-select{ padding-left: 48px; }
+
+    .form-control:focus, .form-select:focus{
+      border-color: rgba(19,43,82,.55);
+      box-shadow: 0 0 0 6px rgba(0,194,255,.10);
+      transform: translateY(-1px);
+    }
+
+    .input-ic{
+      position:absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(100,116,139,.95);
+      pointer-events:none;
+      font-size: 16px;
+    }
+
+    .req{ color: #ef4444; font-weight: 950; margin-left: 4px; }
+
+    /* Password field with eye (registro) */
+    .pw-wrap{ position: relative; }
+    .pw-eye{
+      position:absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: rgba(15,23,42,.06);
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      color: rgba(100,116,139,.95);
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, color .12s ease;
+      display:grid;
+      place-items:center;
+    }
+    .pw-eye:hover{
+      background: rgba(0,194,255,.10);
+      color: rgba(19,43,82,.95);
+      transform: translateY(-50%) scale(1.03);
+    }
+
+    /* Actions */
+    .actions{
+      padding: 16px;
+      border-top: 1px solid rgba(15,23,42,.08);
+      background: rgba(248,250,252,.75);
+      display:grid;
+      gap: 10px;
+    }
+    @media (min-width: 900px){
+      .actions{
+        padding: 18px 24px;
+        grid-template-columns: 1fr auto;
+        align-items:center;
+      }
+    }
+
+    .hint{
       display:flex;
       gap: 10px;
-      align-items:center;
+      align-items:flex-start;
+      color: rgba(71,85,105,.98);
+      font-weight: 750;
+      font-size: 13px;
     }
-    .btn-soft{
+    .hint i{
+      margin-top: 2px;
+      color: rgba(19,43,82,.85);
+    }
+
+    .btn-clear{
+      height: 54px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,.12);
       background: #eef2f7;
-      border: 1px solid rgba(15,23,42,.10);
+      font-weight: 950;
+    }
+
+    /* CTA Crear cuenta */
+    .btn-create{
+      height: 58px;
+      width: 100%;
+      border-radius: 18px;
+      border: 0;
+      color:#fff;
+      font-weight: 950;
+      font-size: 16px;
+      letter-spacing: .2px;
+      background: linear-gradient(115deg, #2e58a8, #00c2ff, #7c3aed, #fb7185, #2e58a8);
+      background-size: 340% 340%;
+      animation: ctaGlow 3.9s ease infinite, ctaBounce 2.8s ease-in-out infinite;
+      box-shadow: 0 30px 120px rgba(19,43,82,.34), 0 0 0 12px rgba(0,194,255,.10);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    }
+    @keyframes ctaGlow{
+      0%{ background-position: 0% 50%; }
+      50%{ background-position: 100% 50%; }
+      100%{ background-position: 0% 50%; }
+    }
+    @keyframes ctaBounce{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-2px); }
+    }
+    .btn-create:hover{
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 38px 150px rgba(19,43,82,.42), 0 0 0 16px rgba(124,58,237,.12);
+      filter: saturate(1.10);
+      color:#fff;
+    }
+
+    .btn-row{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 520px){
+      .btn-row{
+        grid-template-columns: auto 1fr;
+        align-items:center;
+      }
+      .btn-clear{ width: 170px; }
+    }
+
+    /* Privacy checkbox big */
+    .privacy{
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
+      padding: 12px 12px;
+      border-radius: 18px;
+      border: 1px dashed rgba(19,43,82,.22);
+      background: rgba(255,255,255,.78);
+    }
+    .privacy input{
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+    }
+    .privacy label{
       font-weight: 800;
+      color: rgba(15,23,42,.92);
+      line-height: 1.35;
+      font-size: 14px;
+      margin: 0;
     }
-    .btn-brand{
-      background: var(--brand);
-      border: 1px solid rgba(15,23,42,.18);
-      color: #fff;
-      font-weight: 900;
+    .privacy a{
+      color: var(--primary);
+      font-weight: 950;
+      text-decoration: none;
     }
-    .btn-brand:hover{
-      background: var(--brand2);
-      color: #fff;
+    .privacy a:hover{ text-decoration: underline; }
+
+    /* Ajuste fino móvil */
+    @media (max-width: 520px){
+      .hero{ padding: 14px 12px 12px; }
+      .section{ padding: 16px 12px; }
+      .actions{ padding: 14px 12px; }
+      .step{ padding: 11px 11px; }
     }
-
-    /* Responsive tweaks */
-    @media (min-width: 768px){
-      .form-hero{ padding: 26px 28px; }
-      .section{ padding: 18px 28px 6px; }
-      .actions{ padding: 18px 28px 24px; }
-      .page-wrap{ padding-top: 36px; }
-    }
-    /* Botón Ingresar - Azul llamativo */
-.btn-login1{
-  background: linear-gradient(135deg, #021b5aff, #0B3EDC);
-  color: #ffffff !important;
-  font-weight: 800;
-  border: none;
-  border-radius: 14px;
-  padding: 10px 20px;
-  box-shadow: 0 8px 22px rgba(30,94,255,.35);
-  transition: all .2s ease;
-}
-
-.btn-login1 i{
-  color: #ffffff;
-}
-
-/* Hover */
-.btn-login1:hover{
-  background: linear-gradient(135deg, #0B3EDC, #0832B3);
-  box-shadow: 0 12px 28px rgba(30,94,255,.45);
-  transform: translateY(-1px);
-  color: #ffffff;
-}
-
-/* Focus / active */
-.btn-login1:focus,
-.btn-login1:active{
-  background: linear-gradient(135deg, #0832B3, #06268A);
-  box-shadow: 0 0 0 0.2rem rgba(30,94,255,.35);
-  color: #ffffff;
-}
-
-/* ====== SAAS PASSWORD FIELD (adaptado) ====== */
-.password-field-saas{
-  position: relative;
-  border-radius: 14px;
-}
-
-.password-field-saas .pw-input{
-  height: 48px;
-  border-radius: 14px;
-  padding-left: 46px;
-  padding-right: 44px;
-  border: 1px solid rgba(15,23,42,.14);
-  background: #fff;
-  font-size: 14px;
-  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-}
-
-.password-field-saas .pw-input:focus{
-  border-color: rgba(37,99,235,.75);
-  box-shadow: 0 0 0 4px rgba(37,99,235,.12);
-  transform: translateY(-1px);
-}
-
-.password-field-saas .pw-icon-left{
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(100,116,139,.9);
-  font-size: 14px;
-  pointer-events:none;
-  z-index: 2;
-}
-
-.password-field-saas .pw-glow{
-  position:absolute;
-  inset: -2px;
-  border-radius: 16px;
-  pointer-events:none;
-  opacity: 0;
-  transition: opacity .18s ease;
-  background: radial-gradient(120px 60px at 30% 50%, rgba(37,99,235,.14), transparent 70%);
-  z-index: 0;
-}
-.password-field-saas .pw-input:focus ~ .pw-glow{
-  opacity: 1;
-}
-
-/* 👁️ ojo */
-.password-field-saas .pw-toggle{
-  position:absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 0;
-  background: transparent;
-  color: rgba(100,116,139,.85);
-  padding: 7px 8px;
-  border-radius: 10px;
-  cursor:pointer;
-  transition: background .18s ease, color .18s ease, transform .18s ease, opacity .18s ease;
-  opacity: 0;          
-  pointer-events: none;
-  z-index: 3;
-}
-.password-field-saas .pw-toggle:hover{
-  background: rgba(37,99,235,.08);
-  color: rgba(37,99,235,.95);
-  transform: translateY(-50%) scale(1.03);
-}
-.password-field-saas .pw-toggle.active{
-  color: rgba(37,99,235,.95);
-}
-
-/* ✅ aparece cuando hay texto (JS pone .has-value) */
-.password-field-saas.has-value .pw-toggle{
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ===== Meter ===== */
-.pw-meter{
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(2,6,23,.06);
-  overflow: hidden;
-  border: 1px solid rgba(2,6,23,.08);
-}
-.pw-meter .pw-meter-bar{
-  height: 100%;
-  width: 0%;
-  border-radius: 999px;
-  transition: width .2s ease;
-}
-
-.pw-meter-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 10px;
-  margin-top: 6px;
-}
-.pw-meter-row .pw-meter-text{
-  font-size: 12px;
-  color: rgba(100,116,139,1);
-  font-weight: 700;
-}
-.pw-meter-row .pw-score{
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(15,23,42,.9);
-  white-space: nowrap;
-}
-
-/* ===== Rules ===== */
-.pw-rules{
-  list-style: none;
-  padding-left: 0;
-  margin-bottom: 0;
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-}
-@media (min-width: 768px){
-  .pw-rules{ grid-template-columns: 1fr 1fr; }
-}
-.pw-rules li{
-  display:flex;
-  align-items:center;
-  gap: 8px;
-  font-size: 12px;
-  color: rgba(100,116,139,1);
-  font-weight: 700;
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(2,6,23,.08);
-  background: rgba(248,250,252,1);
-}
-.pw-rules li i{
-  font-size: 10px;
-  color: rgba(148,163,184,1);
-}
-
-.pw-rules li.ok{
-  color: rgba(15,23,42,.95);
-  border-color: rgba(34,197,94,.25);
-  background: rgba(34,197,94,.08);
-}
-.pw-rules li.ok i{
-  color: rgba(34,197,94,.95);
-}
-
-.pw-bar-weak  { background: linear-gradient(90deg, rgba(239,68,68,.9), rgba(239,68,68,.55)); }
-.pw-bar-mid   { background: linear-gradient(90deg, rgba(245,158,11,.95), rgba(245,158,11,.55)); }
-.pw-bar-good  { background: linear-gradient(90deg, rgba(59,130,246,.95), rgba(59,130,246,.55)); }
-.pw-bar-strong{ background: linear-gradient(90deg, rgba(34,197,94,.95), rgba(34,197,94,.55)); }
-
   </style>
 </head>
-<script>
-(function(){
-  function initOne(wrap){
-    if (!wrap || wrap.dataset.pwInit === '1') return;
-    wrap.dataset.pwInit = '1';
-
-    const input = wrap.querySelector('.js-pw-input');
-    const btn   = wrap.querySelector('.js-pw-toggle');
-    const icon  = btn ? btn.querySelector('i') : null;
-
-    const bar   = wrap.parentElement.querySelector('.js-pw-bar');
-    const text  = wrap.parentElement.querySelector('.js-pw-text');
-    const score = wrap.parentElement.querySelector('.js-pw-score');
-    const rules = wrap.parentElement.querySelector('.js-pw-rules');
-
-    if(!input || !btn || !bar || !text || !score || !rules) return;
-
-    function setRule(ruleName, ok){
-      const li = rules.querySelector('[data-rule="'+ruleName+'"]');
-      if(!li) return;
-      li.classList.toggle('ok', !!ok);
-
-      const i = li.querySelector('i');
-      if(i){
-        i.classList.toggle('fa-circle', !ok);
-        i.classList.toggle('fa-check-circle', !!ok);
-      }
-    }
-
-    function cleanBarClasses(){
-      bar.classList.remove('pw-bar-weak','pw-bar-mid','pw-bar-good','pw-bar-strong');
-    }
-
-    function evaluatePassword(pw){
-      pw = String(pw || '');
-
-      const hasLen   = pw.length >= 8;
-      const hasUpper = /[A-ZÁÉÍÓÚÑ]/.test(pw);
-      const hasNum   = /\d/.test(pw);
-      const hasSpec  = /[^A-Za-z0-9ÁÉÍÓÚÑáéíóúñ]/.test(pw);
-
-      setRule('len', hasLen);
-      setRule('upper', hasUpper);
-      setRule('num', hasNum);
-      setRule('spec', hasSpec);
-
-      let s = 0;
-      if (hasLen) s += 25;
-      if (hasUpper) s += 20;
-      if (hasNum) s += 20;
-      if (hasSpec) s += 20;
-
-      if (pw.length >= 12) s += 10;
-      if (pw.length >= 16) s += 5;
-
-      const lower = pw.toLowerCase();
-      if (/^(1234|12345|123456|password|qwerty|admin)/.test(lower)) s = Math.max(10, s - 35);
-      if (/(.)\1\1/.test(pw)) s = Math.max(10, s - 10);
-
-      s = Math.max(0, Math.min(100, s));
-
-      let label = 'Débil', cls = 'pw-bar-weak';
-      if (s >= 35) { label = 'Media'; cls = 'pw-bar-mid'; }
-      if (s >= 60) { label = 'Fuerte'; cls = 'pw-bar-good'; }
-      if (s >= 80) { label = 'Brutal'; cls = 'pw-bar-strong'; }
-
-      return { score: s, label, cls };
-    }
-
-    function updateUI(){
-      const val = input.value || '';
-      wrap.classList.toggle('has-value', val.trim().length > 0);
-
-      if (!val){
-        cleanBarClasses();
-        bar.style.width = '0%';
-        text.textContent = 'Escribe una contraseña para ver la fuerza';
-        score.textContent = '';
-        setRule('len', false); setRule('upper', false); setRule('num', false); setRule('spec', false);
-        return;
-      }
-
-      const r = evaluatePassword(val);
-      cleanBarClasses();
-      bar.classList.add(r.cls);
-      bar.style.width = r.score + '%';
-      text.textContent = 'Fuerza: ' + r.label;
-      score.textContent = r.score + '/100';
-    }
-
-    btn.addEventListener('click', function(){
-      const show = input.type === 'password';
-      input.type = show ? 'text' : 'password';
-      btn.classList.toggle('active', show);
-      btn.setAttribute('aria-pressed', show ? 'true' : 'false');
-
-      if(icon){
-        icon.classList.toggle('fa-eye', !show);
-        icon.classList.toggle('fa-eye-slash', show);
-      }
-      input.focus();
-    });
-
-    input.addEventListener('input', updateUI);
-    input.addEventListener('focus', updateUI);
-    input.addEventListener('blur', updateUI);
-
-    updateUI();
-  }
-
-  function initAll(){
-    document.querySelectorAll('.js-pw-wrap').forEach(initOne);
-  }
-
-  // ✅ init normal
-  if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initAll);
-  } else {
-    initAll();
-  }
-
-  // ✅ fallback por si esto está dentro de un modal o contenido que se inyecta luego
-  let tries = 0;
-  const t = setInterval(function(){
-    tries++;
-    initAll();
-    if (tries >= 10) clearInterval(t);
-  }, 300);
-
-})();
-</script>
 
 <body>
-
 <?php include './admin/include/loading.php'; ?>
-
 <?php include './admin/include/menu_registro.php'; ?>
-<?php include './modal_login.php'; ?>
 
-<!-- Content -->
-<div class="page-wrap">
-  <div class="saas-card">
+<div class="wrap">
+  <div class="card-pro">
 
-    <!-- Hero -->
-    <div class="form-hero">
-      <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-top">
         <div>
-          <div class="pill"><i class="fa-solid fa-user-plus"></i> Nuevo registro</div>
-          <h1 class="title mt-2">Crea tu cuenta en 2 minutos</h1>
+          <div class="pill"><i class="fa-solid fa-user-plus"></i> Crear cuenta</div>
+          <h1 class="title">Regístrate para votar en la encuesta</h1>
           <p class="subtitle">
-            Completa tus datos y confirma tu ubicación.  
-            Los campos con <b>*</b> son obligatorios para poder guardar.
+            Es fácil. Solo llena lo que dice <b>Obligatorio</b> y pulsa <b>Crear mi cuenta</b>.
+            Diseñado para que sea cómodo en celular.
           </p>
         </div>
-        <div class="text-end">
-          <small class="text-muted fw-bold">¿Ya tienes cuenta?</small><br>          
-           <button type="button" class="btn btn-login1" data-bs-toggle="modal" data-bs-target="#loginModal">
-                <i class="fa fa-user me-2"></i>Ingresa ya
-            </button>        
+
+        <!-- ===== LOGIN START (CTA abre modal de login.php) ===== -->
+        <div class="login-box">
+          <a href="#" class="login-cta" id="btnOpenLogin" role="button" aria-label="Ya tengo una cuenta, iniciar sesión">
+            <span class="login-cta-ic"><i class="fa-solid fa-right-to-bracket"></i></span>
+            <span class="login-cta-txt">
+              <b>Ya tengo una cuenta</b>
+              <small>Entrar para votar</small>
+            </span>
+            <span class="login-cta-go"><i class="fa-solid fa-arrow-right"></i></span>
+          </a>
+        </div>
+        <!-- ===== LOGIN END ===== -->
+
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <div>
+            <b>Escribe tu correo y usuario</b>
+            <span>Te servirá para ingresar después.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <div>
+            <b>Selecciona tu ubicación</b>
+            <span>Departamento y municipio (obligatorio).</span>
+          </div>
         </div>
       </div>
     </div>
@@ -567,165 +582,105 @@ foreach ($departamentosResponse as $dep) {
       <input type="hidden" name="idVotantes" id="idVotantes" />
       <input type="hidden" id="estado" name="estado" value="activo">
 
-      <!-- 1) Datos personales -->
+      <!-- PASO 1 -->
       <div class="section">
-        <div class="section-title">
-          <h5><i class="fa-solid fa-id-card me-2"></i> Paso 1: Datos personales</h5>
-          <small>Para identificarte y contactarte</small>
+        <div class="sec-head">
+          <h3><i class="fa-solid fa-id-card"></i> Paso 1 • Datos de acceso</h3>
+          <small>Obligatorio</small>
         </div>
-        <div class="divider"></div>
 
-        <div class="row g-3 mt-1">
-          <div class="col-md-6">
-            <label class="form-label">Nombre completo *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-              <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" required
-                     placeholder="Ej: Juan David Pérez">
-            </div>
-            <div class="help">Escríbelo tal como aparece en tu documento.</div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">Correo electrónico *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Correo electrónico <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-envelope input-ic"></i>
               <input type="email" class="form-control" id="email" name="email" required
-                     placeholder="Ej: correo@dominio.com" onblur="VOTANTES.checkAvailability(this)">
+                     placeholder="Ej: correo@dominio.com"
+                     onblur="VOTANTES.checkAvailability(this)">
             </div>
-            <div class="help">Lo usamos para recuperar tu acceso si lo necesitas.</div>
+            <div class="help">Te ayuda a recuperar acceso si lo necesitas.</div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Nombre de usuario *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-user-tag"></i></span>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Usuario <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-user-tag input-ic"></i>
               <input type="text" class="form-control" id="username" name="username" required
-                     placeholder="Ej: juanperez" onblur="VOTANTES.checkAvailability(this)">
+                     placeholder="Ej: juanperez"
+                     onblur="VOTANTES.checkAvailability(this)">
             </div>
-            <div class="help">Debe ser único. Evita espacios.</div>
+            <div class="help">Sin espacios. Debe ser único.</div>
           </div>
 
-          <div class="col-md-6">
-  <label class="form-label fw-semibold">Contraseña</label>
-
-  <div class="password-field-saas js-pw-wrap">
-    <i class="fa fa-lock pw-icon-left"></i>
-
-    <input type="password"
-            id="password"
-           name="password"
-           class="form-control pw-input js-pw-input"
-           placeholder="Ingresa tu contraseña"
-           autocomplete="current-password"
-           required>
-
-    <button type="button"
-            class="pw-toggle js-pw-toggle"
-            aria-label="Mostrar u ocultar contraseña"
-            aria-pressed="false">
-      <i class="fa fa-eye"></i>
-    </button>
-
-    <span class="pw-glow"></span>
-  </div>
-
-  <div class="pw-meter mt-2">
-    <div class="pw-meter-bar js-pw-bar"></div>
-  </div>
-
-  <div class="pw-meter-row">
-    <span class="pw-meter-text js-pw-text">Escribe una contraseña para ver la fuerza</span>
-    <span class="pw-score js-pw-score"></span>
-  </div>
-
-  <ul class="pw-rules mt-2 js-pw-rules">
-    <li data-rule="len"><i class="fa fa-circle"></i> Mínimo 8 caracteres</li>
-    <li data-rule="upper"><i class="fa fa-circle"></i> Al menos 1 mayúscula</li>
-    <li data-rule="num"><i class="fa fa-circle"></i> Al menos 1 número</li>
-    <li data-rule="spec"><i class="fa fa-circle"></i> Al menos 1 símbolo (@#$%...)</li>
-  </ul>
-</div>
-
-
-
-          <!-- <div class="col-md-6">
-            <label class="form-label">Contraseña *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-              <input type="password" class="form-control" id="password" name="password" required
-                     placeholder="Mínimo 8 caracteres">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Contraseña <span class="req">*</span></label>
+            <div class="input-wrap pw-wrap">
+              <i class="fa-solid fa-lock input-ic"></i>
+              <input type="password" id="password" name="password" class="form-control" required
+                     placeholder="Crea una contraseña">
+              <button type="button" class="pw-eye" id="btnTogglePw" aria-label="Ver contraseña" aria-pressed="false">
+                <i class="fa-solid fa-eye"></i>
+              </button>
             </div>
-            <div class="help">Tip: usa letras + números para mayor seguridad.</div>
-          </div> -->
+            <div class="help">Pulsa el ojo para ver lo que escribes.</div>
+          </div>
         </div>
       </div>
 
-      <!-- 2) Ubicación -->
+      <!-- PASO 2 -->
       <div class="section">
-        <div class="section-title">
-          <h5><i class="fa-solid fa-location-dot me-2"></i> Paso 2: Ubicación</h5>
-          <small>Para organizar datos por territorio</small>
+        <div class="sec-head">
+          <h3><i class="fa-solid fa-location-dot"></i> Paso 2 • Ubicación</h3>
+          <small>Obligatorio</small>
         </div>
-        <div class="divider"></div>
 
-        <div class="row g-3 mt-1">
-          <div class="col-md-6">
-            <label class="form-label">Departamento *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-map"></i></span>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Departamento <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-map input-ic"></i>
               <select id="tbl_departamento_id" name="tbl_departamento_id" class="form-select" required>
                 <option value="">Selecciona tu departamento</option>
                 <?= $optionDep ?>
               </select>
             </div>
-            <div class="help">Si no aparece, valida con soporte.</div>
+            <div class="help">Primero elige el departamento.</div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Municipio *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-location-crosshairs"></i></span>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Municipio <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-location-crosshairs input-ic"></i>
               <select id="tbl_municipio_id" name="tbl_municipio_id" class="form-select" required>
                 <option value="">Primero elige un departamento</option>
               </select>
             </div>
-            <div class="help">Se carga automáticamente según el departamento.</div>
+            <div class="help">Se carga automáticamente.</div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Comuna</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-city"></i></span>
-              <input type="text" class="form-control" id="comuna" name="comuna" placeholder="Ej: Comuna 3">
-            </div>
-            <div class="help">Opcional. Si no aplica, déjalo vacío.</div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">Barrio</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-house"></i></span>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Barrio <span style="color:rgba(71,85,105,.9); font-weight:800;">(Opcional)</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-house input-ic"></i>
               <input type="text" class="form-control" id="barrio" name="barrio" placeholder="Ej: La Esperanza">
             </div>
-            <div class="help">Opcional. Ayuda a ubicarte mejor.</div>
+            <div class="help">Si no lo sabes, déjalo en blanco.</div>
           </div>
         </div>
       </div>
 
-      <!-- 3) Perfil demográfico -->
+      <!-- PASO 3 -->
       <div class="section">
-        <div class="section-title">
-          <h5><i class="fa-solid fa-chart-pie me-2"></i> Paso 3: Perfil (para estadísticas)</h5>
-          <small>Tu información se usa en reportes agregados</small>
+        <div class="sec-head">
+          <h3><i class="fa-solid fa-chart-pie"></i> Paso 3 • Perfil (estadísticas)</h3>
+          <small>Obligatorio</small>
         </div>
-        <div class="divider"></div>
 
-        <div class="row g-3 mt-1">
-          <div class="col-md-6">
-            <label class="form-label">Ideología política *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-scale-balanced"></i></span>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Ideología política <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-scale-balanced input-ic"></i>
               <select class="form-select" id="ideologia" name="ideologia" required>
                 <option value="">Selecciona una opción</option>
                 <option value="izquierda">Izquierda</option>
@@ -739,10 +694,10 @@ foreach ($departamentosResponse as $dep) {
             <div class="help">Si no estás seguro, elige “Sin definir”.</div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Rango de edad *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-hourglass-half"></i></span>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Rango de edad <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-hourglass-half input-ic"></i>
               <select class="form-select" id="rango_edad" name="rango_edad" required>
                 <option value="">Selecciona tu grupo</option>
                 <option value="18-25">18-25</option>
@@ -753,13 +708,12 @@ foreach ($departamentosResponse as $dep) {
                 <option value="66+">66+</option>
               </select>
             </div>
-            <div class="help">Solo para análisis estadístico.</div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Nivel socioeconómico *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-wallet"></i></span>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Nivel socioeconómico <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-wallet input-ic"></i>
               <select class="form-select" id="nivel_ingresos" name="nivel_ingresos" required>
                 <option value="">Selecciona un nivel</option>
                 <option value="menos_1_salario">Menos de 1 salario</option>
@@ -769,13 +723,13 @@ foreach ($departamentosResponse as $dep) {
                 <option value="mas_10_salarios">Más de 10 salarios</option>
               </select>
             </div>
-            <div class="help">Esto es aproximado (no exacto).</div>
+            <div class="help">Aproximado (no exacto).</div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Género *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-venus-mars"></i></span>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Género <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-venus-mars input-ic"></i>
               <select class="form-select" id="genero" name="genero" required>
                 <option value="">Selecciona</option>
                 <option value="masculino">Masculino</option>
@@ -784,24 +738,22 @@ foreach ($departamentosResponse as $dep) {
                 <option value="prefiero_no_decir">Prefiero no decir</option>
               </select>
             </div>
-            <div class="help">Tu privacidad es importante.</div>
           </div>
         </div>
       </div>
 
-      <!-- 4) Educación y ocupación -->
+      <!-- PASO 4 -->
       <div class="section">
-        <div class="section-title">
-          <h5><i class="fa-solid fa-briefcase me-2"></i> Paso 4: Educación y ocupación</h5>
-          <small>Nos ayuda a entender mejor el contexto</small>
+        <div class="sec-head">
+          <h3><i class="fa-solid fa-briefcase"></i> Paso 4 • Educación y ocupación</h3>
+          <small>Ocupación obligatoria</small>
         </div>
-        <div class="divider"></div>
 
-        <div class="row g-3 mt-1">
-          <div class="col-md-6">
-            <label class="form-label">Nivel educativo</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-graduation-cap"></i></span>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Nivel educativo <span style="color:rgba(71,85,105,.9); font-weight:800;">(Opcional)</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-graduation-cap input-ic"></i>
               <select class="form-select" id="nivel_educacion" name="nivel_educacion">
                 <option value="">Selecciona (opcional)</option>
                 <option value="primaria_incompleta">Primaria incompleta</option>
@@ -815,17 +767,16 @@ foreach ($departamentosResponse as $dep) {
                 <option value="posgrado">Posgrado</option>
               </select>
             </div>
-            <div class="help">Si no deseas indicarlo, déjalo vacío.</div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Ocupación *</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa-solid fa-briefcase"></i></span>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Ocupación <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-briefcase input-ic"></i>
               <select class="form-select" id="ocupacion" name="ocupacion" required>
                 <option value="">Selecciona</option>
-                 <option value="Estudiante">Estudiante</option>
-                <option value="Empleado">Empleado</option>          
+                <option value="Estudiante">Estudiante</option>
+                <option value="Empleado">Empleado</option>
                 <option value="Empresario">Empresario</option>
                 <option value="Comerciante">Comerciante</option>
                 <option value="Independiente">Independiente</option>
@@ -836,105 +787,49 @@ foreach ($departamentosResponse as $dep) {
         </div>
       </div>
 
-      <!-- Política -->
+      <!-- PRIVACIDAD -->
       <div class="section">
-        <div class="section-title">
-          <h5><i class="fa-solid fa-shield-halved me-2"></i> Privacidad</h5>
-          <small>Tu información se maneja con cuidado</small>
+        <div class="sec-head">
+          <h3><i class="fa-solid fa-shield-halved"></i> Privacidad</h3>
+          <small>Obligatorio</small>
         </div>
-        <div class="divider"></div>
 
-        <div class="row g-3 mt-2">
-          <div class="col-12">
-            <div class="d-flex align-items-start gap-2">
-              <input class="form-check-input mt-1" style="width:20px;height:20px" type="checkbox" id="politica" required>
-              <label class="form-check-label" for="politica" style="font-weight:700;">
-                Acepto la
-                <a href="politica.php" target="_blank" class="fw-bold" style="color:var(--brand); text-decoration:none;">
-                  política de privacidad
-                </a>
-                y autorizo el tratamiento de datos.
-              </label>
-            </div>
-            <div class="help ms-4">Sin esta aceptación no podemos completar el registro.</div>
-          </div>
+        <div class="privacy">
+          <input class="form-check-input" type="checkbox" id="politica" required>
+          <label for="politica">
+            Acepto la
+            <a href="politica.php" target="_blank">política de privacidad</a>
+            y autorizo el tratamiento de datos.
+            <div class="help" style="margin-top:6px;">Sin esta aceptación no podemos completar el registro.</div>
+          </label>
         </div>
       </div>
 
-      <!-- Actions -->
+      <!-- ACTIONS -->
       <div class="actions">
-        <div class="left">
+        <div class="hint">
           <i class="fa-solid fa-circle-info"></i>
-          <span>¿Dudas? Completa los campos con * y luego guarda.</span>
+          <div>
+            <div style="font-weight:950; color:rgba(15,23,42,.92);">Consejo rápido</div>
+            <div>Llena los campos con <b>*</b> y luego pulsa <b>Crear mi cuenta</b>.</div>
+          </div>
         </div>
 
-        <div class="d-flex gap-2">
-          <button type="button" onclick="VOTANTES.emptyCells();" class="btn btn-soft px-4">
-            <i class="fa-solid fa-xmark me-1"></i> Limpiar
+        <div class="btn-row">
+          <button type="button" onclick="VOTANTES.emptyCells();" class="btn btn-clear">
+            <i class="fa-solid fa-eraser me-2"></i>Limpiar
           </button>
 
-          <button type="button" class="btn btn-brand px-4" onclick="VOTANTES.validateData();">
-            <i class="fa-solid fa-check me-1"></i> Crear mi cuenta
+          <button type="button" class="btn-create" onclick="VOTANTES.validateData();">
+            <i class="fa-solid fa-user-check"></i>
+            Crear mi cuenta
           </button>
         </div>
       </div>
 
     </form>
-
   </div>
 </div>
-<!-- MODAL LOGIN (colores iguales al navbar) -->
-<div class="modal fade modal-pro" id="loginModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-
-      <div class="hero">
-        <div class="d-flex align-items-start justify-content-between gap-3">
-          <div>
-            <div class="modal-logo-pill mb-2">
-              <img src="assets/img/admin/estadistica3.png" alt="Logo">
-              <div class="fw-bold">Votaciones</div>
-            </div>
-            <h5><i class="fa fa-unlock-alt me-2"></i>Inicia sesión</h5>
-            <p>Ingresa para votar, ver resultados y participar.</p>
-          </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-      </div>
-
-      <div class="modal-body">
-        <form id="loginForm" class="form-pro" autocomplete="off" method="POST" action="index.php">
-          <input type="hidden" name="op" value="pms_usrlogin">
-
-          <div class="mb-3">
-            <label class="form-label fw-bold">Usuario o correo</label>
-            <div class="input-wrap">
-              <i class="fa fa-user"></i>
-              <input type="text" id="nickname" name="nickname" class="form-control"
-                     placeholder="Ej: correo@dominio.com" required>
-            </div>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label fw-bold">Contraseña</label>
-            <div class="input-wrap">
-              <i class="fa fa-lock"></i>
-              <input type="password" id="hashpass" name="hashpass" class="form-control"
-                     placeholder="Ingresa tu contraseña" required>
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center justify-content-between mt-2 login-mini-links">
-            <a href="#" class="small">¿Olvidaste tu contraseña?</a>
-            <a href="registro.php" target="_blank" class="small">Crear cuenta</a>
-          </div>
-          
-
-          <button type="submit" class="btn btn-primary-blue w-100 mt-3">
-            <i class="fa fa-sign-in me-2"></i>Iniciar sesión
-          </button>
-        </form>
-      </div>
 
 <?php include './admin/include/footer.php'; ?>
 
@@ -943,12 +838,6 @@ foreach ($departamentosResponse as $dep) {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="lib/easing/easing.min.js"></script>
-<script src="lib/waypoints/waypoints.min.js"></script>
-<script src="lib/owlcarousel/owl.carousel.min.js"></script>
-<script src="lib/lightbox/js/lightbox.min.js"></script>
-
-<!-- ✅ Evité duplicados -->
 <script src="admin/js/lib/util.js"></script>
 <script type="text/javascript" src="./admin/js/lib/data-md5.js"></script>
 
@@ -957,39 +846,95 @@ foreach ($departamentosResponse as $dep) {
 <script src="admin/js/votantes.js"></script>
 
 <script>
-  // ✅ Config por defecto: set departamento y carga municipios
+  // ==========================
+  // ✅ MUNICIPIOS AUTOLOAD
+  // ==========================
   const departamento = $("#departamentoConfiguracionInput").val();
   if (departamento) {
     $("#tbl_departamento_id").val(departamento);
-    DEPARTAMENTO.getMunicipios();
+    if (typeof DEPARTAMENTO !== "undefined" && typeof DEPARTAMENTO.getMunicipios === "function") {
+      DEPARTAMENTO.getMunicipios();
+    }
   }
-
-  // Si cambian departamento manualmente, carga municipios también (por si tu js no lo hace)
   $("#tbl_departamento_id").on("change", function(){
     if (typeof DEPARTAMENTO !== "undefined" && typeof DEPARTAMENTO.getMunicipios === "function") {
       DEPARTAMENTO.getMunicipios();
     }
   });
-</script>
 
-<!-- Navbar scroll shadow + body margin-top por fixed-top -->
-<script>
-  document.addEventListener("scroll", function() {
-    const nav = document.getElementById("mainNavbar");
-    if (!nav) return;
-    if (window.scrollY > 10) nav.classList.add("scrolled");
-    else nav.classList.remove("scrolled");
-  });
+  // ==========================
+  // 👁️ Toggle password (registro)
+  // ==========================
+  (function(){
+    const btn = document.getElementById('btnTogglePw');
+    const input = document.getElementById('password');
+    if(!btn || !input) return;
 
-  function aplicarMargenNavbar() {
-    const nav = document.getElementById("mainNavbar");
-    if (!nav) return;
-    const altura = nav.offsetHeight;
-    document.body.style.marginTop = altura + "px";
-  }
+    btn.addEventListener('click', function(){
+      const isPass = input.type === 'password';
+      input.type = isPass ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', isPass ? 'true' : 'false');
+      const icon = btn.querySelector('i');
+      if(icon){
+        icon.classList.toggle('fa-eye', !isPass);
+        icon.classList.toggle('fa-eye-slash', isPass);
+      }
+      input.focus();
+    });
+  })();
 
-  document.addEventListener("DOMContentLoaded", aplicarMargenNavbar);
-  window.addEventListener("resize", aplicarMargenNavbar);
+  // ==========================
+  // ===== LOGIN START (OPEN MODAL DESDE login.php) =====
+  // Carga el modal remoto: login.php?only_modal=1
+  // y lo abre con Bootstrap 5.0 (sin getOrCreateInstance)
+  // ==========================
+  (function(){
+    function showLoginModal(){
+      const el = document.getElementById('loginModal');
+      if(!el || typeof bootstrap === "undefined" || !bootstrap.Modal) return;
+
+      let instance = null;
+      if (typeof bootstrap.Modal.getInstance === "function") {
+        instance = bootstrap.Modal.getInstance(el);
+      }
+      if (!instance) {
+        instance = new bootstrap.Modal(el, { backdrop:'static', keyboard:false });
+      }
+      instance.show();
+
+      el.addEventListener('shown.bs.modal', function(){
+        const u = document.getElementById('login_user');
+        if(u) u.focus();
+      }, { once:true });
+    }
+
+    async function loadModalIfNeeded(){
+      // Si ya existe en DOM, solo abre
+      if (document.getElementById('loginModal')) {
+        showLoginModal();
+        return;
+      }
+
+      const res = await fetch('login.php?only_modal=1', { credentials: 'same-origin' });
+      const html = await res.text();
+
+      // Inserta el modal (solo una vez)
+      const wrap = document.createElement('div');
+      wrap.id = 'loginModalRemoteWrap';
+      wrap.innerHTML = html;
+      document.body.appendChild(wrap);
+
+      showLoginModal();
+    }
+
+    document.addEventListener('click', function(e){
+      const btn = e.target.closest('#btnOpenLogin');
+      if(!btn) return;
+      e.preventDefault();
+      loadModalIfNeeded().catch(console.error);
+    });
+  })();
+  // ===== LOGIN END =====
 </script>
 
 </body>

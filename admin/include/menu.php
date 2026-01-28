@@ -429,63 +429,7 @@
   </div>
 </div>
 
-<!-- MODAL LOGIN (colores iguales al navbar) -->
-<div class="modal fade modal-pro" id="loginModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
 
-      <div class="hero">
-        <div class="d-flex align-items-start justify-content-between gap-3">
-          <div>
-     
-           <div class="logo-wrap">
-            <img 
-              src="assets/img/admin/estadistica3.png" 
-              alt="Estadística 360"
-              class="logo-estadistica" >
-          </div>
-  
-           
-            <h5 class="blanco"><i class="fa fa-unlock-alt me-2 blanco"></i>Inicia sesión</h5>
-            <p>Ingresa para votar, ver resultados y participar.</p>
-          </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-      </div>
-
-      <div class="modal-body">
-        <form id="loginForm" class="form-pro" autocomplete="off" method="POST" action="index.php">
-          <input type="hidden" name="op" value="pms_usrlogin">
-
-          <div class="mb-3">
-            <label class="form-label fw-bold">Usuario o correo</label>
-            <div class="input-wrap">
-              <i class="fa fa-user"></i>
-              <input type="text" id="nickname" name="nickname" class="form-control"
-                     placeholder="Ej: correo@dominio.com" required>
-            </div>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label fw-bold">Contraseña</label>
-            <div class="input-wrap">
-              <i class="fa fa-lock"></i>
-              <input type="password" id="hashpass" name="hashpass" class="form-control"
-                     placeholder="Ingresa tu contraseña" required>
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center justify-content-between mt-2 login-mini-links">
-            <a href="#" class="small">¿Olvidaste tu contraseña?</a>
-            <a href="registro.php" target="_blank" class="small">Crear cuenta</a>
-          </div>
-          
-
-          <button type="submit" class="btn btn-primary-blue w-100 mt-3">
-            <i class="fa fa-sign-in me-2"></i>Iniciar sesión
-          </button>
-        </form>
-      </div>
 
       <div class="modal-footer d-flex gap-2">
         <button type="button" class="btn btn-soft w-50" data-bs-dismiss="modal">Ahora no</button>
