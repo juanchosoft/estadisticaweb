@@ -219,6 +219,72 @@ foreach ($arrSondeoCandidato as &$cand) {
 
 
     /**
+     * Obtiene las respuestas del usuario para cada sondeo votado
+     * @param int $votanteId ID del votante
+     * @return array Array asociativo [sondeo_id => respuesta_info]
+     */
+    public static function getRespuestasUsuarioPorSondeo($votanteId)
+    {
+        if ($votanteId <= 0) {
+            return [];
+        }
+
+        $db = new DbConection();
+        $pdo = $db->openConect();
+
+        try {
+            // Obtener respuestas con info del candidato o de la opción
+            $q = "SELECT
+                    r.tbl_sondeo_id,
+                    r.tbl_candidato_id,
+                    r.tbl_sondeo_x_opciones_id,
+                    r.tbl_respuesta_texto,
+                    p.nombre_completo AS candidato_nombre,
+                    o.opcion AS opcion_texto
+                FROM " . $db->getTable('tbl_respuestas_sondeos') . " r
+                LEFT JOIN " . $db->getTable('tbl_participantes') . " p
+                    ON r.tbl_candidato_id = p.id
+                LEFT JOIN " . $db->getTable('tbl_sondeo_x_opciones') . " o
+                    ON r.tbl_sondeo_x_opciones_id = o.id
+                WHERE r.tbl_votante_id = :votante_id";
+
+            $stmt = $pdo->prepare($q);
+            $stmt->execute([':votante_id' => $votanteId]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $db->closeConect();
+
+            $result = [];
+            foreach ($rows as $row) {
+                $sondeoId = $row['tbl_sondeo_id'];
+
+                // Determinar qué respuesta mostrar
+                $respuestaTexto = '';
+                if (!empty($row['candidato_nombre'])) {
+                    $respuestaTexto = $row['candidato_nombre'];
+                } elseif (!empty($row['opcion_texto'])) {
+                    $respuestaTexto = $row['opcion_texto'];
+                } elseif (!empty($row['tbl_respuesta_texto'])) {
+                    $respuestaTexto = $row['tbl_respuesta_texto'];
+                }
+
+                $result[$sondeoId] = [
+                    'candidato_id' => $row['tbl_candidato_id'],
+                    'opcion_id' => $row['tbl_sondeo_x_opciones_id'],
+                    'respuesta_texto' => $respuestaTexto
+                ];
+            }
+
+            return $result;
+
+        } catch (PDOException $e) {
+            $db->closeConect();
+            return [];
+        }
+    }
+
+
+    /**
      * Método para obtener sondeos filtrados por ubicación del usuario
      * @param array $rqst
      * @param string $usuarioDepartamento Código del departamento del usuario
