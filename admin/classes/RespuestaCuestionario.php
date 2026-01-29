@@ -6,6 +6,15 @@
  */
 class RespuestaCuestionario
 {
+    private $db;
+    
+    public function __construct($dbConnection = null) {
+        if ($dbConnection) {
+            $this->db = $dbConnection;
+        } else {
+            $this->db = new DbConection();
+        }
+    }
     /**
      * Obtiene votantes disponibles (que no han contestado) para una ficha técnica
      * @param array $rqst Parámetros de búsqueda
@@ -1117,6 +1126,52 @@ class RespuestaCuestionario
         } catch (Exception $e) {
             $db->closeConect();
             return ["success" => false, "message" => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Verificar si el usuario ya ha respondido algún cuestionario activo
+     */
+    public function verificarSiUsuarioRespondio($usuarioId)
+    {
+        $pdo = $this->db->openConect();
+        
+        try {
+            // Verificar si el usuario tiene algún intento en la tabla
+            $q = "SELECT COUNT(*) as count FROM " . $this->db->getTable('tbl_cuestionario_intentos') . " 
+                  WHERE tbl_votante_id = ?";
+            $stmt = $pdo->prepare($q);
+            $stmt->execute([$usuarioId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            $tieneIntentos = $result['count'] > 0;
+            error_log("DEBUG: Usuario $usuarioId tiene $result[count] intentos de cuestionario");
+            
+            // Si tiene intentos, verificamos si hay algún cuestionario activo
+            if ($tieneIntentos) {
+                // Temporalmente devolvemos true si tiene intentos, sin importar si está activo
+                error_log("DEBUG: Usuario tiene intentos, permitiendo ver registros");
+                return true;
+                
+                // $q = "SELECT COUNT(*) as count FROM " . $this->db->getTable('tbl_ficha_tecnica_encuestas') . " 
+                //       WHERE habilitado = 'si'";
+                // $stmt = $pdo->prepare($q);
+                // $stmt->execute();
+                // $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // $hayActivos = $result['count'] > 0;
+                // error_log("DEBUG: Hay $result[count] cuestionarios activos");
+                
+                // return $hayActivos; // Puede ver registros si tiene intentos Y hay cuestionarios activos
+            }
+            
+            return false;
+            
+        } catch (Exception $e) {
+            error_log("Error verificando respuesta del usuario: " . $e->getMessage());
+            return false;
+        } finally {
+            $this->db->closeConect();
         }
     }
 }

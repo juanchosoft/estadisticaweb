@@ -24,6 +24,38 @@ require_once __DIR__ . '/admin/classes/RespuestaCuestionario.php';
  */
 $config = Util::getInformacionConfiguracion();
 $opcionActivaWeb = $config[0]['opcion_activa_web'] ?? 'sondeo';
+
+/**
+ * ✅ Verificar si el usuario ya ha votado en la opción activa
+ */
+$usuarioId = $_SESSION['session_user']['id'];
+$haVotado = false;
+
+if ($opcionActivaWeb === 'sondeo') {
+    // Verificar si votó en sondeo
+    $dbConnection = new DbConection();
+    $sondeo = new Sondeo($dbConnection);
+    $haVotado = $sondeo->verificarSiUsuarioVoto($usuarioId);
+} elseif ($opcionActivaWeb === 'cuestionario') {
+    // Verificar si respondió cuestionario
+    $dbConnection = new DbConection();
+    $cuestionario = new RespuestaCuestionario($dbConnection);
+    $haVotado = $cuestionario->verificarSiUsuarioRespondio($usuarioId);
+}
+
+/**
+ * ✅ Redirigir si no ha votado
+ */
+if (!$haVotado) {
+    if ($opcionActivaWeb === 'sondeo') {
+        header('Location: sondeo.php');
+    } elseif ($opcionActivaWeb === 'cuestionario') {
+        header('Location: encuesta.php');
+    } else {
+        header('Location: index.php');
+    }
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">

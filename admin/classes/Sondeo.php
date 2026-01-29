@@ -1,7 +1,15 @@
 <?php
 class Sondeo
 {
-    public function __construct() {}
+    private $db;
+    
+    public function __construct($dbConnection = null) {
+        if ($dbConnection) {
+            $this->db = $dbConnection;
+        } else {
+            $this->db = new DbConection();
+        }
+    }
 
     public static function getAll($rqst)
     {
@@ -883,6 +891,45 @@ public static function ganadorPorTodosLosDepartamentos()
         return [];
     } finally {
         $db->closeConect();
+    }
+}
+
+/**
+ * Verificar si el usuario ya ha votado en algún sondeo activo
+ */
+public function verificarSiUsuarioVoto($usuarioId)
+{
+    $pdo = $this->db->openConect();
+    
+    try {
+        // Buscar sondeos activos
+        $q = "SELECT s.id FROM " . $this->db->getTable('tbl_sondeo') . " s 
+              WHERE s.habilitado = 'si'";
+        $stmt = $pdo->prepare($q);
+        $stmt->execute();
+        $sondeosActivos = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (empty($sondeosActivos)) {
+            return false; // No hay sondeos activos
+        }
+        
+        // Verificar si el usuario ha votado en algún sondeo activo
+        $placeholders = str_repeat('?,', count($sondeosActivos) - 1) . '?';
+        $q = "SELECT COUNT(*) as count FROM " . $this->db->getTable('tbl_respuestas_sondeos') . " 
+              WHERE tbl_sondeo_id IN ($placeholders) AND tbl_votante_id = ?";
+        
+        $params = array_merge($sondeosActivos, [$usuarioId]);
+        $stmt = $pdo->prepare($q);
+        $stmt->execute($params);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $result['count'] > 0;
+        
+    } catch (Exception $e) {
+        error_log("Error verificando voto del usuario: " . $e->getMessage());
+        return false;
+    } finally {
+        $this->db->closeConect();
     }
 }
 

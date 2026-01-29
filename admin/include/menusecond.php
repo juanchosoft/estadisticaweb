@@ -6,6 +6,46 @@
   $p = preg_split('/\s+/', trim($nombreCompleto));
   $nombreCorto = trim(($p[0] ?? 'Usuario') . ' ' . ($p[1] ?? ''));
   $userId = (int)($_SESSION['session_user']['id'] ?? 0);
+
+  // Verificar si el usuario puede ver los registros (si ya ha votado)
+  $puedeVerRegistros = false;
+  if ($userId > 0) {
+    require_once __DIR__ . '/../classes/DbConection.php';
+    require_once __DIR__ . '/../classes/Util.php';
+    require_once __DIR__ . '/../classes/Sondeo.php';
+    require_once __DIR__ . '/../classes/RespuestaCuestionario.php';
+    
+$config = Util::getInformacionConfiguracion();
+  $opcionActivaWeb = $config[0]['opcion_activa_web'] ?? 'sondeo';
+  
+  error_log("DEBUG menusecond: Config obtenida: " . json_encode($config));
+  error_log("DEBUG menusecond: Opción activa web: $opcionActivaWeb");
+    
+    $dbConnection = new DbConection();
+    
+    error_log("DEBUG menusecond: Opción activa web: $opcionActivaWeb, Usuario ID: $userId");
+    
+    if ($opcionActivaWeb === 'sondeo') {
+      $sondeo = new Sondeo($dbConnection);
+      $puedeVerRegistros = $sondeo->verificarSiUsuarioVoto($userId);
+    } elseif ($opcionActivaWeb === 'cuestionario') {
+      $cuestionario = new RespuestaCuestionario($dbConnection);
+      $puedeVerRegistros = $cuestionario->verificarSiUsuarioRespondio($userId);
+    } else {
+      // Si no hay opción activa definida, revisamos si el usuario ha respondido cuestionarios
+      error_log("DEBUG menusecond: Opción activa no reconocida, verificando si usuario respondió cuestionarios");
+      $cuestionario = new RespuestaCuestionario($dbConnection);
+      $puedeVerRegistros = $cuestionario->verificarSiUsuarioRespondio($userId);
+      
+      // Si puede ver registros por cuestionarios, actualizamos la opción activa
+      if ($puedeVerRegistros) {
+        $opcionActivaWeb = 'cuestionario';
+        error_log("DEBUG menusecond: Usuario ha respondido cuestionarios, actualizando opción activa a cuestionario");
+      }
+    }
+    
+    error_log("DEBUG menusecond: ¿Puede ver registros?: " . ($puedeVerRegistros ? 'SÍ' : 'NO'));
+  }
 ?>
 
 <style>
@@ -185,10 +225,12 @@
         <!-- DESKTOP -->
         <div class="navbar-nav ms-auto d-none d-lg-flex align-items-center gap-2">
 
+          <?php if ($puedeVerRegistros): ?>
           <a href="resultado.php" class="btn-registros">
             <i class="fas fa-chart-bar"></i>
             Ver registros
           </a>
+          <?php endif; ?>
 
           <!-- USER DROPDOWN -->
           <div class="nav-item dropdown">
@@ -251,11 +293,13 @@
             </div>
           </div>
 
+          <?php if ($puedeVerRegistros): ?>
           <a href="resultado.php" class="mobile-link primary">
             <i class="fas fa-chart-bar"></i>
             <span>Ver registros</span>
             <i class="fas fa-chevron-right ms-auto"></i>
           </a>
+          <?php endif; ?>
 
           <a href="logout.php" class="mobile-link danger">
             <i class="fas fa-sign-out-alt"></i>
