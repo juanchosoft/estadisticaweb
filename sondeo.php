@@ -21,8 +21,10 @@ $isvalidSondeo = $arr['output']['valid'] ?? false;
 $arr = $arr['output']['response'] ?? [];
 
 $sondeosVotados = [];
+$respuestasUsuario = [];
 if (SessionData::getUserId()) {
   $sondeosVotados = Sondeo::getSondeosVotadosPorUsuario(SessionData::getUserId());
+  $respuestasUsuario = Sondeo::getRespuestasUsuarioPorSondeo(SessionData::getUserId());
 }
 
 function determinarAlcanceSondeo($sondeo) {
@@ -57,6 +59,13 @@ foreach ($arr as &$item) {
 
   $yaVotado = in_array($sondeoId, $sondeosVotados);
   $item['contestado'] = $yaVotado;
+
+  // Agregar la respuesta del usuario si ya votó
+  if ($yaVotado && isset($respuestasUsuario[$sondeoId])) {
+    $item['respuesta_usuario'] = $respuestasUsuario[$sondeoId]['respuesta_texto'];
+  } else {
+    $item['respuesta_usuario'] = '';
+  }
 
   if ($yaVotado) $sondeosYaVotados[] = $item;
   else $sondeosDisponibles[] = $item;
@@ -375,6 +384,7 @@ function b64json($data){
             $sondeoName = htmlspecialchars($item['sondeo'] ?? 'Sondeo');
             $descripcion= htmlspecialchars($item['descripcion_sondeo'] ?? '');
             $tipoSondeo = $item['tipo'] ?? 'candidatos';
+            $respuestaUsuario = htmlspecialchars($item['respuesta_usuario'] ?? '');
           ?>
             <div class="sondeo-card is-disabled">
               <div class="badge-voted"><span class="pill ok"><i class="fas fa-check-circle"></i>Votado</span></div>
@@ -395,7 +405,11 @@ function b64json($data){
               </div>
 
               <div class="sondeo-bottom">
-                <span class="pill"><i class="fas fa-check"></i>Completado</span>
+                <?php if (!empty($respuestaUsuario)): ?>
+                  <span class="pill ok" title="Tu respuesta"><i class="fas fa-vote-yea me-1"></i><?= $respuestaUsuario ?></span>
+                <?php else: ?>
+                  <span class="pill"><i class="fas fa-check"></i>Completado</span>
+                <?php endif; ?>
                 <span class="cta text-muted">OK <i class="fas fa-check"></i></span>
               </div>
             </div>
