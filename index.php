@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
     :root{
@@ -687,8 +688,8 @@
       font-weight: 600;
     }
 
-    /* ===== Modal (mini) ===== */
-    .modal-overlay{
+    /* ===== Mini Modal (custom - NO Bootstrap) ===== */
+    .mini-modal-overlay{
       position: fixed;
       inset: 0;
       background: rgba(2,6,23,.56);
@@ -698,7 +699,7 @@
       padding: 18px;
       z-index: 1000;
     }
-    .modal{
+    .mini-modal{
       width: min(560px, 100%);
       border-radius: 22px;
       background: rgba(255,255,255,.86);
@@ -712,7 +713,7 @@
       transition: all .16s ease;
       position: relative;
     }
-    .modal::before{
+    .mini-modal::before{
       content:"";
       position:absolute;
       inset:0;
@@ -721,11 +722,11 @@
         radial-gradient(420px 220px at 90% 30%, rgba(0,194,255,.14), transparent 60%);
       pointer-events:none;
     }
-    .modal.open{
+    .mini-modal.open{
       transform: translateY(0) scale(1);
       opacity: 1;
     }
-    .modal-header{
+    .mini-modal-header{
       position: relative;
       padding: 16px 16px 12px;
       display:flex;
@@ -733,21 +734,21 @@
       justify-content:space-between;
       gap: 12px;
     }
-    .modal-title{
+    .mini-modal-title{
       margin:0;
       font-size: 14px;
       font-weight: 900;
       color: var(--primary);
       letter-spacing: -.01em;
     }
-    .modal-sub{
+    .mini-modal-sub{
       margin: 6px 0 0;
       font-size: 12px;
       color: rgba(71,85,105,.98);
       font-weight: 600;
       max-width: 54ch;
     }
-    .modal-close{
+    .mini-modal-close{
       border:0;
       background: rgba(15,23,42,.06);
       color: var(--primary);
@@ -760,32 +761,32 @@
       position: relative;
       z-index: 2;
     }
-    .modal-close:hover{
+    .mini-modal-close:hover{
       transform: translateY(-1px);
       background: rgba(15,23,42,.10);
     }
-    .modal-body{
+    .mini-modal-body{
       position: relative;
       padding: 0 16px 14px;
     }
-    .modal-box{
+    .mini-modal-box{
       border-radius: 18px;
       border: 1px solid rgba(15,23,42,.10);
       background: rgba(255,255,255,.86);
       box-shadow: 0 14px 34px rgba(2,6,23,.08);
       padding: 12px;
     }
-    .modal-row{
+    .mini-modal-row{
       display:flex;
       gap: 10px;
       align-items:flex-start;
       padding: 10px 8px;
       border-radius: 14px;
     }
-    .modal-row + .modal-row{
+    .mini-modal-row + .mini-modal-row{
       border-top: 1px dashed rgba(15,23,42,.10);
     }
-    .ic{
+    .mini-modal-ic{
       width: 34px; height: 34px;
       border-radius: 14px;
       background: rgba(19,43,82,.10);
@@ -795,27 +796,27 @@
       flex: 0 0 auto;
       font-weight: 900;
     }
-    .modal-row b{
+    .mini-modal-row b{
       display:block;
       font-size: 13px;
       color: #0f172a;
       font-weight: 900;
     }
-    .modal-row span{
+    .mini-modal-row span{
       display:block;
       margin-top: 2px;
       font-size: 12px;
       color: rgba(71,85,105,.98);
       font-weight: 600;
     }
-    .modal-actions{
+    .mini-modal-actions{
       position: relative;
       display:flex;
       gap: 10px;
       flex-wrap: wrap;
       padding: 0 16px 16px;
     }
-    .btn-modal{
+    .btn-mini-modal{
       flex: 1 1 220px;
       width: auto;
     }
@@ -1163,7 +1164,7 @@
                 </svg>
               </button>
 
-              <!-- LOGIN MODAL REMOTO -->
+              <!-- LOGIN MODAL -->
               <div class="login-box">
                 <a href="#" class="login-cta" id="btnOpenLogin" role="button" aria-label="Ya tengo una cuenta, iniciar sesión">
                   <span class="login-cta-ic"><i class="fa-solid fa-right-to-bracket"></i></span>
@@ -1296,36 +1297,36 @@
   </footer>
 
   <!-- MINI MODAL -->
-  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal" id="modalCard" aria-label="Confirmación para iniciar encuesta">
-      <div class="modal-header">
+  <div class="mini-modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="mini-modal" id="modalCard" aria-label="Confirmación para iniciar encuesta">
+      <div class="mini-modal-header">
         <div>
-          <div class="modal-title">Antes de empezar 🚀</div>
-          <div class="modal-sub">
+          <div class="mini-modal-title">Antes de empezar 🚀</div>
+          <div class="mini-modal-sub">
             Vas a iniciar el proceso de registro y voto. Es rápido: <b>menos de 60 segundos</b>.
           </div>
         </div>
-        <button class="modal-close" type="button" id="btnCloseModal" aria-label="Cerrar">✕</button>
+        <button class="mini-modal-close" type="button" id="btnCloseModal" aria-label="Cerrar">✕</button>
       </div>
 
-      <div class="modal-body">
-        <div class="modal-box">
-          <div class="modal-row">
-            <div class="ic">⏱</div>
+      <div class="mini-modal-body">
+        <div class="mini-modal-box">
+          <div class="mini-modal-row">
+            <div class="mini-modal-ic">⏱</div>
             <div>
               <b>Tiempo</b>
               <span>Promedio: 1 minuto (campos cortos y claros).</span>
             </div>
           </div>
-          <div class="modal-row">
-            <div class="ic">🔒</div>
+          <div class="mini-modal-row">
+            <div class="mini-modal-ic">🔒</div>
             <div>
               <b>Confidencialidad</b>
               <span>Tu información se maneja con cuidado y se usa para análisis agregado.</span>
             </div>
           </div>
-          <div class="modal-row">
-            <div class="ic">✅</div>
+          <div class="mini-modal-row">
+            <div class="mini-modal-ic">✅</div>
             <div>
               <b>Recomendación</b>
               <span>Ten a la mano tus datos básicos. ¡Y listo!</span>
@@ -1334,15 +1335,17 @@
         </div>
       </div>
 
-      <div class="modal-actions">
-        <button class="btn btn-primary btn-modal" type="button" id="btnGoRegistro">
+      <div class="mini-modal-actions">
+        <button class="btn btn-primary btn-mini-modal" type="button" id="btnGoRegistro">
           <span>Continuar y registrarme</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
 
-       
+        <button class="btn btn-outline btn-mini-modal" type="button" id="btnCancelModal">
+          <span>Cancelar</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1421,46 +1424,194 @@
       });
     })();
 
-    // ===== LOGIN MODAL REMOTO (abre login.php como modal en esta página) =====
-    (function(){
-      function showLoginModal(){
-        const el = document.getElementById('loginModal');
-        if(!el || typeof bootstrap === "undefined" || !bootstrap.Modal) return;
-
-        let instance = null;
-        if (typeof bootstrap.Modal.getInstance === "function") {
-          instance = bootstrap.Modal.getInstance(el);
-        }
-        if (!instance) {
-          instance = new bootstrap.Modal(el, { backdrop:'static', keyboard:false });
-        }
-        instance.show();
-      }
-
-      async function loadModalIfNeeded(){
-        if (document.getElementById('loginModal')) {
-          showLoginModal();
-          return;
-        }
-
-        const res = await fetch('login.php?only_modal=1', { credentials: 'same-origin' });
-        const html = await res.text();
-
-        const wrap = document.createElement('div');
-        wrap.id = 'loginModalRemoteWrap';
-        wrap.innerHTML = html;
-        document.body.appendChild(wrap);
-
-        showLoginModal();
-      }
-
-      document.addEventListener('click', function(e){
-        const btn = e.target.closest('#btnOpenLogin');
-        if(!btn) return;
-        e.preventDefault();
-        loadModalIfNeeded().catch(console.error);
-      });
-    })();
   </script>
+
+<!-- ===== MODAL LOGIN ===== -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:24px; border:0; box-shadow:0 44px 160px rgba(2,6,23,.35);">
+      <div class="modal-header" style="border:0; padding:18px 18px 10px;">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div style="width:54px;height:54px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);display:grid;place-items:center;">
+            <img src="assets/img/admin/estadistica3.png" alt="Logo" style="width:78%;height:78%;object-fit:contain;">
+          </div>
+          <div>
+            <b style="font-weight:950;color:#fff;font-size:18px;">Iniciar sesión</b><br>
+            <small style="font-weight:750;color:rgba(255,255,255,.90);">Accede para continuar</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" style="filter:invert(1);opacity:.85;"></button>
+      </div>
+      <div class="modal-body" style="padding:14px 18px 16px;">
+        <div style="border:1px solid rgba(15,23,42,.10);background:rgba(255,255,255,.90);border-radius:18px;padding:14px;">
+          <form id="formLoginVotantes" autocomplete="on">
+            <div style="margin-bottom:12px;">
+              <div style="font-weight:950;font-size:13px;color:#111827;margin-bottom:7px;">Correo o Usuario</div>
+              <input type="text" id="login_user" name="login_user" placeholder="Escribe tu usuario o correo" required style="height:54px;width:100%;border-radius:16px;border:1px solid rgba(15,23,42,.14);background:#fff;padding:0 14px;font-size:16px;font-weight:800;">
+            </div>
+            <div style="margin-bottom:12px; position: relative;">
+              <div style="font-weight:950;font-size:13px;color:#111827;margin-bottom:7px;">Contraseña</div>
+              <input type="password" id="login_password" name="login_password" placeholder="Escribe tu contraseña" required style="height:54px;width:100%;border-radius:16px;border:1px solid rgba(15,23,42,.14);background:#fff;padding:0 44px 0 14px;font-size:16px;font-weight:800;">
+              <button type="button" id="togglePassword" style="position: absolute; right: 12px; top: 42px; background: none; border: none; cursor: pointer; color: #64748b; font-size: 18px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-eye" id="eyeIcon"></i>
+              </button>
+            </div>
+            <button type="button" id="btnLoginSubmit" style="height:54px;width:100%;border-radius:16px;border:0;color:#fff;font-weight:950;background:linear-gradient(135deg,#021b5a,#0B3EDC);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Libs -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="./admin/js/lib/data-md5.js"></script>
+
+<script>
+  // ===== LOGIN START =====
+  (function(){
+    function showLoginModal(){
+      const el = document.getElementById('loginModal');
+      if(!el || typeof bootstrap === "undefined" || !bootstrap.Modal) return;
+
+      let instance = null;
+      if (typeof bootstrap.Modal.getInstance === "function") {
+        instance = bootstrap.Modal.getInstance(el);
+      }
+      if (!instance) {
+        instance = new bootstrap.Modal(el, { backdrop:'static', keyboard:false });
+      }
+      instance.show();
+
+      el.addEventListener('shown.bs.modal', function(){
+        const u = document.getElementById('login_user');
+        if(u) u.focus();
+      }, { once:true });
+    }
+
+    document.addEventListener('click', function(e){
+      const btn = e.target.closest('#btnOpenLogin');
+      if(!btn) return;
+      e.preventDefault();
+      showLoginModal();
+    });
+  })();
+
+  // ===== TOGGLE PASSWORD =====
+  (function(){
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('login_password');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    if (togglePassword && passwordInput && eyeIcon) {
+      togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        if (type === 'text') {
+          eyeIcon.classList.remove('fa-eye');
+          eyeIcon.classList.add('fa-eye-slash');
+        } else {
+          eyeIcon.classList.remove('fa-eye-slash');
+          eyeIcon.classList.add('fa-eye');
+        }
+      });
+    }
+  })();
+  // ===== LOGIN END =====
+
+  // ===== LOGIN SUBMIT =====
+  document.getElementById('btnLoginSubmit')?.addEventListener('click', async function(){
+    const nickname = document.getElementById('login_user').value.trim();
+    const hashpass = document.getElementById('login_password').value.trim();
+
+    if(!nickname || !hashpass){
+      Swal.fire('Error', 'Por favor completa todos los campos.', 'error');
+      return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Validando...';
+
+    const formData = new FormData();
+    formData.append('nickname', nickname);
+    formData.append('hashpass', hashpass);
+
+    try {
+      const res = await fetch('login_process.php', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if(data.status === 'success'){
+        window.location.href = data.redirect;
+      } else {
+        Swal.fire('Error', data.message || 'Error de inicio de sesión.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Entrar';
+      }
+    } catch(err){
+      Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
+      console.error(err);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Entrar';
+    }
+  });
+
+  // Enter key
+  document.getElementById('formLoginVotantes')?.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      document.getElementById('btnLoginSubmit').click();
+    }
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const btnOpen   = document.getElementById("btnOpenModal");
+  const overlay   = document.getElementById("loginOverlay");
+  const modal     = document.getElementById("loginModal");
+  const btnClose  = document.getElementById("btnCloseModal");
+
+  if (!btnOpen || !overlay || !modal) {
+    console.error("❌ Modal login: elementos no encontrados");
+    return;
+  }
+
+  // ABRIR MODAL
+  btnOpen.addEventListener("click", (e) => {
+    e.preventDefault();
+    overlay.style.display = "flex";
+    requestAnimationFrame(() => {
+      modal.classList.add("open");
+    });
+  });
+
+  // CERRAR MODAL (botón X)
+  btnClose.addEventListener("click", closeModal);
+
+  // CERRAR CLICK FUERA
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      closeModal();
+    }
+  });
+
+  function closeModal(){
+    modal.classList.remove("open");
+    setTimeout(() => {
+      overlay.style.display = "none";
+    }, 150);
+  }
+
+});
+</script>
+
 </body>
 </html>

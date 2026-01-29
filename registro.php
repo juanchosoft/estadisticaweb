@@ -859,7 +859,12 @@ foreach ($departamentosResponse as $dep) {
             </div>
             <div style="margin-bottom:10px;">
               <div style="font-weight:900;font-size:13px;color:#111827;margin-bottom:6px;">Contraseña</div>
-              <input type="password" class="form-control" id="login_password" name="login_password" placeholder="Escribe tu contraseña" required style="height:56px;border-radius:16px;">
+              <div style="position: relative;">
+                <input type="password" class="form-control" id="login_password" name="login_password" placeholder="Escribe tu contraseña" required style="height:56px;border-radius:16px; padding-right: 50px;">
+                <button type="button" id="toggleLoginPassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748b; font-size: 18px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                  <i class="fa-solid fa-eye" id="loginEyeIcon"></i>
+                </button>
+              </div>
             </div>
             <button type="button" class="btn btn-primary w-100" id="btnLoginSubmit" style="height:56px;border-radius:16px;font-weight:950;background:linear-gradient(135deg,#021b5a,#0B3EDC);border:0;">
               <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Entrar
@@ -899,6 +904,28 @@ foreach ($departamentosResponse as $dep) {
       DEPARTAMENTO.getMunicipios();
     }
   });
+
+    // ===== TOGGLE LOGIN PASSWORD =====
+  (function(){
+    const toggleLoginPassword = document.getElementById('toggleLoginPassword');
+    const loginPasswordInput = document.getElementById('login_password');
+    const loginEyeIcon = document.getElementById('loginEyeIcon');
+
+    if (toggleLoginPassword && loginPasswordInput && loginEyeIcon) {
+      toggleLoginPassword.addEventListener('click', function() {
+        const type = loginPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        loginPasswordInput.setAttribute('type', type);
+        
+        if (type === 'text') {
+          loginEyeIcon.classList.remove('fa-eye');
+          loginEyeIcon.classList.add('fa-eye-slash');
+        } else {
+          loginEyeIcon.classList.remove('fa-eye-slash');
+          loginEyeIcon.classList.add('fa-eye');
+        }
+      });
+    }
+  })();
 
   // ==========================
   // 👁️ Toggle password (registro)
