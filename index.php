@@ -1213,6 +1213,131 @@
     margin: 10px auto !important;
   }
 }
+.brand--light{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+/* LOGO CLARO */
+.brand-logo-light{
+  width:58px;
+  height:auto;
+  object-fit:contain;
+  display:block;
+
+  /* CLAVE: lo hace claro y visible */
+  filter:
+    brightness(1.35)
+    contrast(1.25)
+    drop-shadow(0 1px 3px rgba(0,0,0,.45));
+}
+
+/* TEXTO */
+.brand--light .title{
+  display:flex;
+  flex-direction:column;
+  line-height:1.15;
+}
+
+.brand--light .title b{
+  font-size:16px;
+  font-weight:800;
+  color:#ffffff;
+  letter-spacing:.3px;
+}
+
+.brand--light .title span{
+  font-size:12px;
+  color:rgba(255,255,255,.8);
+  margin-top:2px;
+}
+
+/* RESPONSIVE */
+@media (max-width:768px){
+  .brand-logo-light{
+    width:50px;
+  }
+
+  .brand--light .title b{
+    font-size:15px;
+  }
+
+  .brand--light .title span{
+    font-size:11px;
+  }
+}
+
+/* ================================
+   TOPBAR BRAND (FIX LOGO + TEXTO)
+   - No toca nada fuera del header
+   ================================ */
+.topbar .brand{
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ✅ Override directo al selector que te está dañando */
+.topbar .brand img.brand-logo-light{
+  width: 54px !important;
+  height: auto !important;
+
+  /* ✅ elimina el "recuadro" que mete .brand img */
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+
+  /* ✅ mejora visibilidad sobre azul oscuro */
+  filter: brightness(1.55) contrast(1.25)
+          drop-shadow(0 2px 6px rgba(0,0,0,.55)) !important;
+
+  display: block;
+}
+
+/* Textos: más pro y legibles */
+.topbar .brand .title b{
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: .2px;
+}
+
+.topbar .brand .title span{
+  font-size: 12px !important;
+  opacity: .88;
+}
+
+/* ===== Tablet ===== */
+@media (max-width: 992px){
+  .topbar .wrap{ padding: 12px 14px; }
+  .topbar .brand img.brand-logo-light{ width: 50px !important; }
+  .topbar .brand .title b{ font-size: 14px !important; }
+  .topbar .brand .title span{ font-size: 11px !important; }
+}
+
+/* ===== Móvil ===== */
+@media (max-width: 520px){
+  .topbar .wrap{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .topbar .right{
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .topbar .brand img.brand-logo-light{ width: 46px !important; }
+
+  /* Evita que el texto se “coma” todo */
+  .topbar .brand .title b,
+  .topbar .brand .title span{
+    max-width: 92vw;
+  }
+}
+
 
 
   </style>
@@ -1223,27 +1348,30 @@
   <div class="grid" aria-hidden="true"></div>
 
   <header class="topbar">
-    <div class="wrap">
-      <div class="brand">
-        <img src="assets/img/admin/estadistica3.png" alt="Estadísticas 360">
-        <div class="title">
-          <b>Estadísticas 360</b>
-          <span>Encuesta del momento • Participación ciudadana</span>
-        </div>
-      </div>
+  <div class="wrap">
 
-      <div class="right">
-        <div class="badge-live" title="Encuesta activa">
-          <span class="pulse"></span>
-          <span>Encuesta activa hoy</span>
-        </div>
-        <div class="pill" title="Tiempo estimado">
-          <span class="dot"></span>
-          <span>~60 segundos</span>
-        </div>
+    <div class="brand brand--light">
+      <img src="assets/img/admin/estadistica3.png" alt="Estadísticas 360" class="brand-logo-light">
+
+      <div class="title">
+        <b>Estadísticas 360</b>
+        <span>Encuesta del momento • Participación ciudadana</span>
       </div>
     </div>
-  </header>
+
+    <div class="right">
+      <div class="badge-live" title="Encuesta activa">
+        <span class="pulse"></span>
+        <span>Encuesta activa hoy</span>
+      </div>
+      <div class="pill" title="Tiempo estimado">
+        <span class="dot"></span>
+        <span>~60 segundos</span>
+      </div>
+    </div>
+
+  </div>
+</header>
 
   <main class="page">
     <section class="hero">
