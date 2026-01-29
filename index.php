@@ -4,15 +4,57 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- =========================================
+       Básico
+  ========================================== -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Estadísticas 360 | Encuesta del Momento</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="theme-color" content="#132b52" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- =========================================
+       SEO
+  ========================================== -->
+  <title>Estadísticas 360 | Encuesta del Momento</title>
+  <meta name="description" content="Estadísticas 360 presenta la Encuesta del Momento con resultados claros, visuales e interactivos, listos para analizar y compartir." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://estadisticas360.com/" />
+
+  <!-- =========================================
+       Open Graph (WhatsApp / Facebook)
+  ========================================== -->
+  <meta property="og:locale" content="es_CO" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Estadísticas 360 | Encuesta del Momento" />
+  <meta property="og:description" content="Consulta y comparte resultados en tiempo real con visualizaciones claras y profesionales." />
+  <meta property="og:url" content="https://estadisticas360.com/" />
+  <meta property="og:site_name" content="Estadísticas 360" />
+  <meta property="og:image" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg" />
+  <meta property="og:image:secure_url" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Estadísticas 360 - Encuesta del Momento" />
+
+  <!-- =========================================
+       Twitter Card
+  ========================================== -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Estadísticas 360 | Encuesta del Momento" />
+  <meta name="twitter:description" content="Resultados de encuestas en tiempo real con visualización profesional." />
+  <meta name="twitter:image" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg" />
+
+  <!-- =========================================
+       CSS / Fuentes (no se elimina nada)
+  ========================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="/assets/img/admin/favicon.ico" />
+
 
   <style>
     :root{
@@ -1070,10 +1112,109 @@
       .btn-primary{ animation: none; }
       .btn-primary::after{ animation: none; }
       .bar > span{ animation: none; width: 60%; }
-      .sk::after{ animation: none; }
       .pulse{ animation: none; }
       .login-cta::after{ animation: none; }
     }
+/* ===== HEADER MODAL (SaaS PRO) ===== */
+.modal.show .modal-header{
+  /* base */
+  background: linear-gradient(135deg,
+    rgba(19, 43, 82, .92),
+    rgba(11, 26, 51, .92)
+  ) !important;
+
+  /* glass */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* profundidad */
+  border-bottom: 1px solid rgba(255,255,255,.16) !important;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, .22) !important;
+
+  /* look */
+  padding: 18px 20px !important;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* brillo suave “premium” */
+.modal.show .modal-header::after{
+  content:"";
+  position:absolute;
+  inset:-40% -20% auto -20%;
+  height:120%;
+  background: radial-gradient(420px 220px at 20% 20%, rgba(255,255,255,.22), transparent 60%);
+  pointer-events:none;
+  opacity:.85;
+}
+
+
+/* textos */
+.modal.show .modal-header .modal-title,
+.modal.show .modal-header small,
+.modal.show .modal-header p,
+.modal.show .modal-header span{
+  color:#fff !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,.22);
+}
+
+/* botón cerrar más pro */
+.modal.show .btn-close{
+  filter: invert(1);
+  opacity: .95;
+  transform: scale(1.05);
+}
+.modal.show .btn-close:hover{
+  opacity: 1;
+  transform: scale(1.12);
+}
+
+/* opcional: para que TODO el modal se vea premium */
+.modal.show .modal-content{
+  border: 1px solid rgba(255,255,255,.16) !important;
+  box-shadow: 0 28px 70px rgba(2, 6, 23, .35) !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+}
+/* ================================
+   MODALES PEQUEÑOS (SaaS Pro)
+   - PC: pequeño (480px)
+   - Tablet: medio (560px)
+   - Móvil: casi full (92vw)
+   ================================ */
+.modal-saas .modal-dialog{
+  width: calc(100% - 24px) !important;
+  margin: 12px auto !important;
+  max-width: 480px !important;      /* ✅ PC pequeño */
+}
+
+@media (min-width: 768px){
+  .modal-saas .modal-dialog{
+    max-width: 560px !important;    /* ✅ Tablet */
+  }
+}
+
+@media (min-width: 1200px){
+  .modal-saas .modal-dialog{
+    max-width: 520px !important;    /* ✅ PC pro (un poquito más ancho) */
+  }
+}
+
+/* Evita que algún CSS te lo expanda a 100% */
+.modal-saas .modal-content{
+  width: 100% !important;
+}
+
+/* Opcional: que no quede pegado arriba en pantallas bajas */
+@media (max-height: 700px){
+  .modal-saas .modal-dialog{
+    margin: 10px auto !important;
+  }
+}
+
+
   </style>
 </head>
 
@@ -1155,16 +1296,7 @@
               <small>Rápido • Claro • Diseñado para celular</small>
             </div>
 
-            <div class="cta-row">
-              <!-- MINI MODAL -->
-              <button class="btn btn-primary" type="button" id="btnOpenModal">
-                <span>Quiero votar y registrarme</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-
-              <!-- LOGIN MODAL -->
+             <!-- LOGIN MODAL -->
               <div class="login-box">
                 <a href="#" class="login-cta" id="btnOpenLogin" role="button" aria-label="Ya tengo una cuenta, iniciar sesión">
                   <span class="login-cta-ic"><i class="fa-solid fa-right-to-bracket"></i></span>
@@ -1175,6 +1307,17 @@
                   <span class="login-cta-go"><i class="fa-solid fa-arrow-right"></i></span>
                 </a>
               </div>
+
+            <div class="cta-row">
+              <!-- MINI MODAL -->
+              <button class="btn btn-primary" type="button" id="btnOpenModal">
+                <span>Quiero votar y registrarme</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+
+             
 
               <a class="btn btn-ghost" href="https://www.google.com/" target="_blank" rel="noopener noreferrer">
                 No quiero participar
@@ -1350,8 +1493,7 @@
     </div>
   </div>
 
-  <!-- Libs para el modal remoto de login.php -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
   <script>
     // ===== Modal logic (mini modal) =====
@@ -1427,10 +1569,11 @@
   </script>
 
 <!-- ===== MODAL LOGIN ===== -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade modal-saas" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+
     <div class="modal-content" style="border-radius:24px; border:0; box-shadow:0 44px 160px rgba(2,6,23,.35);">
-      <div class="modal-header" style="border:0; padding:18px 18px 10px;">
+      <div class="modal-header" style="border:0; padding:18px 18px 10px; background:linear-gradient(135deg,#021b5a,#0B3EDC); border-top-left-radius:24px; border-top-right-radius:24px;">
         <div style="display:flex; gap:12px; align-items:center;">
           <div style="width:54px;height:54px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);display:grid;place-items:center;">
             <img src="assets/img/admin/estadistica3.png" alt="Logo" style="width:78%;height:78%;object-fit:contain;">
@@ -1442,93 +1585,298 @@
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" style="filter:invert(1);opacity:.85;"></button>
       </div>
+
       <div class="modal-body" style="padding:14px 18px 16px;">
         <div style="border:1px solid rgba(15,23,42,.10);background:rgba(255,255,255,.90);border-radius:18px;padding:14px;">
           <form id="formLoginVotantes" autocomplete="on">
             <div style="margin-bottom:12px;">
               <div style="font-weight:950;font-size:13px;color:#111827;margin-bottom:7px;">Correo o Usuario</div>
-              <input type="text" id="login_user" name="login_user" placeholder="Escribe tu usuario o correo" required style="height:54px;width:100%;border-radius:16px;border:1px solid rgba(15,23,42,.14);background:#fff;padding:0 14px;font-size:16px;font-weight:800;">
+              <input type="text" id="login_user" name="login_user" placeholder="Escribe tu usuario o correo" required
+                style="height:54px;width:100%;border-radius:16px;border:1px solid rgba(15,23,42,.14);background:#fff;padding:0 14px;font-size:16px;font-weight:800;">
             </div>
+
             <div style="margin-bottom:12px; position: relative;">
               <div style="font-weight:950;font-size:13px;color:#111827;margin-bottom:7px;">Contraseña</div>
-              <input type="password" id="login_password" name="login_password" placeholder="Escribe tu contraseña" required style="height:54px;width:100%;border-radius:16px;border:1px solid rgba(15,23,42,.14);background:#fff;padding:0 44px 0 14px;font-size:16px;font-weight:800;">
-              <button type="button" id="togglePassword" style="position: absolute; right: 12px; top: 42px; background: none; border: none; cursor: pointer; color: #64748b; font-size: 18px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+              <input type="password" id="login_password" name="login_password" placeholder="Escribe tu contraseña" required
+                style="height:54px;width:100%;border-radius:16px;border:1px solid rgba(15,23,42,.14);background:#fff;padding:0 44px 0 14px;font-size:16px;font-weight:800;">
+
+              <button type="button" id="togglePassword"
+                style="position: absolute; right: 12px; top: 42px; background: none; border: none; cursor: pointer; color: #64748b; font-size: 18px; padding: 8px; display: flex; align-items: center; justify-content: center;">
                 <i class="fa-solid fa-eye" id="eyeIcon"></i>
               </button>
             </div>
-            <button type="button" id="btnLoginSubmit" style="height:54px;width:100%;border-radius:16px;border:0;color:#fff;font-weight:950;background:linear-gradient(135deg,#021b5a,#0B3EDC);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;">
+
+            <button type="button" id="btnLoginSubmit"
+              style="height:54px;width:100%;border-radius:16px;border:0;color:#fff;font-weight:950;background:linear-gradient(135deg,#021b5a,#0B3EDC);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;">
               <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar
             </button>
+
+          
+              <!-- ✅ OLVIDASTE CONTRASEÑA (abre modal) -->
+        <div style="margin-top:12px; text-align:center;">
+          <a href="#"
+            id="openForgotModal"
+            style="font-weight:900; font-size:13px; color:#0B3EDC; text-decoration:none;">
+            ¿Olvidaste tu contraseña?
+          </a>
+          <div style="margin-top:4px; font-size:12px; font-weight:700; color:#64748b;">
+            Te enviamos una contraseña temporal a tu correo.
+          </div>
+        </div>
+
+
+
           </form>
         </div>
       </div>
+
+    </div>
+  </div>
+</div>
+<!-- ===== MODAL OLVIDÉ CONTRASEÑA (FUERA DEL LOGIN MODAL) ===== -->
+<div class="modal fade modal-saas" id="forgotModal" tabindex="-1" aria-hidden="true">
+
+ <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+
+    <div class="modal-content" style="border-radius:24px; border:0; box-shadow:0 44px 160px rgba(2,6,23,.35); overflow:hidden;">
+      
+      <div class="modal-header" style="border:0; padding:18px 18px 10px; background:linear-gradient(135deg,#021b5a,#0B3EDC);">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div style="width:54px;height:54px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);display:grid;place-items:center;">
+            <i class="fa-solid fa-unlock-keyhole" style="color:#fff;font-size:22px;"></i>
+          </div>
+          <div>
+            <b style="font-weight:950;color:#fff;font-size:18px;">Recuperar contraseña</b><br>
+            <small style="font-weight:750;color:rgba(255,255,255,.90);">Te enviamos una contraseña temporal</small>
+          </div>
+        </div>
+
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" style="filter:invert(1);opacity:.85;"></button>
+      </div>
+
+      <div class="modal-body" style="padding:14px 18px 16px; background:#f6f8fc;">
+        <div style="border:1px solid rgba(15,23,42,.10);background:#fff;border-radius:18px;padding:14px;">
+          
+          <form id="formForgotPassword" autocomplete="off">
+
+            <div style="margin-bottom:12px;">
+              <div style="font-weight:950;font-size:13px;color:#111827;margin-bottom:7px;">Correo o Usuario</div>
+              <input type="text" id="forgot_login" name="forgot_login" placeholder="Escribe tu correo o username" required
+                style="height:54px;width:100%;border-radius:16px;border:1px solid rgba(15,23,42,.14);background:#fff;padding:0 14px;font-size:16px;font-weight:800;">
+              <div style="margin-top:6px;font-size:12px;font-weight:700;color:#64748b;">
+                Si el registro existe, enviamos la contraseña temporal al correo asociado.
+              </div>
+            </div>
+
+            <div id="forgot_ok" style="display:none;margin-bottom:10px;padding:10px 12px;border-radius:14px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:#065f46;font-weight:900;font-size:13px;"></div>
+            <div id="forgot_bad" style="display:none;margin-bottom:10px;padding:10px 12px;border-radius:14px;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.25);color:#7f1d1d;font-weight:900;font-size:13px;"></div>
+
+            <button type="submit" id="btnForgotSend"
+              style="height:54px;width:100%;border-radius:16px;border:0;color:#fff;font-weight:950;background:linear-gradient(135deg,#021b5a,#0B3EDC);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;">
+              <i class="fa-solid fa-paper-plane"></i> Enviar contraseña temporal
+            </button>
+
+            <button type="button" id="btnBackToLogin"
+              style="margin-top:10px;height:48px;width:100%;border-radius:16px;border:1px solid rgba(15,23,42,.14);color:#0f172a;font-weight:950;background:#fff;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;">
+              <i class="fa-solid fa-arrow-left"></i> Volver al login
+            </button>
+
+          </form>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- Libs -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Libs (cárgalas 1 sola vez y en este orden) -->
+<!-- Libs (1 sola vez y en este orden) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript" src="./admin/js/lib/data-md5.js"></script>
 
+
 <script>
-  // ===== LOGIN START =====
-  (function(){
-    function showLoginModal(){
-      const el = document.getElementById('loginModal');
-      if(!el || typeof bootstrap === "undefined" || !bootstrap.Modal) return;
+document.addEventListener("DOMContentLoaded", () => {
 
-      let instance = null;
-      if (typeof bootstrap.Modal.getInstance === "function") {
-        instance = bootstrap.Modal.getInstance(el);
-      }
-      if (!instance) {
-        instance = new bootstrap.Modal(el, { backdrop:'static', keyboard:false });
-      }
-      instance.show();
+  // =========================================================
+  // 1) ABRIR MODAL LOGIN (Bootstrap)
+  // =========================================================
+  function getOrCreateModal(el, options = undefined){
+    if (!el || typeof bootstrap === "undefined" || !bootstrap.Modal) return null;
+    return bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el, options);
+  }
 
-      el.addEventListener('shown.bs.modal', function(){
-        const u = document.getElementById('login_user');
-        if(u) u.focus();
-      }, { once:true });
-    }
+  const loginModalEl  = document.getElementById("loginModal");
+  const forgotModalEl = document.getElementById("forgotModal");
 
-    document.addEventListener('click', function(e){
-      const btn = e.target.closest('#btnOpenLogin');
-      if(!btn) return;
-      e.preventDefault();
-      showLoginModal();
+  function cleanupBackdrop() {
+    // ✅ por si queda alguno colgado (pantalla oscura sin modal)
+    document.querySelectorAll(".modal-backdrop").forEach(b => b.remove());
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("padding-right");
+  }
+
+  function showLoginModal(){
+    const instance = getOrCreateModal(loginModalEl, { backdrop:'static', keyboard:false });
+    if (!instance) return;
+
+    instance.show();
+    loginModalEl.addEventListener('shown.bs.modal', function onShown(){
+      loginModalEl.removeEventListener('shown.bs.modal', onShown);
+      const u = document.getElementById('login_user');
+      if (u) u.focus();
     });
-  })();
+  }
 
-  // ===== TOGGLE PASSWORD =====
-  (function(){
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('login_password');
-    const eyeIcon = document.getElementById('eyeIcon');
+  // Click CTA "Ya tengo una cuenta"
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('#btnOpenLogin');
+    if(!btn) return;
+    e.preventDefault();
+    showLoginModal();
+  });
 
-    if (togglePassword && passwordInput && eyeIcon) {
-      togglePassword.addEventListener('click', function() {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        
-        if (type === 'text') {
-          eyeIcon.classList.remove('fa-eye');
-          eyeIcon.classList.add('fa-eye-slash');
+  // =========================================================
+  // 2) TOGGLE PASSWORD (solo 1 vez)
+  // =========================================================
+  const pass = document.getElementById("login_password");
+  const toggleBtn = document.getElementById("togglePassword");
+  const eyeIcon = document.getElementById("eyeIcon");
+
+  if (toggleBtn && pass) {
+    toggleBtn.addEventListener("click", () => {
+      const isPass = pass.type === "password";
+      pass.type = isPass ? "text" : "password";
+      if (eyeIcon) {
+        eyeIcon.classList.toggle("fa-eye", !isPass);
+        eyeIcon.classList.toggle("fa-eye-slash", isPass);
+      }
+    });
+  }
+
+  // =========================================================
+  // 3) CAMBIO ENTRE MODALES: LOGIN <-> FORGOT (sin pantalla oscura)
+  //    Requisito: #forgotModal debe estar FUERA del #loginModal
+  // =========================================================
+  const openForgot = document.getElementById("openForgotModal");
+  const btnBack    = document.getElementById("btnBackToLogin");
+
+  if (openForgot && loginModalEl && forgotModalEl) {
+    openForgot.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const loginInstance = getOrCreateModal(loginModalEl);
+      if (!loginInstance) return;
+
+      loginModalEl.addEventListener("hidden.bs.modal", function handler(){
+        loginModalEl.removeEventListener("hidden.bs.modal", handler);
+
+        cleanupBackdrop();
+
+        const forgotInstance = getOrCreateModal(forgotModalEl);
+        if (!forgotInstance) return;
+
+        forgotInstance.show();
+
+        forgotModalEl.addEventListener("shown.bs.modal", function handler2(){
+          forgotModalEl.removeEventListener("shown.bs.modal", handler2);
+          const inp = document.getElementById("forgot_login");
+          if (inp) inp.focus();
+        });
+      }, { once:true });
+
+      loginInstance.hide();
+    });
+  }
+
+  if (btnBack && loginModalEl && forgotModalEl) {
+    btnBack.addEventListener("click", () => {
+      const forgotInstance = getOrCreateModal(forgotModalEl);
+      if (!forgotInstance) return;
+
+      forgotModalEl.addEventListener("hidden.bs.modal", function handler(){
+        forgotModalEl.removeEventListener("hidden.bs.modal", handler);
+
+        cleanupBackdrop();
+
+        const loginInstance = getOrCreateModal(loginModalEl, { backdrop:'static', keyboard:false });
+        if (!loginInstance) return;
+
+        loginInstance.show();
+
+        loginModalEl.addEventListener("shown.bs.modal", function handler2(){
+          loginModalEl.removeEventListener("shown.bs.modal", handler2);
+          const u = document.getElementById("login_user");
+          if (u) u.focus();
+        });
+      }, { once:true });
+
+      forgotInstance.hide();
+    });
+  }
+
+  // =========================================================
+  // 4) AJAX RECUPERAR CONTRASEÑA (mantiene tu endpoint)
+  // =========================================================
+  const formForgot = document.getElementById("formForgotPassword");
+  const btnForgotSend = document.getElementById("btnForgotSend");
+  const ok = document.getElementById("forgot_ok");
+  const bad = document.getElementById("forgot_bad");
+
+  const showMsg = (el, txt) => { if(!el) return; el.textContent = txt; el.style.display = "block"; };
+  const hideMsg = (el) => { if(!el) return; el.style.display = "none"; };
+
+  if (formForgot) {
+    formForgot.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideMsg(ok); hideMsg(bad);
+
+      const login = (document.getElementById("forgot_login")?.value || "").trim();
+      if (!login) { showMsg(bad, "Escribe tu correo o usuario."); return; }
+
+      if (btnForgotSend){
+        btnForgotSend.disabled = true;
+        btnForgotSend.style.opacity = "0.85";
+      }
+
+      try {
+        const fd = new FormData();
+        fd.append("login", login);
+
+        const res = await fetch("./admin/ajax/auth_forgot_password.php", {
+          method: "POST",
+          body: fd
+        });
+
+        const data = await res.json();
+
+        if (data && data.ok) {
+          showMsg(ok, data.msg || "Si existe, te enviamos una contraseña temporal.");
+          formForgot.reset();
         } else {
-          eyeIcon.classList.remove('fa-eye-slash');
-          eyeIcon.classList.add('fa-eye');
+          showMsg(bad, (data && data.msg) ? data.msg : "No fue posible procesar la solicitud.");
         }
-      });
-    }
-  })();
-  // ===== LOGIN END =====
+      } catch (err) {
+        showMsg(bad, "Error de red. Intenta nuevamente.");
+        console.error(err);
+      } finally {
+        if (btnForgotSend){
+          btnForgotSend.disabled = false;
+          btnForgotSend.style.opacity = "1";
+        }
+      }
+    });
+  }
 
-  // ===== LOGIN SUBMIT =====
+  // =========================================================
+  // 5) LOGIN SUBMIT (tu lógica tal cual)
+  // =========================================================
   document.getElementById('btnLoginSubmit')?.addEventListener('click', async function(){
-    const nickname = document.getElementById('login_user').value.trim();
-    const hashpass = document.getElementById('login_password').value.trim();
+    const nickname = document.getElementById('login_user')?.value.trim() || '';
+    const hashpass = document.getElementById('login_password')?.value.trim() || '';
 
     if(!nickname || !hashpass){
       Swal.fire('Error', 'Por favor completa todos los campos.', 'error');
@@ -1562,56 +1910,17 @@
     }
   });
 
-  // Enter key
+  // Enter key en login
   document.getElementById('formLoginVotantes')?.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){
       e.preventDefault();
-      document.getElementById('btnLoginSubmit').click();
+      document.getElementById('btnLoginSubmit')?.click();
     }
   });
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-  const btnOpen   = document.getElementById("btnOpenModal");
-  const overlay   = document.getElementById("loginOverlay");
-  const modal     = document.getElementById("loginModal");
-  const btnClose  = document.getElementById("btnCloseModal");
-
-  if (!btnOpen || !overlay || !modal) {
-    console.error("❌ Modal login: elementos no encontrados");
-    return;
-  }
-
-  // ABRIR MODAL
-  btnOpen.addEventListener("click", (e) => {
-    e.preventDefault();
-    overlay.style.display = "flex";
-    requestAnimationFrame(() => {
-      modal.classList.add("open");
-    });
-  });
-
-  // CERRAR MODAL (botón X)
-  btnClose.addEventListener("click", closeModal);
-
-  // CERRAR CLICK FUERA
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-      closeModal();
-    }
-  });
-
-  function closeModal(){
-    modal.classList.remove("open");
-    setTimeout(() => {
-      overlay.style.display = "none";
-    }, 150);
-  }
 
 });
 </script>
+
 
 </body>
 </html>

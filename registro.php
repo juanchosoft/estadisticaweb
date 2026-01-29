@@ -523,6 +523,7 @@ foreach ($departamentosResponse as $dep) {
       .actions{ padding: 14px 12px; }
       .step{ padding: 11px 11px; }
     }
+    
   </style>
 </head>
 

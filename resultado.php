@@ -148,7 +148,20 @@ document.addEventListener("DOMContentLoaded", function () {
       <div class="content">
         <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
           <div>
-            <h1 class="fs-2 fs-lg-1">Resultados del sondeo por departamento</h1>
+           <div class="mb-4">
+  <span class="badge bg-primary-soft text-primary mb-2">
+    Estadística en tiempo real
+  </span>
+
+  <h1 class="fs-2 fs-lg-1 fw-bold mb-1">
+    Resultados territoriales de las encuestas
+  </h1>
+
+  <p class="text-muted">
+    Datos consolidados por departamento para análisis estratégico
+  </p>
+</div>
+
             <p class="mb-0">
               Aquí puedes <strong>explorar el mapa</strong>, seleccionar un departamento y ver el
               <strong>resumen nacional</strong> y el <strong>detalle por territorio</strong> en segundos.

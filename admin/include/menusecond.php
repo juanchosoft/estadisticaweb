@@ -228,7 +228,7 @@ $config = Util::getInformacionConfiguracion();
           <?php if ($puedeVerRegistros): ?>
           <a href="resultado.php" class="btn-registros">
             <i class="fas fa-chart-bar"></i>
-            Ver registros
+            Ver Resultados
           </a>
           <?php endif; ?>
 
@@ -296,7 +296,7 @@ $config = Util::getInformacionConfiguracion();
           <?php if ($puedeVerRegistros): ?>
           <a href="resultado.php" class="mobile-link primary">
             <i class="fas fa-chart-bar"></i>
-            <span>Ver registros</span>
+            <span>Ver Resultados</span>
             <i class="fas fa-chevron-right ms-auto"></i>
           </a>
           <?php endif; ?>
