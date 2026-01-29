@@ -52,6 +52,7 @@ $opcionActivaWeb = $config[0]['opcion_activa_web'] ?? 'sondeo';
   <!-- Bootstrap + template -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- ✅ SaaS global -->
   <link href="admin/css/app.css" rel="stylesheet">

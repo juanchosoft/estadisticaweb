@@ -844,7 +844,7 @@ foreach ($departamentosResponse as $dep) {
             <img src="<?= $logo_configuracion ?? 'assets/img/admin/estadistica3.png' ?>" alt="Logo" style="width:78%;height:78%;object-fit:contain;">
           </div>
           <div>
-            <b style="font-weight:950;color:#0f172a;font-size:18px;">Iniciar sesión</b><br>
+            <b style="font-weight:950;color:#0f172a;font-size:18px;">Iniciar sesiónrrrrrr</b><br>
             <small style="font-weight:750;color:rgba(71,85,105,.96);">Accede para continuar</small>
           </div>
         </div>

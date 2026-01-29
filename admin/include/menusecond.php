@@ -1,7 +1,4 @@
 <?php
-  // ==========================
-  // Usuario (una sola vez)
-  // ==========================
   $nombreCompleto = $_SESSION['session_user']['nombre_completo']
     ?? $_SESSION['session_user']['usuario']
     ?? 'Usuario';
@@ -11,60 +8,206 @@
   $userId = (int)($_SESSION['session_user']['id'] ?? 0);
 ?>
 
-<!-- ==========================
-     NAVBAR ULTRA RESPONSIVE
-========================== -->
+<style>
+  :root{
+    --menu-solid:#0E2A52;
+    --menu-solid-2:#143B73;
+    --menu-shadow: 0 10px 26px rgba(2,6,23,.22);
+  }
+
+  /* NAVBAR sólido y compacto */
+  #mainNavbar.navbar-saas{
+    background: linear-gradient(135deg, var(--menu-solid), var(--menu-solid-2)) !important;
+    opacity: 1 !important;
+    border-bottom: 1px solid rgba(255,255,255,.12) !important;
+    box-shadow: var(--menu-shadow) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: .42rem 0 !important;
+    z-index: 1050;
+  }
+  @media (max-width: 991.98px){
+    #mainNavbar.navbar-saas{ padding: .48rem 0 !important; }
+  }
+
+  /* LOGO */
+  .img-estadistica{
+    width:auto !important;
+    height:38px !important;
+    max-height:38px !important;
+    display:block;
+    margin:0;
+  }
+  @media (max-width: 992px){
+    .img-estadistica{ height:42px !important; max-height:42px !important; }
+  }
+  @media (max-width: 576px){
+    .img-estadistica{ height:36px !important; max-height:36px !important; }
+  }
+
+  /* TOGGLER */
+  #mainNavbar .navbar-toggler{
+    border: 1px solid rgba(255,255,255,.22) !important;
+    border-radius: 12px !important;
+    padding: .42rem .55rem !important;
+    background: rgba(255,255,255,.10) !important;
+  }
+  #mainNavbar .navbar-toggler:focus{
+    box-shadow: 0 0 0 .2rem rgba(255,255,255,.18) !important;
+  }
+  .hamburger{
+    width:28px;height:22px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .hamburger span{
+    height:3px;border-radius:4px;background:#fff;display:block;
+  }
+
+  /* LINKS */
+  #mainNavbar .nav-link{
+    color:#fff !important;
+    font-weight:800;
+    border-radius:12px;
+    padding:.55rem .85rem !important;
+  }
+  #mainNavbar .nav-link:hover{
+    background: rgba(255,255,255,.12);
+  }
+
+  /* CTA registros */
+  .btn-registros{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background: linear-gradient(135deg,#2563eb,#1e40af) !important;
+    color:#fff !important;
+    font-weight:950;
+    padding:.62rem 1.05rem;
+    border-radius:14px;
+    box-shadow:0 12px 40px rgba(37,99,235,.45);
+    border:1px solid rgba(255,255,255,.25);
+    transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    text-decoration:none !important;
+    white-space:nowrap;
+  }
+  .btn-registros:hover{
+    transform:translateY(-2px);
+    box-shadow:0 18px 60px rgba(37,99,235,.65);
+    filter:saturate(1.08);
+  }
+
+  /* AVATAR */
+  .avatar{
+    width:42px;height:42px;
+    display:grid;place-items:center;
+    border-radius:16px;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.25);
+    color:#fff;
+  }
+  .avatar-lg{ width:52px;height:52px;border-radius:18px; }
+
+  /* DROPDOWN (Asegura que se vea encima) */
+  .dropdown-menu{
+    z-index: 2000 !important;
+  }
+  .dropdown-pro{
+    border-radius:18px;
+    min-width:300px;
+    overflow:hidden;
+    box-shadow: 0 18px 55px rgba(2,6,23,.20);
+    border: 1px solid rgba(15,23,42,.08);
+  }
+
+  /* MOBILE PANEL */
+  .mobile-panel{
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.20);
+    border-radius:20px;
+    padding:14px;
+  }
+  .mobile-user{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px;
+    border-radius:18px;
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.20);
+    margin-bottom:12px;
+  }
+
+  .mobile-link{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px;
+    border-radius:16px;
+    margin-bottom:12px;
+    font-weight:900;
+    color:#fff !important;
+    text-decoration:none !important;
+    border: 1px solid rgba(255,255,255,.18);
+  }
+  .mobile-link i:first-child{ width:20px; text-align:center; }
+
+  .mobile-link.primary{
+    background:linear-gradient(135deg,#2563eb,#1e40af);
+    box-shadow:0 14px 40px rgba(37,99,235,.30);
+  }
+  .mobile-link.danger{
+    background:linear-gradient(135deg,#dc2626,#7f1d1d);
+    box-shadow:0 14px 40px rgba(220,38,38,.22);
+  }
+</style>
+
 <div class="container-fluid p-0">
   <nav class="navbar navbar-expand-lg fixed-top navbar-saas" id="mainNavbar" aria-label="Menú principal">
     <div class="container-fluid px-3 px-lg-4 d-flex align-items-center">
 
-      <!-- BRAND (SOLO LOGO) -->
-     
-          <img   src="assets/img/admin/estadistica3.png"  alt="Ilustración de estadísticas"  class="img-estadistica"/>
-   
-   
+      <!-- LOGO -->
+      <img src="assets/img/admin/estadistica3.png" alt="Estadísticas 360" class="img-estadistica"/>
 
-      <!-- TOGGLER (BARRAS BLANCAS) -->
+      <!-- TOGGLER -->
       <button class="navbar-toggler ms-auto" type="button"
               data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
               aria-controls="navbarCollapse" aria-expanded="false"
               aria-label="Abrir/Cerrar menú">
         <span class="hamburger" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </span>
       </button>
 
-      <!-- MENU -->
       <div class="collapse navbar-collapse" id="navbarCollapse">
 
         <!-- DESKTOP -->
         <div class="navbar-nav ms-auto d-none d-lg-flex align-items-center gap-2">
 
-          <a href="resultado.php" class="nav-link">
-            <i class="fas fa-chart-bar me-2"></i>
-           Ver Resultados
+          <a href="resultado.php" class="btn-registros">
+            <i class="fas fa-chart-bar"></i>
+            Ver registros
           </a>
 
-          <!-- USER -->
+          <!-- USER DROPDOWN -->
           <div class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
-               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-
+               href="#"
+               id="userDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               data-bs-auto-close="outside"
+               aria-expanded="false"
+               onclick="return false;">
               <span class="avatar"><i class="fas fa-user"></i></span>
-
               <div class="lh-sm text-start">
-                <div class="fw-bold text-white" style="font-size:.92rem;">
-                  <?= htmlspecialchars($nombreCorto) ?>
-                </div>
-                <div class="text-white-50" style="font-size:.76rem;">
-                  Mi cuenta
-                </div>
+                <div class="fw-bold text-white" style="font-size:.92rem;"><?= htmlspecialchars($nombreCorto) ?></div>
+                <div class="text-white-50" style="font-size:.75rem;">Mi cuenta</div>
               </div>
             </a>
 
-            <ul class="dropdown-menu dropdown-menu-end dropdown-pro shadow-lg border-0">
+            <ul class="dropdown-menu dropdown-menu-end dropdown-pro" aria-labelledby="userDropdown">
               <li class="px-3 pt-3 pb-2">
                 <div class="d-flex align-items-center gap-2">
                   <span class="avatar avatar-lg"><i class="fas fa-user"></i></span>
@@ -88,7 +231,7 @@
               <li><hr class="dropdown-divider my-2"></li>
 
               <li>
-                <a class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                <a class="dropdown-item d-flex align-items-center gap-2 text-danger fw-bold"
                    href="logout.php">
                   <i class="fas fa-sign-out-alt"></i> Cerrar sesión
                 </a>
@@ -108,212 +251,39 @@
             </div>
           </div>
 
-          <a href="dash_responder.php" class="nav-link mobile-link">
-            <i class="fas fa-clipboard-check"></i>
-            <span>Formularios pendientes</span>
-            <i class="fas fa-chevron-right ms-auto"></i>
-          </a>
-
-          <a href="resultado.php" class="nav-link mobile-link">
+          <a href="resultado.php" class="mobile-link primary">
             <i class="fas fa-chart-bar"></i>
-            <span>Consultar estadísticas</span>
+            <span>Ver registros</span>
             <i class="fas fa-chevron-right ms-auto"></i>
           </a>
 
-          <hr class="my-2" style="opacity:.25">
-
-          <a href="#" class="nav-link mobile-link"
-             onclick="PERFIL.loadProfile(<?= $userId ?>); return false;">
-            <i class="fas fa-user"></i>
-            <span>Mi perfil</span>
-            <i class="fas fa-chevron-right ms-auto"></i>
-          </a>
-
-          <a href="logout.php" class="nav-link mobile-link danger">
+          <a href="logout.php" class="mobile-link danger">
             <i class="fas fa-sign-out-alt"></i>
-            <span>Cerrar sesión</span>
+            <span>Salir</span>
             <i class="fas fa-chevron-right ms-auto"></i>
           </a>
-
         </div>
+
       </div>
     </div>
   </nav>
 </div>
 
-<!-- ==========================
-     ESTILOS (MÓVIL/TABLET PRO)
-========================== -->
-<style>
-   .img-estadistica{
-  width: 100%;
-  max-width: 150px;   /* tamaño ideal en PC */
-  height: auto;
-  display: block;
-  margin: 0 auto;     /* centra la imagen */
-}
-
-/* Tablet */
-@media (max-width: 992px){
-  .img-estadistica{
-    max-width: 180px;
-  }
-}
-
-/* Móvil */
-@media (max-width: 576px){
-  .img-estadistica{
-    max-width: 140px;
-  }
-}
-  :root{
-    --menu-bg:#0E2A52;
-    --menu-bg-2:#143B73;
-    --shadow:0 14px 40px rgba(0,0,0,.35);
-  }
-
-  /* NAVBAR */
-  .navbar-saas{
-    background: linear-gradient(135deg, var(--menu-bg), var(--menu-bg-2));
-    padding: .75rem 0;                 /* más alto en móvil/tablet */
-    border-bottom: 1px solid rgba(255,255,255,.15);
-    z-index: 1050;
-  }
-  .navbar-saas.scrolled{ box-shadow: var(--shadow); }
-
-  /* BRAND (SOLO LOGO) */
-  .brand-only{ padding: 0; }
-  .brand-logo{
-    width:56px; height:56px;           /* grande en móvil */
-    display:grid; place-items:center;
-    border-radius:16px;
-    background: rgba(255,255,255,.14);
-    border: 1px solid rgba(255,255,255,.20);
-    overflow:hidden;
-  }
-  .brand-logo img{
-    max-height:36px;
-    width:auto;
-    display:block;
-  }
-
-  /* TABLET: logo ligeramente más grande */
-  @media (min-width: 576px) and (max-width: 991px){
-    .navbar-saas{ padding: .85rem 0; }
-    .brand-logo{ width:60px; height:60px; }
-    .brand-logo img{ max-height:40px; }
-  }
-
-  /* PC: logo un poco más compacto */
-  @media (min-width: 992px){
-    .navbar-saas{ padding: .55rem 0; }
-    .brand-logo{ width:50px; height:50px; border-radius:16px; }
-    .brand-logo img{ max-height:34px; }
-  }
-
-  /* TOGGLER (BARRAS BLANCAS) */
-  .navbar-toggler{
-    border: 1px solid rgba(255,255,255,.22) !important;
-    border-radius: 14px !important;
-    padding: .55rem .65rem !important;
-    background: rgba(255,255,255,.10);
-  }
-  .navbar-toggler:focus{
-    box-shadow: 0 0 0 .2rem rgba(255,255,255,.18) !important;
-  }
-
-  .hamburger{
-    width:28px;
-    height:22px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-  }
-  .hamburger span{
-    height:3px;
-    border-radius:4px;
-    background:#fff;                   /* ✅ barras blancas */
-    display:block;
-  }
-
-  /* LINKS */
-  .nav-link{
-    color:#fff !important;
-    font-weight:800;
-    border-radius:14px;
-    padding:.75rem 1rem;               /* más táctil */
-  }
-  .nav-link:hover{
-    background: rgba(255,255,255,.12);
-  }
-
-  /* CHIP */
-  .nav-chip{
-    background: rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.20);
-  }
-
-  /* AVATAR */
-  .avatar{
-    width:42px;height:42px;
-    display:grid; place-items:center;
-    border-radius:16px;
-    background: rgba(255,255,255,.18);
-    border: 1px solid rgba(255,255,255,.25);
-    color:#fff;
-  }
-  .avatar-lg{ width:52px;height:52px;border-radius:18px; }
-
-  /* DROPDOWN */
-  .dropdown-pro{
-    border-radius:18px;
-    min-width:300px;
-    overflow:hidden;
-  }
-
-  /* MOBILE/TABLET PANEL */
-  .mobile-panel{
-    background: rgba(255,255,255,.12);
-    border: 1px solid rgba(255,255,255,.20);
-    border-radius:20px;
-    padding:14px;
-  }
-  .mobile-user{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:14px;
-    border-radius:18px;
-    background: rgba(255,255,255,.16);
-    border: 1px solid rgba(255,255,255,.20);
-    margin-bottom:12px;
-  }
-  .mobile-link{
-    display:flex !important;
-    align-items:center;
-    gap:14px;
-    background: rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.18);
-    padding:14px;
-    margin-bottom:12px;
-    color:#fff !important;
-  }
-  .mobile-link i:first-child{ width:20px; text-align:center; }
-  .mobile-link.danger{
-    background: rgba(239,68,68,.25);
-    border-color: rgba(239,68,68,.35);
-  }
-</style>
-
-<!-- ==========================
-     JS (OFFSET + CIERRE MÓVIL)
-========================== -->
 <script>
+  // Si Bootstrap JS no está cargado, el dropdown NO abre.
+  document.addEventListener("DOMContentLoaded", () => {
+    if (typeof bootstrap === "undefined") {
+      console.warn("⚠️ Bootstrap JS no está cargado. El dropdown de 'Mi cuenta' no funcionará.");
+    }
+  });
+
+  // Sombra al scroll
   document.addEventListener("scroll", () => {
     const nav = document.getElementById("mainNavbar");
     if (nav) nav.classList.toggle("scrolled", window.scrollY > 10);
   });
 
+  // Ajusta padding-top body
   function ajustarNavbar(){
     const nav = document.getElementById("mainNavbar");
     if (!nav) return;
@@ -323,16 +293,16 @@
   document.addEventListener("DOMContentLoaded", () => {
     ajustarNavbar();
 
-    // ✅ Cierra menú al tocar un link en móvil/tablet
-    const collapse = document.getElementById("navbarCollapse");
-    if (collapse) {
-      collapse.addEventListener("click", (e) => {
-        const link = e.target.closest("a.nav-link, a.dropdown-item");
+    // Cierra menú al tocar link en móvil/tablet (pero NO rompe dropdown desktop)
+    const collapseEl = document.getElementById("navbarCollapse");
+    if (collapseEl) {
+      collapseEl.addEventListener("click", (e) => {
+        const link = e.target.closest("a.nav-link, a.dropdown-item, a.mobile-link");
         if (!link) return;
 
         if (window.innerWidth < 992) {
-          const bs = bootstrap.Collapse.getInstance(collapse)
-            || new bootstrap.Collapse(collapse, { toggle: false });
+          const bs = bootstrap.Collapse.getInstance(collapseEl)
+            || new bootstrap.Collapse(collapseEl, { toggle: false });
           bs.hide();
         }
       });

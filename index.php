@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
     :root{
@@ -348,9 +349,11 @@
       margin-top: 18px;
       display:flex;
       gap: 12px;
-      flex-wrap:wrap;
-      align-items:center;
+      flex-wrap: wrap;
+      align-items: center;
     }
+
+    /* Los botones (base) */
     .btn{
       appearance:none;
       border:0;
@@ -831,6 +834,207 @@
       box-shadow: 0 18px 52px rgba(2,6,23,.12);
     }
 
+    /* ===== MAP CARD (Enterprise) ===== */
+    .map-card{
+      border-radius: 22px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.86);
+      box-shadow: 0 18px 60px rgba(2,6,23,.10);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .map-card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(320px 180px at 20% 0%, rgba(19,43,82,.16), transparent 60%),
+        radial-gradient(320px 180px at 90% 40%, rgba(0,194,255,.12), transparent 62%),
+        radial-gradient(320px 180px at 40% 90%, rgba(124,58,237,.10), transparent 60%);
+      pointer-events:none;
+    }
+
+    .map-head{
+      position: relative;
+      padding: 12px 14px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      border-bottom: 1px dashed rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+    }
+
+    .map-head b{
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 900;
+      letter-spacing: -.01em;
+    }
+
+    .map-legend{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: rgba(71,85,105,.95);
+      font-weight: 700;
+    }
+
+    .dot-lg{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display:inline-block;
+      box-shadow: 0 0 0 6px rgba(0,0,0,.03);
+    }
+    .dot-green{ background:#22c55e; }
+    .dot-blue{ background:#3b82f6; }
+    .dot-red{ background:#ef4444; }
+
+    .map-body{
+      position: relative;
+      padding: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .map-img{
+      width: 100%;
+      height: auto;
+      max-width: 420px;
+      max-height: 360px;
+      object-fit: contain;
+      display:block;
+      filter: drop-shadow(0 18px 34px rgba(2,6,23,.18));
+    }
+
+    @media (min-width: 1200px){
+      .map-img{
+        max-width: 520px;
+        max-height: 420px;
+      }
+    }
+
+    @media (max-width: 520px){
+      .map-body{ padding: 12px; }
+      .map-img{
+        max-width: 100%;
+        max-height: 320px;
+      }
+    }
+
+    /* ===========================
+       ===== LOGIN (CTA INLINE) =====
+       (Arreglado para que NO rompa la fila)
+       =========================== */
+    .login-box{
+      width: auto;               /* ✅ antes estaba 100% y rompía */
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      position: relative;
+      z-index: 20;
+    }
+
+    .login-cta{
+      text-decoration: none !important;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+
+      display:flex !important;
+      align-items:center !important;
+      gap: 10px !important;
+
+      padding: 12px 14px !important;
+      border-radius: 18px !important;
+
+      background: linear-gradient(135deg, #021b5a, #0B3EDC) !important;
+      color:#fff !important;
+
+      border: 1px solid rgba(255,255,255,.22) !important;
+      box-shadow: 0 18px 55px rgba(11,62,220,.32) !important;
+
+      position: relative;
+      overflow:hidden;
+      transform: translateZ(0);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+
+      min-width: 260px;
+      max-width: 380px;
+      white-space: nowrap;
+    }
+
+    .login-cta:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 26px 80px rgba(11,62,220,.40) !important;
+      filter: saturate(1.12);
+    }
+
+    .login-cta::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+      transform: translateX(-130%) skewX(-18deg);
+      animation: loginShine 2.6s ease-in-out infinite;
+      pointer-events:none;
+      opacity: .95;
+    }
+    @keyframes loginShine{
+      0%{ transform: translateX(-130%) skewX(-18deg); opacity:0; }
+      18%{ opacity:1; }
+      45%{ transform: translateX(230%) skewX(-18deg); opacity:0; }
+      100%{ opacity:0; }
+    }
+
+    .login-cta-ic{
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.16);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+      flex: 0 0 auto;
+    }
+    .login-cta-ic i{ color:#fff !important; font-size: 16px; }
+
+    .login-cta-txt{
+      display:flex;
+      flex-direction:column;
+      line-height: 1.05;
+      gap: 4px;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .login-cta-txt b{
+      color:#fff !important;
+      font-weight: 950 !important;
+      font-size: 14px;
+      letter-spacing: .1px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .login-cta-txt small{
+      color: rgba(255,255,255,.88) !important;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .login-cta-go{
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.14);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.16);
+      flex: 0 0 auto;
+    }
+    .login-cta-go i{ color:#fff !important; }
+
     /* ===== Responsive ===== */
     @media (max-width: 1080px){
       .hero{
@@ -844,9 +1048,18 @@
     }
     @media (max-width: 520px){
       .brand img{ width: 42px; height: 42px; }
+
+      /* móvil: todos full width */
       .btn{ width: 100%; }
       .btn-primary{ width: 100%; justify-content:center; }
       .btn-ghost{ width: 100%; }
+      .login-box{ width: 100%; }
+      .login-cta{
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+      }
+
       .stats{ grid-template-columns: 1fr; }
       .main-inner{ padding: 18px; }
     }
@@ -858,102 +1071,8 @@
       .bar > span{ animation: none; width: 60%; }
       .sk::after{ animation: none; }
       .pulse{ animation: none; }
+      .login-cta::after{ animation: none; }
     }
-    /* ===== MAP CARD (Enterprise) ===== */
-.map-card{
-  border-radius: 22px;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.86);
-  box-shadow: 0 18px 60px rgba(2,6,23,.10);
-  overflow: hidden;
-  position: relative;
-}
-
-.map-card::before{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  background:
-    radial-gradient(320px 180px at 20% 0%, rgba(19,43,82,.16), transparent 60%),
-    radial-gradient(320px 180px at 90% 40%, rgba(0,194,255,.12), transparent 62%),
-    radial-gradient(320px 180px at 40% 90%, rgba(124,58,237,.10), transparent 60%);
-  pointer-events:none;
-}
-
-.map-head{
-  position: relative;
-  padding: 12px 14px 10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 10px;
-  border-bottom: 1px dashed rgba(15,23,42,.10);
-  background: rgba(255,255,255,.75);
-}
-
-.map-head b{
-  font-size: 13px;
-  color: var(--primary);
-  font-weight: 900;
-  letter-spacing: -.01em;
-}
-
-.map-legend{
-  display:flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-size: 11px;
-  color: rgba(71,85,105,.95);
-  font-weight: 700;
-}
-
-.dot-lg{
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  display:inline-block;
-  box-shadow: 0 0 0 6px rgba(0,0,0,.03);
-}
-.dot-green{ background:#22c55e; }
-.dot-blue{ background:#3b82f6; }
-.dot-red{ background:#ef4444; }
-
-.map-body{
-  position: relative;
-  padding: 14px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* La magia: tamaño responsivo + no se corta */
-.map-img{
-  width: 100%;
-  height: auto;
-  max-width: 420px;         /* tamaño bonito en desktop dentro del side */
-  max-height: 360px;
-  object-fit: contain;
-  display:block;
-  filter: drop-shadow(0 18px 34px rgba(2,6,23,.18));
-}
-
-/* Para que se vea más grande en PC */
-@media (min-width: 1200px){
-  .map-img{
-    max-width: 520px;
-    max-height: 420px;
-  }
-}
-
-/* En móvil, que no quede gigante pero sí visible */
-@media (max-width: 520px){
-  .map-body{ padding: 12px; }
-  .map-img{
-    max-width: 100%;
-    max-height: 320px;
-  }
-}
-
   </style>
 </head>
 
@@ -1036,13 +1155,25 @@
             </div>
 
             <div class="cta-row">
-              <!-- IMPORTANTE: abre el minimodal -->
+              <!-- MINI MODAL -->
               <button class="btn btn-primary" type="button" id="btnOpenModal">
                 <span>Quiero votar y registrarme</span>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </button>
+
+              <!-- LOGIN MODAL REMOTO -->
+              <div class="login-box">
+                <a href="#" class="login-cta" id="btnOpenLogin" role="button" aria-label="Ya tengo una cuenta, iniciar sesión">
+                  <span class="login-cta-ic"><i class="fa-solid fa-right-to-bracket"></i></span>
+                  <span class="login-cta-txt">
+                    <b>Ya tengo una cuenta</b>
+                    <small>Entrar para votar</small>
+                  </span>
+                  <span class="login-cta-go"><i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+              </div>
 
               <a class="btn btn-ghost" href="https://www.google.com/" target="_blank" rel="noopener noreferrer">
                 No quiero participar
@@ -1059,7 +1190,7 @@
             <div class="tile">
               <h3>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M4 19h16M6 17V9m6 8V5m6 12v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 Vista rápida (enterprise)
               </h3>
@@ -1082,7 +1213,7 @@
             <div class="tile">
               <h3>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M4 19h16M6 17V9m6 8V5m6 12v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 Encuesta del momento (preview)
               </h3>
@@ -1093,7 +1224,6 @@
                 <div class="sk w84"></div>
                 <div class="sk w66"></div>
               </div>
-          
             </div>
 
             <div class="tile">
@@ -1103,7 +1233,7 @@
                 </svg>
                 Confianza y claridad
               </h3>
-            
+              <p>Tu participación es anónima a nivel de resultados y se usa para análisis agregado.</p>
             </div>
           </div>
         </div>
@@ -1142,19 +1272,19 @@
           </div>
 
           <div class="map-card">
-                <div class="map-head">
-                    <b>Mapa de Colombia</b>
-                    <div class="map-legend" aria-label="Leyenda">
-                    <span><i class="dot-lg dot-green"></i> Verde</span>
-                    <span><i class="dot-lg dot-blue"></i> Azul</span>
-                    <span><i class="dot-lg dot-red"></i> Rojo</span>
-                    </div>
-                </div>
+            <div class="map-head">
+              <b>Mapa de Colombia</b>
+              <div class="map-legend" aria-label="Leyenda">
+                <span><i class="dot-lg dot-green"></i> Verde</span>
+                <span><i class="dot-lg dot-blue"></i> Azul</span>
+                <span><i class="dot-lg dot-red"></i> Rojo</span>
+              </div>
+            </div>
 
-                <div class="map-body">
-                    <img src="assets/img/colombia.png" class="map-img" alt="Mapa de Colombia con departamentos resaltados">
-                </div>
-                </div>
+            <div class="map-body">
+              <img src="assets/img/colombia.png" class="map-img" alt="Mapa de Colombia con departamentos resaltados">
+            </div>
+          </div>
 
         </div>
       </aside>
@@ -1175,9 +1305,7 @@
             Vas a iniciar el proceso de registro y voto. Es rápido: <b>menos de 60 segundos</b>.
           </div>
         </div>
-        <button class="modal-close" type="button" id="btnCloseModal" aria-label="Cerrar">
-          ✕
-        </button>
+        <button class="modal-close" type="button" id="btnCloseModal" aria-label="Cerrar">✕</button>
       </div>
 
       <div class="modal-body">
@@ -1214,12 +1342,13 @@
           </svg>
         </button>
 
-        <button class="btn btn-outline btn-modal" type="button" id="btnCancelModal">
-          Mejor después
-        </button>
+       
       </div>
     </div>
   </div>
+
+  <!-- Libs para el modal remoto de login.php -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
     // ===== Modal logic (mini modal) =====
@@ -1235,9 +1364,7 @@
         overlay.style.display = 'flex';
         overlay.setAttribute('aria-hidden', 'false');
         requestAnimationFrame(()=> card.classList.add('open'));
-        // focus accesible
         setTimeout(()=> closeBtn && closeBtn.focus(), 60);
-        // bloquea scroll
         document.body.style.overflow = 'hidden';
       }
 
@@ -1268,7 +1395,7 @@
       });
     })();
 
-    // ===== Parallax suave SOLO desktop (sin afectar móvil) =====
+    // ===== Parallax suave SOLO desktop =====
     (function(){
       const card = document.getElementById('heroCard');
       if(!card) return;
@@ -1281,8 +1408,8 @@
         if (raf) cancelAnimationFrame(raf);
         raf = requestAnimationFrame(() => {
           const r = card.getBoundingClientRect();
-          const x = (e.clientX - r.left) / r.width;   // 0..1
-          const y = (e.clientY - r.top) / r.height;   // 0..1
+          const x = (e.clientX - r.left) / r.width;
+          const y = (e.clientY - r.top) / r.height;
           const rx = (y - 0.5) * -2.2;
           const ry = (x - 0.5) *  2.2;
           card.style.transform = `perspective(1100px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(0)`;
@@ -1291,6 +1418,47 @@
 
       window.addEventListener('mouseleave', () => {
         card.style.transform = '';
+      });
+    })();
+
+    // ===== LOGIN MODAL REMOTO (abre login.php como modal en esta página) =====
+    (function(){
+      function showLoginModal(){
+        const el = document.getElementById('loginModal');
+        if(!el || typeof bootstrap === "undefined" || !bootstrap.Modal) return;
+
+        let instance = null;
+        if (typeof bootstrap.Modal.getInstance === "function") {
+          instance = bootstrap.Modal.getInstance(el);
+        }
+        if (!instance) {
+          instance = new bootstrap.Modal(el, { backdrop:'static', keyboard:false });
+        }
+        instance.show();
+      }
+
+      async function loadModalIfNeeded(){
+        if (document.getElementById('loginModal')) {
+          showLoginModal();
+          return;
+        }
+
+        const res = await fetch('login.php?only_modal=1', { credentials: 'same-origin' });
+        const html = await res.text();
+
+        const wrap = document.createElement('div');
+        wrap.id = 'loginModalRemoteWrap';
+        wrap.innerHTML = html;
+        document.body.appendChild(wrap);
+
+        showLoginModal();
+      }
+
+      document.addEventListener('click', function(e){
+        const btn = e.target.closest('#btnOpenLogin');
+        if(!btn) return;
+        e.preventDefault();
+        loadModalIfNeeded().catch(console.error);
       });
     })();
   </script>

@@ -16,13 +16,12 @@ function renderLoginModal($logoLogin, $standalone = false){
   ?>
   <style>
     :root{
-      --primary:#132b52;
-      --primary2:#0b1a33;
+      --nav:#0E2A52;
+      --nav2:#143B73;
       --sky:#00c2ff;
 
       --ink:#0f172a;
       --muted:#64748b;
-      --line: rgba(15,23,42,.10);
 
       --radius-xl: 24px;
       --radius-lg: 18px;
@@ -37,36 +36,47 @@ function renderLoginModal($logoLogin, $standalone = false){
       border: 0;
       border-radius: var(--radius-xl);
       overflow: hidden;
-      background:
-        radial-gradient(980px 420px at 10% 0%, rgba(19,43,82,.26), transparent 55%),
-        radial-gradient(780px 380px at 90% 10%, rgba(0,194,255,.18), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.985), rgba(255,255,255,.94));
+      background: #fff;
       box-shadow: var(--shadow-strong);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       position: relative;
-      isolation: isolate;
     }
 
-    .login-modal .modal-content::before{
+    /* ===== HEADER WOW (azul premium) ===== */
+    .login-modal .modal-header{
+      border:0;
+      padding: 16px 18px 12px;
+      background: linear-gradient(135deg, var(--nav), var(--nav2));
+      position: relative;
+      color:#fff;
+    }
+    .login-modal .modal-header::after{
       content:"";
       position:absolute;
       inset:-2px;
-      background: linear-gradient(115deg, rgba(0,194,255,.28), rgba(124,58,237,.18), rgba(251,113,133,.18), rgba(0,194,255,.26));
-      filter: blur(14px);
-      opacity: .55;
-      z-index:-1;
+      background:
+        radial-gradient(240px 120px at 18% 20%, rgba(255,255,255,.18), transparent 62%),
+        radial-gradient(260px 140px at 88% 10%, rgba(0,194,255,.18), transparent 62%),
+        radial-gradient(260px 140px at 60% 92%, rgba(124,58,237,.12), transparent 62%);
+      pointer-events:none;
+      opacity:.95;
     }
 
-    .login-modal .modal-header{ border:0; padding: 18px 18px 10px; }
-    .login-head{ display:flex; gap:12px; align-items:center; width:100%; }
+    .login-head{
+      position: relative;
+      z-index: 2;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      width:100%;
+      min-width:0;
+    }
 
     .login-logo{
-      width: 54px; height: 54px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.85);
-      border: 1px solid rgba(15,23,42,.10);
-      box-shadow: 0 16px 60px rgba(2,6,23,.10);
+      width: 46px; height: 46px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 16px 50px rgba(2,6,23,.18);
       display:grid; place-items:center;
       overflow:hidden;
       flex: 0 0 auto;
@@ -76,58 +86,57 @@ function renderLoginModal($logoLogin, $standalone = false){
     .login-titles b{
       display:block;
       font-weight: 950;
-      letter-spacing: -.03em;
-      color:#0f172a;
-      font-size: 18px;
+      letter-spacing: -.02em;
+      color:#fff;
+      font-size: 16px;
       line-height: 1.1;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
     }
     .login-titles small{
       display:block;
-      font-weight: 750;
-      color: rgba(71,85,105,.96);
-      margin-top: 4px;
+      font-weight: 800;
+      color: rgba(255,255,255,.90);
+      margin-top: 3px;
+      font-size: 12px;
     }
 
-    .login-modal .btn-close{ filter:none; opacity:.75; border-radius: 12px; }
+    .login-modal .btn-close{
+      position: relative;
+      z-index: 2;
+      filter: invert(1);
+      opacity:.85;
+      border-radius: 12px;
+    }
     .login-modal .btn-close:hover{ opacity:1; }
 
-    .login-modal .modal-body{ padding: 6px 18px 16px; }
+    /* ===== BODY ===== */
+    .login-modal .modal-body{
+      padding: 14px 18px 16px;
+      background:
+        radial-gradient(980px 420px at 10% 0%, rgba(14,42,82,.10), transparent 55%),
+        radial-gradient(780px 380px at 90% 10%, rgba(0,194,255,.12), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.995), rgba(255,255,255,.94));
+    }
 
     .login-panel{
       border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.84);
+      background: rgba(255,255,255,.90);
       border-radius: var(--radius-lg);
       padding: 14px;
       box-shadow: var(--shadow-mid);
     }
 
-    .login-field{ margin-bottom: 10px; }
+    .login-field{ margin-bottom: 12px; }
     .login-label{
-      font-weight: 900;
+      font-weight: 950;
       font-size: 13px;
       color: #111827;
-      margin-bottom: 6px;
+      margin-bottom: 7px;
     }
 
     .login-input-wrap{ position:relative; }
-
-    .login-input{
-      height: 56px;
-      width: 100%;
-      border-radius: 16px;
-      border: 1px solid rgba(15,23,42,.14);
-      background: #fff;
-      padding: 0 46px 0 46px;
-      font-size: 16px;
-      font-weight: 800;
-      transition: border-color .14s ease, box-shadow .14s ease, transform .14s ease;
-    }
-    .login-input:focus{
-      outline:none;
-      border-color: rgba(19,43,82,.55);
-      box-shadow: 0 0 0 6px rgba(0,194,255,.12);
-      transform: translateY(-1px);
-    }
 
     .login-ic{
       position:absolute;
@@ -137,7 +146,29 @@ function renderLoginModal($logoLogin, $standalone = false){
       color: rgba(100,116,139,.95);
       pointer-events:none;
       font-size: 16px;
+      z-index: 2;
     }
+
+    .login-input{
+      height: 54px;
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,.14);
+      background: #fff;
+      padding: 0 14px 0 46px; /* ✅ limpio */
+      font-size: 16px;
+      font-weight: 800;
+      transition: border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+      outline: none;
+    }
+    .login-input:focus{
+      border-color: rgba(14,42,82,.55);
+      box-shadow: 0 0 0 6px rgba(0,194,255,.14);
+      transform: translateY(-1px);
+    }
+
+    /* ✅ Password: deja espacio al ojo */
+    .login-input.is-password{ padding-right: 54px !important; }
 
     .login-eye{
       position:absolute;
@@ -146,25 +177,26 @@ function renderLoginModal($logoLogin, $standalone = false){
       transform: translateY(-50%);
       border: 0;
       background: rgba(15,23,42,.06);
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       border-radius: 14px;
       color: rgba(100,116,139,.95);
       cursor:pointer;
       transition: transform .12s ease, background .12s ease, color .12s ease;
       display:grid;
       place-items:center;
+      z-index: 3;
     }
     .login-eye:hover{
       background: rgba(0,194,255,.14);
-      color: rgba(19,43,82,.98);
+      color: rgba(14,42,82,.98);
       transform: translateY(-50%) scale(1.03);
     }
 
     .login-actions{ display:grid; gap:10px; margin-top: 12px; }
 
     .login-btn{
-      height: 56px;
+      height: 54px;
       border-radius: 16px;
       border: 0;
       color: #fff;
@@ -181,6 +213,7 @@ function renderLoginModal($logoLogin, $standalone = false){
       overflow: hidden;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
+      width: 100%;
     }
     .login-btn::after{
       content:"";
@@ -211,37 +244,37 @@ function renderLoginModal($logoLogin, $standalone = false){
       justify-content:space-between;
       align-items:center;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 12px;
       color: rgba(71,85,105,.95);
-      font-weight: 750;
+      font-weight: 800;
       font-size: 13px;
     }
     .login-mini a{
       text-decoration:none;
       font-weight: 950;
-      color: #132b52;
+      color: var(--nav);
     }
     .login-mini a:hover{ text-decoration: underline; }
 
-    .login-footer{ border:0; padding: 0 18px 18px; }
+    .login-footer{ border:0; padding: 0 18px 16px; }
     .login-tip{
       display:flex;
       gap: 10px;
       align-items:flex-start;
       padding: 12px 12px;
       border-radius: 16px;
-      background: rgba(248,250,252,.82);
-      border: 1px dashed rgba(19,43,82,.22);
+      background: rgba(248,250,252,.92);
+      border: 1px dashed rgba(14,42,82,.22);
       color: rgba(71,85,105,.96);
-      font-weight: 750;
+      font-weight: 800;
       font-size: 13px;
     }
-    .login-tip i{ margin-top: 2px; color: rgba(19,43,82,.92); }
+    .login-tip i{ margin-top: 2px; color: rgba(14,42,82,.92); }
 
     @media (max-width: 520px){
-      .login-modal .modal-header{ padding: 16px 14px 8px; }
-      .login-modal .modal-body{ padding: 6px 14px 14px; }
-      .login-footer{ padding: 0 14px 16px; }
+      .login-modal .modal-header{ padding: 14px 14px 10px; }
+      .login-modal .modal-body{ padding: 12px 14px 14px; }
+      .login-footer{ padding: 0 14px 14px; }
       .login-panel{ padding: 12px; }
       .login-modal .modal-dialog{ margin: 12px; }
     }
@@ -263,10 +296,8 @@ function renderLoginModal($logoLogin, $standalone = false){
           </div>
 
           <?php if($standalone): ?>
-            <!-- standalone: cerrar vuelve atrás -->
             <button type="button" class="btn-close" aria-label="Cerrar" id="btnLoginCloseStandalone"></button>
           <?php else: ?>
-            <!-- modal embebido: cerrar normal -->
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           <?php endif; ?>
         </div>
@@ -278,7 +309,13 @@ function renderLoginModal($logoLogin, $standalone = false){
                 <div class="login-label">Correo o Usuario</div>
                 <div class="login-input-wrap">
                   <i class="fa-solid fa-user login-ic"></i>
-                  <input type="text" class="login-input" id="login_user" name="login_user" placeholder="Escribe tu usuario o correo" required>
+                  <input type="text"
+                         class="login-input"
+                         id="login_user"
+                         name="login_user"
+                         placeholder="Escribe tu usuario o correo"
+                         autocomplete="username"
+                         required>
                 </div>
               </div>
 
@@ -286,8 +323,19 @@ function renderLoginModal($logoLogin, $standalone = false){
                 <div class="login-label">Contraseña</div>
                 <div class="login-input-wrap">
                   <i class="fa-solid fa-lock login-ic"></i>
-                  <input type="password" class="login-input" id="login_password" name="login_password" placeholder="Escribe tu contraseña" required>
-                  <button type="button" class="login-eye" id="btnLoginTogglePw" aria-label="Ver contraseña" aria-pressed="false">
+                  <input type="password"
+                         class="login-input is-password"
+                         id="login_password"
+                         name="login_password"
+                         placeholder="Escribe tu contraseña"
+                         autocomplete="current-password"
+                         required>
+                  <!-- ✅ Botón para quitar puntos y mostrar texto -->
+                  <button type="button"
+                          class="login-eye"
+                          id="btnLoginTogglePw"
+                          aria-label="Ver contraseña"
+                          aria-pressed="false">
                     <i class="fa-solid fa-eye"></i>
                   </button>
                 </div>
@@ -320,7 +368,7 @@ function renderLoginModal($logoLogin, $standalone = false){
   </div>
 
   <script>
-    // Toggle password
+    // ✅ Toggle password (quita puntos / muestra texto)
     (function(){
       const btn = document.getElementById('btnLoginTogglePw');
       const input = document.getElementById('login_password');
@@ -330,6 +378,7 @@ function renderLoginModal($logoLogin, $standalone = false){
         const isPass = input.type === 'password';
         input.type = isPass ? 'text' : 'password';
         btn.setAttribute('aria-pressed', isPass ? 'true' : 'false');
+
         const icon = btn.querySelector('i');
         if(icon){
           icon.classList.toggle('fa-eye', !isPass);
@@ -393,15 +442,17 @@ function renderLoginModal($logoLogin, $standalone = false){
 
 /* ==========================================================
    MODE: include (cuando se incluye desde otro archivo)
-   Solo renderiza el modal, no carga página standalone
 ========================================================== */
 if (defined('INCLUDE_MODAL_ONLY')) {
+  // Si el archivo padre ya definió logo, úsalo; si no, cae al default.
   $logoModal = $logo_configuracion ?? $logo ?? $logoSistema ?? 'assets/img/admin/estadistica3.png';
   renderLoginModal($logoModal, false);
   return;
 }
 
-// Solo cargar estos archivos si NO es include mode
+/* ==========================================================
+   Cargar dependencias SOLO si NO es include mode
+========================================================== */
 require './admin/include/generic_classes.php';
 include './admin/include/generic_info_configuracion.php';
 
@@ -410,10 +461,8 @@ $logoLogin = $logo_configuracion ?? $logo ?? $logoSistema ?? 'assets/img/admin/e
 
 /* ==========================================================
    MODE: only_modal (para fetch desde registro.php)
-   Devuelve SOLO el modal (sin head.php, sin html completo)
 ========================================================== */
 if (isset($_GET['only_modal']) && $_GET['only_modal'] == '1') {
-  // OJO: NO incluimos head.php acá para no duplicar bootstrap/js
   renderLoginModal($logoLogin, false);
   exit;
 }
@@ -433,6 +482,7 @@ include './admin/include/head.php';
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
   <style>
     html, body{ height:100%; }
     body{
@@ -462,7 +512,7 @@ include './admin/include/head.php';
 
   <?php renderLoginModal($logoLogin, true); ?>
 
-  <!-- libs (standalone solo): bootstrap + jquery si no vienen en head.php -->
+  <!-- libs (standalone solo): por si head.php no los trae -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
