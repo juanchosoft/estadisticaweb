@@ -53,7 +53,8 @@ if ($opcionActiva === 'cuestionario') {
     $opciones = RespuestaCuestionario::obtenerOpcionesCuestionarioActivo();
 
     foreach ($opciones as $index => $opc) {
-        $coloresCandidatos[$opc['id']] = $paletaColores[$index % count($paletaColores)];
+        // Asegurar que la clave sea integer para consistencia
+        $coloresCandidatos[intval($opc['id'])] = $paletaColores[$index % count($paletaColores)];
     }
 
     $db->closeConect();
@@ -87,7 +88,8 @@ if ($opcionActiva === 'cuestionario') {
             $candidatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($candidatos as $index => $cand) {
-                $coloresCandidatos[$cand['id']] = $paletaColores[$index % count($paletaColores)];
+                // Asegurar que la clave sea integer para consistencia
+                $coloresCandidatos[intval($cand['id'])] = $paletaColores[$index % count($paletaColores)];
             }
         } else {
             // Obtener IDs de opciones
@@ -97,7 +99,8 @@ if ($opcionActiva === 'cuestionario') {
             $opciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($opciones as $index => $opc) {
-                $coloresCandidatos[$opc['id']] = $paletaColores[$index % count($paletaColores)];
+                // Asegurar que la clave sea integer para consistencia
+                $coloresCandidatos[intval($opc['id'])] = $paletaColores[$index % count($paletaColores)];
             }
         }
     }
@@ -107,6 +110,7 @@ if ($opcionActiva === 'cuestionario') {
     // Obtener ganadores por departamento para sondeo
     $ganadoresDepartamentos = Sondeo::ganadorPorTodosLosDepartamentos();
 }
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -223,22 +227,25 @@ if ($opcionActiva === 'cuestionario') {
         if (!$infoGanador) {
             // SIN DATOS
             $colorFill = "#d9d9d9";
-        } elseif ($infoGanador["empate"] === true) {
+        } elseif (!empty($infoGanador["empate"]) && $infoGanador["empate"] === true) {
             // EMPATE
             $colorFill = "url(#rayasAzules)";
         } else {
-            // GANADOR CLARO
-            $colorFill = $coloresCandidatos[$infoGanador["ganador"]] ?? "#d9d9d9";
+            // GANADOR CLARO - asegurar que el ID sea integer
+            $ganadorId = isset($infoGanador["ganador"]) ? intval($infoGanador["ganador"]) : null;
+            $colorFill = ($ganadorId !== null && isset($coloresCandidatos[$ganadorId]))
+                ? $coloresCandidatos[$ganadorId]
+                : "#d9d9d9";
         }
     ?>
 
     <g id="dep-<?php echo $codigoDep; ?>">
-        <path 
+        <path
 			d="<?php echo $value['d']; ?>"
 			class="mapaClick"
 			data-codigo="<?php echo $codigoDep; ?>"
 			data-nombre="<?php echo $value['departamento']; ?>"
-			fill="<?php echo $colorFill; ?>"
+			style="fill: <?php echo $colorFill; ?> !important;"
 			fill-rule="evenodd"
 			clip-rule="evenodd"
 			stroke="#363636ff"

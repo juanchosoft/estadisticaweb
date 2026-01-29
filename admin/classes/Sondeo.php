@@ -831,13 +831,16 @@ public static function ganadorPorDepartamento($codigoDep)
             GROUP BY r.tbl_candidato_id
         ";
     } else {
-        // Sondeo con solo opciones
+        // Sondeo con solo opciones - filtrar solo opciones válidas del sondeo actual
         $q = "
             SELECT
                 r.codigo_departamento,
                 r.tbl_sondeo_x_opciones_id AS ganador_id,
                 COUNT(*) as total
             FROM " . $db->getTable('tbl_respuestas_sondeos') . " r
+            INNER JOIN " . $db->getTable('tbl_sondeo_x_opciones') . " o
+                ON r.tbl_sondeo_x_opciones_id = o.id
+                AND o.tbl_sondeo_id = :id
             WHERE r.tbl_sondeo_id = :id
             AND r.codigo_departamento = :dep
             AND r.tbl_sondeo_x_opciones_id IS NOT NULL
@@ -856,9 +859,11 @@ public static function ganadorPorDepartamento($codigoDep)
     // candidatos/opciones empatados
     $empatados = array_filter($rows, fn($r) => $r['total'] == $max);
 
+    $ganadorId = count($empatados) > 1 ? null : intval($empatados[array_key_first($empatados)]['ganador_id']);
+
     return [
         "empate" => count($empatados) > 1,
-        "ganador" => count($empatados) > 1 ? null : $empatados[array_key_first($empatados)]['ganador_id']
+        "ganador" => $ganadorId
     ];
 }
 
@@ -901,23 +906,21 @@ public static function ganadorPorTodosLosDepartamentos()
                 ORDER BY r.codigo_departamento, total DESC
             ";
         } else {
-            // Sondeo con solo opciones
+            // Sondeo con solo opciones - IMPORTANTE: filtrar solo opciones válidas del sondeo actual
             $sql = "
                 SELECT
                     r.codigo_departamento,
                     r.tbl_sondeo_x_opciones_id AS ganador_id,
                     COUNT(*) AS total
                 FROM " . $db->getTable('tbl_respuestas_sondeos') . " r
+                INNER JOIN " . $db->getTable('tbl_sondeo_x_opciones') . " o
+                    ON r.tbl_sondeo_x_opciones_id = o.id
+                    AND o.tbl_sondeo_id = :id
                 WHERE r.tbl_sondeo_id = :id
                 AND r.tbl_sondeo_x_opciones_id IS NOT NULL
                 GROUP BY r.codigo_departamento, r.tbl_sondeo_x_opciones_id
                 ORDER BY r.codigo_departamento, total DESC
             ";
-
-            // DEBUG: Log para ver qué pasa
-            error_log("=== DEBUG ganadorPorTodosLosDepartamentos ===");
-            error_log("Sondeo ID: " . $idSondeo);
-            error_log("SQL: " . $sql);
         }
 
         $stmt = $pdo->prepare($sql);
@@ -938,13 +941,13 @@ public static function ganadorPorTodosLosDepartamentos()
 
                 $resultado[$dep] = [
                     "empate" => false,
-                    "ganador" => $row['ganador_id'],
-                    "max_votos" => $row['total']
+                    "ganador" => intval($row['ganador_id']), // Asegurar integer
+                    "max_votos" => intval($row['total'])
                 ];
 
             } else {
 
-                if ($row['total'] == $resultado[$dep]['max_votos']) {
+                if (intval($row['total']) == $resultado[$dep]['max_votos']) {
                     $resultado[$dep]['empate'] = true;
                     $resultado[$dep]['ganador'] = null;
                 }
