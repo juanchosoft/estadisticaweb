@@ -117,6 +117,7 @@ if ($opcionActiva === 'cuestionario') {
 <head>
   <meta charset="utf-8">
   <title>MAPA DE COLOMBIA</title>
+  <base href="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
 </head>
 
 <style>
@@ -202,14 +203,9 @@ if ($opcionActiva === 'cuestionario') {
 	.st62{font-size:13.4172px;}
 </style>
 <defs>
-    <pattern id="rayasAzules" patternUnits="userSpaceOnUse" width="12" height="12">
-        <!-- Fondo azul claro -->
-        <rect width="12" height="12" fill="#dce8ff"></rect>
-
-        <!-- Rayas inclinadas azules -->
-        <path d="M0 12 L12 0" stroke="#0057ff" stroke-width="2"></path>
-        <path d="M-6 6 L6 -6" stroke="#0057ff" stroke-width="2"></path>
-        <path d="M6 18 L18 6" stroke="#0057ff" stroke-width="2"></path>
+    <pattern id="rayasAzules" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
+        <rect width="10" height="10" fill="#e8f0fe"></rect>
+        <line x1="0" y1="5" x2="10" y2="5" stroke="#4285f4" stroke-width="3"></line>
     </pattern>
 </defs>
 
@@ -228,8 +224,9 @@ if ($opcionActiva === 'cuestionario') {
             // SIN DATOS
             $colorFill = "#d9d9d9";
         } elseif (!empty($infoGanador["empate"]) && $infoGanador["empate"] === true) {
-            // EMPATE
-            $colorFill = "url(#rayasAzules)";
+            // EMPATE - usar URL absoluta para compatibilidad cross-browser
+            $currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $colorFill = "url(" . htmlspecialchars($currentUrl) . "#rayasAzules)";
         } else {
             // GANADOR CLARO - asegurar que el ID sea integer
             $ganadorId = isset($infoGanador["ganador"]) ? intval($infoGanador["ganador"]) : null;
@@ -245,10 +242,10 @@ if ($opcionActiva === 'cuestionario') {
 			class="mapaClick"
 			data-codigo="<?php echo $codigoDep; ?>"
 			data-nombre="<?php echo $value['departamento']; ?>"
-			style="fill: <?php echo $colorFill; ?> !important;"
+			fill="<?php echo $colorFill; ?>"
 			fill-rule="evenodd"
 			clip-rule="evenodd"
-			stroke="#363636ff"
+			stroke="#363636"
 			stroke-linecap="square"
 			stroke-linejoin="bevel"
 			stroke-miterlimit="10"
