@@ -246,9 +246,7 @@ $(document).ready(function () {
           if (!ganador) return;
 
           if (ganador.empate) {
-            // Usar URL absoluta para compatibilidad con todos los navegadores
-            const baseUrl = window.location.href.split('#')[0];
-            path.attr("fill", "url(" + baseUrl + "#rayasAzules)");
+            path.attr("fill", "url(#rayasAzules)");
           } else {
             const color = ColoresCandidatos[ganador.ganador] || "#d9d9d9";
             path.attr("fill", color);

@@ -117,7 +117,6 @@ if ($opcionActiva === 'cuestionario') {
 <head>
   <meta charset="utf-8">
   <title>MAPA DE COLOMBIA</title>
-  <base href="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
 </head>
 
 <style>
@@ -203,9 +202,9 @@ if ($opcionActiva === 'cuestionario') {
 	.st62{font-size:13.4172px;}
 </style>
 <defs>
-    <pattern id="rayasAzules" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
-        <rect width="10" height="10" fill="#e8f0fe"></rect>
-        <line x1="0" y1="5" x2="10" y2="5" stroke="#4285f4" stroke-width="3"></line>
+    <pattern id="rayasAzules" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="8" height="8" fill="#cfe2ff"/>
+        <rect width="4" height="8" fill="#0d6efd"/>
     </pattern>
 </defs>
 
@@ -224,9 +223,8 @@ if ($opcionActiva === 'cuestionario') {
             // SIN DATOS
             $colorFill = "#d9d9d9";
         } elseif (!empty($infoGanador["empate"]) && $infoGanador["empate"] === true) {
-            // EMPATE - usar URL absoluta para compatibilidad cross-browser
-            $currentUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            $colorFill = "url(" . htmlspecialchars($currentUrl) . "#rayasAzules)";
+            // EMPATE
+            $colorFill = "url(#rayasAzules)";
         } else {
             // GANADOR CLARO - asegurar que el ID sea integer
             $ganadorId = isset($infoGanador["ganador"]) ? intval($infoGanador["ganador"]) : null;
