@@ -4,56 +4,79 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- =========================================
-       Básico
-  ========================================== -->
+  <!-- Básico -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="theme-color" content="#132b52" />
+  
 
-  <!-- =========================================
-       SEO
-  ========================================== -->
-  <title>Estadísticas 360 | Encuesta del Momento</title>
-  <meta name="description" content="Estadísticas 360 presenta la Encuesta del Momento con resultados claros, visuales e interactivos, listos para analizar y compartir." />
-  <meta name="robots" content="index, follow" />
+
+
+  <!-- SEO -->
+  <title>Encuestas Colombia en Tiempo Real | Estadísticas 360</title>
+  <meta name="description" content="Encuestas Colombia: consulta resultados en tiempo real, análisis por tendencias y participación ciudadana. Estadísticas 360: visualizaciones claras y listas para compartir." />
+  <meta name="keywords" content="encuestas colombia, encuestas en colombia, resultados de encuestas, encuesta del momento, participación ciudadana, estadisticas colombia" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
   <link rel="canonical" href="https://estadisticas360.com/" />
 
-  <!-- =========================================
-       Open Graph (WhatsApp / Facebook)
-  ========================================== -->
+  <!-- Open Graph (WhatsApp / Facebook) -->
   <meta property="og:locale" content="es_CO" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Estadísticas 360 | Encuesta del Momento" />
-  <meta property="og:description" content="Consulta y comparte resultados en tiempo real con visualizaciones claras y profesionales." />
-  <meta property="og:url" content="https://estadisticas360.com/" />
   <meta property="og:site_name" content="Estadísticas 360" />
-  <meta property="og:image" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg" />
-  <meta property="og:image:secure_url" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Estadísticas 360 - Encuesta del Momento" />
+  <meta property="og:title" content="Encuestas Colombia | Estadísticas 360" />
+  <meta property="og:description" content="Resultados de encuestas en Colombia en tiempo real. Filtra, analiza y comparte con una presentación profesional." />
+  <meta property="og:url" content="https://estadisticas360.com/" />
 
-  <!-- =========================================
-       Twitter Card
-  ========================================== -->
+  <!-- ⚠️ Imagen OG (DEBE existir y ser pública) -->
+<!-- ✅ Imagen OG (WhatsApp / Facebook) -->
+<meta property="og:image" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg?v=9" />
+<meta property="og:image:url" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg?v=9" />
+<meta property="og:image:secure_url" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg?v=9" />
+<meta property="og:image:type" content="image/jpeg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Estadísticas 360 - Encuestas Colombia" />
+
+<!-- ✅ ayuda a romper cache en Meta -->
+<meta property="og:updated_time" content="2026-01-29T10:30:00-05:00" />
+
+<!-- ✅ Twitter (extra compatibilidad) -->
+<meta name="twitter:image" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg?v=9" />
+<meta name="twitter:image:src" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg?v=9" />
+
+
+
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Estadísticas 360 | Encuesta del Momento" />
-  <meta name="twitter:description" content="Resultados de encuestas en tiempo real con visualización profesional." />
-  <meta name="twitter:image" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg" />
+  <meta name="twitter:title" content="Encuestas Colombia | Estadísticas 360" />
+  <meta name="twitter:description" content="Resultados en tiempo real y visualización profesional para compartir." />
+  <meta name="twitter:image" content="https://estadisticas360.com/assets/img/og/estadisticas360-og.jpg?v=3" />
 
-  <!-- =========================================
-       CSS / Fuentes (no se elimina nada)
-  ========================================== -->
+  <!-- Favicons (mejor en absoluto para previews) -->
+  <link rel="icon" href="https://estadisticas360.com/assets/img/admin/favicon.ico" />
+  <link rel="apple-touch-icon" href="https://estadisticas360.com/assets/img/admin/favicon.ico" />
+
+  <!-- Fuentes / CSS (no se elimina nada) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <!-- Favicon -->
-  <link rel="icon" href="/assets/img/admin/favicon.ico" />
+  <!-- JSON-LD (ayuda a Google) -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "name":"Estadísticas 360",
+    "url":"https://estadisticas360.com/",
+    "description":"Encuestas Colombia en tiempo real con análisis y visualización profesional.",
+    "inLanguage":"es-CO"
+  }
+  </script>
+</head>
+
 
 
   <style>
@@ -1734,23 +1757,40 @@
               </button>
             </div>
 
+            <!-- ✅ ADICIÓN: RECORDAR DATOS -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 14px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
+                <input type="checkbox" id="rememberData" checked style="transform:translateY(1px);">
+                <span style="font-size:13px;font-weight:900;color:#334155;">Recordar datos</span>
+              </label>
+              <span style="font-size:12px;font-weight:700;color:#64748b;">
+                Guarda tu usuario en este navegador.
+              </span>
+            </div>
+
             <button type="button" id="btnLoginSubmit"
               style="height:54px;width:100%;border-radius:16px;border:0;color:#fff;font-weight:950;background:linear-gradient(135deg,#021b5a,#0B3EDC);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;">
               <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar
             </button>
 
-          
-              <!-- ✅ OLVIDASTE CONTRASEÑA (abre modal) -->
-        <div style="margin-top:12px; text-align:center;">
-          <a href="#"
-            id="openForgotModal"
-            style="font-weight:900; font-size:13px; color:#0B3EDC; text-decoration:none;">
-            ¿Olvidaste tu contraseña?
-          </a>
-          <div style="margin-top:4px; font-size:12px; font-weight:700; color:#64748b;">
-            Te enviamos una contraseña temporal a tu correo.
-          </div>
+            <!-- ✅ OLVIDASTE CONTRASEÑA (abre modal) -->
+            <div style="margin-top:12px; text-align:center;">
+              <a href="#"
+                id="openForgotModal"
+                style="font-weight:900; font-size:13px; color:#0B3EDC; text-decoration:none;">
+                ¿Olvidaste tu contraseña?
+              </a>
+              <div style="margin-top:4px; font-size:12px; font-weight:700; color:#64748b;">
+                Te enviamos una contraseña temporal a tu correo.
+              </div>
+            </div>
+
+          </form>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 
