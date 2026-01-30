@@ -92,6 +92,16 @@ if (!$haVotado) {
 
 <body>
 
+<!-- SVG con patrones para compatibilidad cross-browser (Firefox) -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
+  <defs>
+    <pattern id="rayasAzules" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#cfe2ff"/>
+      <rect width="4" height="8" fill="#0d6efd"/>
+    </pattern>
+  </defs>
+</svg>
+
 <?php
 require_once __DIR__ . '/admin/include/loading.php';
 require_once __DIR__ . '/admin/include/menusecond.php';

@@ -246,10 +246,10 @@ $(document).ready(function () {
           if (!ganador) return;
 
           if (ganador.empate) {
-            path.css("fill", "url(#rayas)");
+            path.attr("fill", "url(#rayasAzules)");
           } else {
-            const color = ColoresCandidatos[ganador.ganador] || "#999";
-            path.css("fill", color);
+            const color = ColoresCandidatos[ganador.ganador] || "#d9d9d9";
+            path.attr("fill", color);
           }
         });
       }

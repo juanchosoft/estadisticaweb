@@ -1461,12 +1461,12 @@
 
             <div class="cta-row">
               <!-- MINI MODAL -->
-              <button class="btn btn-primary" type="button" id="btnOpenModal">
+              <a href="registro.php" class="btn btn-primary" style="text-decoration:none;">
                 <span>Quiero votar y registrarme</span>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-              </button>
+              </a>
 
              
 
@@ -1590,107 +1590,9 @@
     © <?php echo date('Y'); ?> Estadísticas 360 — Plataforma de participación y análisis.
   </footer>
 
-  <!-- MINI MODAL -->
-  <div class="mini-modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="mini-modal" id="modalCard" aria-label="Confirmación para iniciar encuesta">
-      <div class="mini-modal-header">
-        <div>
-          <div class="mini-modal-title">Antes de empezar 🚀</div>
-          <div class="mini-modal-sub">
-            Vas a iniciar el proceso de registro y voto. Es rápido: <b>menos de 60 segundos</b>.
-          </div>
-        </div>
-        <button class="mini-modal-close" type="button" id="btnCloseModal" aria-label="Cerrar">✕</button>
-      </div>
-
-      <div class="mini-modal-body">
-        <div class="mini-modal-box">
-          <div class="mini-modal-row">
-            <div class="mini-modal-ic">⏱</div>
-            <div>
-              <b>Tiempo</b>
-              <span>Promedio: 1 minuto (campos cortos y claros).</span>
-            </div>
-          </div>
-          <div class="mini-modal-row">
-            <div class="mini-modal-ic">🔒</div>
-            <div>
-              <b>Confidencialidad</b>
-              <span>Tu información se maneja con cuidado y se usa para análisis agregado.</span>
-            </div>
-          </div>
-          <div class="mini-modal-row">
-            <div class="mini-modal-ic">✅</div>
-            <div>
-              <b>Recomendación</b>
-              <span>Ten a la mano tus datos básicos. ¡Y listo!</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mini-modal-actions">
-        <button class="btn btn-primary btn-mini-modal" type="button" id="btnGoRegistro">
-          <span>Continuar y registrarme</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-
-        <button class="btn btn-outline btn-mini-modal" type="button" id="btnCancelModal">
-          <span>Cancelar</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
 
 
   <script>
-    // ===== Modal logic (mini modal) =====
-    (function(){
-      const overlay = document.getElementById('modalOverlay');
-      const card    = document.getElementById('modalCard');
-      const openBtn = document.getElementById('btnOpenModal');
-      const closeBtn= document.getElementById('btnCloseModal');
-      const cancelBtn = document.getElementById('btnCancelModal');
-      const goBtn   = document.getElementById('btnGoRegistro');
-
-      function open(){
-        overlay.style.display = 'flex';
-        overlay.setAttribute('aria-hidden', 'false');
-        requestAnimationFrame(()=> card.classList.add('open'));
-        setTimeout(()=> closeBtn && closeBtn.focus(), 60);
-        document.body.style.overflow = 'hidden';
-      }
-
-      function close(){
-        card.classList.remove('open');
-        overlay.setAttribute('aria-hidden', 'true');
-        setTimeout(()=>{
-          overlay.style.display = 'none';
-          document.body.style.overflow = '';
-          openBtn && openBtn.focus();
-        }, 160);
-      }
-
-      openBtn && openBtn.addEventListener('click', open);
-      closeBtn && closeBtn.addEventListener('click', close);
-      cancelBtn && cancelBtn.addEventListener('click', close);
-
-      overlay && overlay.addEventListener('click', (e)=>{
-        if(e.target === overlay) close();
-      });
-
-      document.addEventListener('keydown', (e)=>{
-        if(e.key === 'Escape' && overlay.style.display === 'flex') close();
-      });
-
-      goBtn && goBtn.addEventListener('click', ()=>{
-        window.location.href = 'registro.php';
-      });
-    })();
-
     // ===== Parallax suave SOLO desktop =====
     (function(){
       const card = document.getElementById('heroCard');
