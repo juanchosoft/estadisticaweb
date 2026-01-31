@@ -62,7 +62,7 @@ const SONDEO = {
           text: r.message,
           confirmButtonColor: '#13357b'
         }).then(() => {
-          if (r.status === 'success') location.reload();
+          if (r.status === 'success') window.location.href = 'resultado.php';
         });
       },
       error() {

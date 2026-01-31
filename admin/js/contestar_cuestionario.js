@@ -135,11 +135,11 @@ const CONTESTAR_CUESTIONARIO = {
                         icon: 'success',
                         title: '¡Respuestas enviadas!',
                         text: 'Tus respuestas han sido guardadas correctamente.',
-                        confirmButtonText: 'Ver encuestas',
+                        confirmButtonText: 'Ver resultados',
                         allowOutsideClick: false,
                     }).then(() => {
-                        // Redirigir al selector de encuestas
-                        window.location.href = 'encuesta.php';
+                        // Redirigir a la página de resultados
+                        window.location.href = 'resultado.php';
                     });
                 } else {
                     UTIL.mostrarMensajeError(response.output.response.content);
